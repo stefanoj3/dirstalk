@@ -1,4 +1,7 @@
 # Dirstalk
+[![Build Status](https://travis-ci.com/stefanoj3/dirstalk.svg?branch=master)](https://travis-ci.com/stefanoj3/dirstalk)
+[![codecov](https://codecov.io/gh/stefanoj3/dirstalk/branch/master/graph/badge.svg)](https://codecov.io/gh/stefanoj3/dirstalk)
+
 Dirstalk is a multi threaded application designed to brute force directories and files names on web/application servers.
 
 The idea is to create a tool with at least the same functionalities as
@@ -22,7 +25,7 @@ project.
 - [ ] Socks5 support (with examples on how to use it with tor)
 - [ ] Can generate dictionary starting from a folder containing files/subdirectories
 - [ ] Can be compiled for multiple platform/architectures (min: OSX x64, Linux 386, Linux x64, Linux arm, Linux arm64)
-- [ ] A CI is running the tests suite and display the code coverage
+- [x] A CI is running the tests suite and display the code coverage
 - [ ] Print results as a tree highlighting the statuses received
 
 ### Someday:
