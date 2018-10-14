@@ -56,11 +56,11 @@ func (s *Scanner) AddTarget(target Target) {
 	s.jobQueue <- target
 }
 
-func (s *Scanner) Scan(baseUrl url.URL, workers int) {
-	baseUrl = normalizeBaseUrl(baseUrl)
+func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
+	u := normalizeBaseUrl(*baseUrl)
 
 	for i := 0; i < workers; i++ {
-		go s.work(baseUrl)
+		go s.work(u)
 		s.workerWaitGroup.Add(1)
 	}
 
@@ -108,7 +108,8 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 			"url":    target.Path,
 			"method": target.Method,
 			"depth":  target.Depth,
-		}).Warn(
+			"error":  err.Error(),
+		}).Error(
 			"failed to build request",
 		)
 		return
@@ -116,10 +117,12 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
+
 		s.logger.WithFields(logrus.Fields{
 			"url":    target.Path,
 			"method": target.Method,
 			"depth":  target.Depth,
+			"error":  err.Error(),
 		}).Warn(
 			"failed to perform request",
 		)
@@ -134,7 +137,7 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 		Response: res,
 	}
 
-	s.eventEmitter.Emit(EventEventResultFound, result)
+	s.eventEmitter.Emit(EventResultFound, result)
 }
 
 func normalizeBaseUrl(baseUrl url.URL) url.URL {

@@ -2,6 +2,6 @@ package scan
 
 const (
 	EventTargetProduced = iota
-	EventEventResultFound
+	EventResultFound
 	EventProducerFinished
 )

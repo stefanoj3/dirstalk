@@ -19,7 +19,7 @@ project.
 - [x] Specify how many threads to use
 - [x] Specify http verbs to use
 - [x] Specify dictionary to use
-- [ ] Specify http request timeout
+- [x] Specify http request timeout
 - [x] Specify verbosity of the log
 - [ ] Specify scan depth
 - [ ] Socks5 support (with examples on how to use it with tor)

@@ -9,8 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/stefanoj3/dirstalk/pkg/path"
-	"github.com/stefanoj3/dirstalk/pkg/print"
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
@@ -77,7 +76,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return err
 		}
 
-		dictionary, err := path.NewDictionaryFromFile(cmd.Flag(flagDictionary).Value.String())
+		dict, err := dictionary.NewDictionaryFromFile(cmd.Flag(flagDictionary).Value.String())
 		if err != nil {
 			return errors.Wrap(err, "failed to generate dictionary from file")
 		}
@@ -104,11 +103,11 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 
 		eventManager := emission.NewEmitter()
 
-		printer := print.NewResultLogger(logger)
-		eventManager.On(scan.EventEventResultFound, printer.Log)
+		printer := scan.NewResultLogger(logger)
+		eventManager.On(scan.EventResultFound, printer.Log)
 
 		r := scan.ReProcessor{}
-		eventManager.On(scan.EventEventResultFound, r.Process)
+		eventManager.On(scan.EventResultFound, r.Process)
 
 		s := scan.NewScanner(
 			&http.Client{
@@ -118,18 +117,18 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			logger,
 		)
 
-		go scan.NewTargetProducer(eventManager, httpMethods, dictionary, scanDepth).Run()
+		go scan.NewTargetProducer(eventManager, httpMethods, dict, scanDepth).Run()
 
 		eventManager.AddListener(scan.EventTargetProduced, s.AddTarget)
 		eventManager.AddListener(scan.EventProducerFinished, s.Release)
 
 		logger.WithFields(logrus.Fields{
-			"url":            u.String(),
-			"threads":        threads,
-			"dictionary.len": len(dictionary),
+			"url":               u.String(),
+			"threads":           threads,
+			"dictionary.length": len(dict),
 		}).Info("Starting scan")
 
-		s.Scan(*u, threads)
+		s.Scan(u, threads)
 
 		logger.Info("Finished scan")
 

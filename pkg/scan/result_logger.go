@@ -1,14 +1,11 @@
-package print
+package scan
 
-import (
-	"github.com/sirupsen/logrus"
-	"github.com/stefanoj3/dirstalk/pkg/scan"
-)
+import "github.com/sirupsen/logrus"
 
 const (
-	breakingText = "Found a breaking url"
+	breakingText = "Found something breaking"
 	foundText    = "Found"
-	notFoundText = "Not Found"
+	notFoundText = "Not found"
 )
 
 type ResultLogger struct {
@@ -19,7 +16,7 @@ func NewResultLogger(logger *logrus.Logger) *ResultLogger {
 	return &ResultLogger{logger: logger}
 }
 
-func (c *ResultLogger) Log(result *scan.Result) {
+func (c *ResultLogger) Log(result *Result) {
 	statusCode := result.Response.StatusCode
 
 	l := c.logger.WithFields(logrus.Fields{
