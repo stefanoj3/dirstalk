@@ -56,11 +56,11 @@ func (s *Scanner) AddTarget(target Target) {
 	s.jobQueue <- target
 }
 
-func (s *Scanner) Scan(baseUrl url.URL, workers int) {
-	baseUrl = normalizeBaseUrl(baseUrl)
+func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
+	u := normalizeBaseUrl(*baseUrl)
 
 	for i := 0; i < workers; i++ {
-		go s.work(baseUrl)
+		go s.work(u)
 		s.workerWaitGroup.Add(1)
 	}
 
@@ -109,7 +109,7 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 			"method": target.Method,
 			"depth":  target.Depth,
 			"error":  err.Error(),
-		}).Warn(
+		}).Error(
 			"failed to build request",
 		)
 		return

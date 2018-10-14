@@ -5,7 +5,7 @@ import "github.com/sirupsen/logrus"
 const (
 	breakingText = "Found something breaking"
 	foundText    = "Found"
-	notFoundText = "Not Found"
+	notFoundText = "Not found"
 )
 
 type ResultLogger struct {
@@ -33,4 +33,3 @@ func (c *ResultLogger) Log(result *Result) {
 		l.Info(foundText)
 	}
 }
-

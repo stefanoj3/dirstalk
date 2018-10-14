@@ -128,7 +128,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			"dictionary.length": len(dict),
 		}).Info("Starting scan")
 
-		s.Scan(*u, threads)
+		s.Scan(u, threads)
 
 		logger.Info("Finished scan")
 
