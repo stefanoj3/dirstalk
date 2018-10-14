@@ -1,10 +1,13 @@
 sudo: required
 
+os:
+  - linux
+  - osx
+
 language: go
 
 go:
-  - "1.10.x"
-  - "master"
+  - "1.11.x"
 
 script:
 - make dep
