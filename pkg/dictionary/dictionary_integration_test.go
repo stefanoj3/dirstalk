@@ -1,14 +1,14 @@
-package path_test
+package dictionary_test
 
 import (
 	"testing"
 
-	"github.com/stefanoj3/dirstalk/pkg/path"
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDictionaryFromFile(t *testing.T) {
-	entries, err := path.NewDictionaryFromFile("datafile/dict.txt")
+	entries, err := dictionary.NewDictionaryFromFile("datafile/dict.txt")
 	assert.NoError(t, err)
 
 	expectedValue := []string{
@@ -20,7 +20,7 @@ func TestDictionaryFromFile(t *testing.T) {
 }
 
 func TestDictionaryFromFileWithInvalidPath(t *testing.T) {
-	d, err := path.NewDictionaryFromFile("datafile/gibberish_nonexisting_file")
+	d, err := dictionary.NewDictionaryFromFile("datafile/gibberish_nonexisting_file")
 	assert.Error(t, err)
 	assert.Nil(t, d)
 }

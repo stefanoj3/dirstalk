@@ -108,6 +108,7 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 			"url":    target.Path,
 			"method": target.Method,
 			"depth":  target.Depth,
+			"error":  err.Error(),
 		}).Warn(
 			"failed to build request",
 		)
@@ -116,10 +117,12 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
+
 		s.logger.WithFields(logrus.Fields{
 			"url":    target.Path,
 			"method": target.Method,
 			"depth":  target.Depth,
+			"error":  err.Error(),
 		}).Warn(
 			"failed to perform request",
 		)
@@ -134,7 +137,7 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 		Response: res,
 	}
 
-	s.eventEmitter.Emit(EventEventResultFound, result)
+	s.eventEmitter.Emit(EventResultFound, result)
 }
 
 func normalizeBaseUrl(baseUrl url.URL) url.URL {
