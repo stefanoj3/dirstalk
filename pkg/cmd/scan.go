@@ -106,8 +106,8 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 		printer := scan.NewResultLogger(logger)
 		eventManager.On(scan.EventResultFound, printer.Log)
 
-		r := scan.ReProcessor{}
-		eventManager.On(scan.EventResultFound, r.Process)
+		r := scan.NewReProcessor(eventManager, httpMethods, dict)
+		eventManager.On(scan.EventResultFound, r.ReProcess)
 
 		s := scan.NewScanner(
 			&http.Client{

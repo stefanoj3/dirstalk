@@ -21,7 +21,7 @@ project.
 - [x] Specify dictionary to use
 - [x] Specify http request timeout
 - [x] Specify verbosity of the log
-- [ ] Specify scan depth
+- [x] Specify scan depth
 - [ ] Socks5 support (with examples on how to use it with tor)
 - [ ] Can generate dictionary starting from a folder containing files/subdirectories
 - [ ] Can be compiled for multiple platform/architectures (min: OSX x64, Linux 386, Linux x64, Linux arm, Linux arm64)
