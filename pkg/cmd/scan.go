@@ -85,9 +85,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return errors.Wrap(err, "failed to build config")
 		}
 
-		scan.StartScan(logger, cnf, u)
-
-		return nil
+		return scan.StartScan(logger, cnf, u)
 	}
 
 	return f

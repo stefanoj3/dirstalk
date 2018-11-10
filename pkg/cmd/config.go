@@ -41,7 +41,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	socks5Host := cmd.Flag(flagSocks5Host).Value.String()
 	if len(socks5Host) > 0 {
-		c.Socks5Host, err = url.Parse("socks5://" + socks5Host)
+		c.Socks5Url, err = url.Parse("socks5://" + socks5Host)
 		if err != nil {
 			return nil, errors.Wrap(err, "invalid value for "+flagSocks5Host)
 		}

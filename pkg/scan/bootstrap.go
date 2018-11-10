@@ -6,17 +6,22 @@ import (
 	"time"
 
 	"github.com/chuckpreslar/emission"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/net/proxy"
 )
 
-func StartScan(logger *logrus.Logger, cnf *Config, u *url.URL) {
+func StartScan(logger *logrus.Logger, cnf *Config, u *url.URL) error {
 	eventManager := emission.NewEmitter()
 	printer := NewResultLogger(logger)
 
+	c, err := buildClientFrom(cnf)
+	if err != nil {
+		return errors.Wrap(err, "failed to build client")
+	}
+
 	s := NewScanner(
-		&http.Client{
-			Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
-		},
+		c,
 		eventManager,
 		logger,
 	)
@@ -46,4 +51,24 @@ func StartScan(logger *logrus.Logger, cnf *Config, u *url.URL) {
 	s.Scan(u, cnf.Threads)
 
 	logger.Info("Finished scan")
+
+	return nil
+}
+
+func buildClientFrom(cnf *Config) (*http.Client, error) {
+	c := &http.Client{
+		Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
+	}
+
+	if cnf.Socks5Url != nil {
+		tbDialer, err := proxy.FromURL(cnf.Socks5Url, proxy.Direct)
+		if err != nil {
+			return nil, err
+		}
+
+		tbTransport := &http.Transport{Dial: tbDialer.Dial}
+		c.Transport = tbTransport
+	}
+
+	return c, nil
 }

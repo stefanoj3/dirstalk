@@ -8,5 +8,5 @@ type Config struct {
 	Threads               int
 	TimeoutInMilliseconds int
 	ScanDepth             int
-	Socks5Host            *url.URL
+	Socks5Url             *url.URL
 }
