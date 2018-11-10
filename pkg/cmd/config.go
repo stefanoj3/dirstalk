@@ -1,23 +1,16 @@
 package cmd
 
 import (
+	"net/url"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
-	"net/url"
+	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
-type Config struct {
-	Dictionary []string
-	HttpMethods []string
-	Threads int
-	TimeoutInMilliseconds int
-	ScanDepth int
-	Socks5Host *url.URL
-}
-
-func configFromCmd(cmd *cobra.Command) (*Config, error) {
-	c := &Config{}
+func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
+	c := &scan.Config{}
 
 	var err error
 
@@ -50,7 +43,7 @@ func configFromCmd(cmd *cobra.Command) (*Config, error) {
 	if len(socks5Host) > 0 {
 		c.Socks5Host, err = url.Parse("socks5://" + socks5Host)
 		if err != nil {
-			return nil, errors.Wrap(err, "invalid value for " + flagSocks5Host)
+			return nil, errors.Wrap(err, "invalid value for "+flagSocks5Host)
 		}
 	}
 

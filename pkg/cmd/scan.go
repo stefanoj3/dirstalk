@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"net/http"
 	"net/url"
-	"time"
 
-	"github.com/chuckpreslar/emission"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -83,41 +80,12 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return err
 		}
 
-		cnf, err := configFromCmd(cmd)
+		cnf, err := scanConfigFromCmd(cmd)
 		if err != nil {
 			return errors.Wrap(err, "failed to build config")
 		}
 
-		eventManager := emission.NewEmitter()
-
-		printer := scan.NewResultLogger(logger)
-		eventManager.On(scan.EventResultFound, printer.Log)
-
-		r := scan.NewReProcessor(eventManager, cnf.HttpMethods, cnf.Dictionary)
-		eventManager.On(scan.EventResultFound, r.ReProcess)
-
-		s := scan.NewScanner(
-			&http.Client{
-				Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
-			},
-			eventManager,
-			logger,
-		)
-
-		go scan.NewTargetProducer(eventManager, cnf.HttpMethods, cnf.Dictionary, cnf.ScanDepth).Run()
-
-		eventManager.AddListener(scan.EventTargetProduced, s.AddTarget)
-		eventManager.AddListener(scan.EventProducerFinished, s.Release)
-
-		logger.WithFields(logrus.Fields{
-			"url":               u.String(),
-			"threads":           cnf.Threads,
-			"dictionary.length": len(cnf.Dictionary),
-		}).Info("Starting scan")
-
-		s.Scan(u, cnf.Threads)
-
-		logger.Info("Finished scan")
+		scan.StartScan(logger, cnf, u)
 
 		return nil
 	}
