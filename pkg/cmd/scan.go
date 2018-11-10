@@ -9,7 +9,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
@@ -21,6 +20,7 @@ const (
 	flagScanDepth       = "scan-depth"
 	flagThreads         = "threads"
 	flagThreadsShort    = "t"
+	flagSocks5Host      = "socks5"
 )
 
 func newScanCommand(logger *logrus.Logger) *cobra.Command {
@@ -66,6 +66,13 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 		"scan depth",
 	)
 
+	cmd.Flags().StringP(
+		flagSocks5Host,
+		"",
+		"",
+		"socks5 host to use",
+	)
+
 	return cmd
 }
 
@@ -76,29 +83,9 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return err
 		}
 
-		dict, err := dictionary.NewDictionaryFromFile(cmd.Flag(flagDictionary).Value.String())
+		cnf, err := configFromCmd(cmd)
 		if err != nil {
-			return errors.Wrap(err, "failed to generate dictionary from file")
-		}
-
-		httpMethods, err := cmd.Flags().GetStringSlice(flagHttpMethods)
-		if err != nil {
-			return errors.Wrap(err, "failed to read http methods flag")
-		}
-
-		threads, err := cmd.Flags().GetInt(flagThreads)
-		if err != nil {
-			return errors.Wrap(err, "failed to read threads flag")
-		}
-
-		timeoutInMilliseconds, err := cmd.Flags().GetInt(flagHttpTimeout)
-		if err != nil {
-			return errors.Wrap(err, "failed to read http-timeout flag")
-		}
-
-		scanDepth, err := cmd.Flags().GetInt(flagScanDepth)
-		if err != nil {
-			return errors.Wrap(err, "failed to read http-timeout flag")
+			return errors.Wrap(err, "failed to build config")
 		}
 
 		eventManager := emission.NewEmitter()
@@ -106,29 +93,29 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 		printer := scan.NewResultLogger(logger)
 		eventManager.On(scan.EventResultFound, printer.Log)
 
-		r := scan.NewReProcessor(eventManager, httpMethods, dict)
+		r := scan.NewReProcessor(eventManager, cnf.HttpMethods, cnf.Dictionary)
 		eventManager.On(scan.EventResultFound, r.ReProcess)
 
 		s := scan.NewScanner(
 			&http.Client{
-				Timeout: time.Millisecond * time.Duration(timeoutInMilliseconds),
+				Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
 			},
 			eventManager,
 			logger,
 		)
 
-		go scan.NewTargetProducer(eventManager, httpMethods, dict, scanDepth).Run()
+		go scan.NewTargetProducer(eventManager, cnf.HttpMethods, cnf.Dictionary, cnf.ScanDepth).Run()
 
 		eventManager.AddListener(scan.EventTargetProduced, s.AddTarget)
 		eventManager.AddListener(scan.EventProducerFinished, s.Release)
 
 		logger.WithFields(logrus.Fields{
 			"url":               u.String(),
-			"threads":           threads,
-			"dictionary.length": len(dict),
+			"threads":           cnf.Threads,
+			"dictionary.length": len(cnf.Dictionary),
 		}).Info("Starting scan")
 
-		s.Scan(u, threads)
+		s.Scan(u, cnf.Threads)
 
 		logger.Info("Finished scan")
 
