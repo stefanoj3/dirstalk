@@ -3,6 +3,7 @@ package scan
 import (
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 	"sync"
 	"time"
@@ -151,6 +152,6 @@ func normalizeBaseUrl(baseUrl url.URL) url.URL {
 }
 
 func buildUrl(baseUrl url.URL, target Target) url.URL {
-	baseUrl.Path += target.Path
+	baseUrl.Path = path.Join(baseUrl.Path, target.Path)
 	return baseUrl
 }
