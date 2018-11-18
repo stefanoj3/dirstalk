@@ -11,10 +11,7 @@ import (
 	"golang.org/x/net/proxy"
 )
 
-func StartScan(logger *logrus.Logger, cnf *Config, u *url.URL) error {
-	eventManager := emission.NewEmitter()
-	printer := NewResultLogger(logger)
-
+func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Config, u *url.URL) error {
 	c, err := buildClientFrom(cnf)
 	if err != nil {
 		return errors.Wrap(err, "failed to build client")
@@ -28,7 +25,6 @@ func StartScan(logger *logrus.Logger, cnf *Config, u *url.URL) error {
 
 	r := NewReProcessor(eventManager, cnf.HttpMethods, cnf.Dictionary)
 
-	eventManager.On(EventResultFound, printer.Log)
 	eventManager.On(EventResultFound, r.ReProcess)
 	eventManager.On(EventTargetProduced, s.AddTarget)
 	eventManager.On(EventProducerFinished, s.Release)

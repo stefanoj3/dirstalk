@@ -3,6 +3,8 @@ package cmd
 import (
 	"net/url"
 
+	"github.com/chuckpreslar/emission"
+
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -85,7 +87,11 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return errors.Wrap(err, "failed to build config")
 		}
 
-		return scan.StartScan(logger, cnf, u)
+		eventManager := emission.NewEmitter()
+		printer := scan.NewResultLogger(logger)
+		eventManager.On(scan.EventResultFound, printer.Log)
+
+		return scan.StartScan(logger, eventManager, cnf, u)
 	}
 
 	return f
