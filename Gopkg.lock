@@ -3,6 +3,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:979b5ee68ad69cf2b7408f8893bf7e50bad3a022058d73291bb1bef04be35217"
+  name = "github.com/armon/go-socks5"
+  packages = ["."]
+  pruneopts = ""
+  revision = "e75332964ef517daa070d7c38a9466a0d687e0a5"
+
+[[projects]]
+  branch = "master"
   digest = "1:13d2319a2905b59a30e11f3126a3dabb4373861e7507bf5b20dae78e5ec77024"
   name = "github.com/chuckpreslar/emission"
   packages = ["."]
@@ -99,6 +107,18 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:4ac199b027ed34460ec4e0a92c882156f561e78cd046fef095e50f867462435a"
+  name = "golang.org/x/net"
+  packages = [
+    "context",
+    "internal/socks",
+    "proxy",
+  ]
+  pruneopts = ""
+  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+
+[[projects]]
+  branch = "master"
   digest = "1:149a432fabebb8221a80f77731b1cd63597197ded4f14af606ebe3a0959004ec"
   name = "golang.org/x/sys"
   packages = [
@@ -112,12 +132,14 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/armon/go-socks5",
     "github.com/chuckpreslar/emission",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",
     "github.com/tevino/abool",
+    "golang.org/x/net/proxy",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
