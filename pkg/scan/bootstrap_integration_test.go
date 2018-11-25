@@ -18,7 +18,7 @@ import (
 
 const socks5TestServerHost = "127.0.0.1:8899"
 
-func TestIntegrationStartScan(t *testing.T) {
+func TestStartScan(t *testing.T) {
 	logger, _ := test.NewLogger()
 
 	requestMap := &sync.Map{}
@@ -81,7 +81,7 @@ func TestIntegrationStartScan(t *testing.T) {
 	assertTargetsContains(t, scan.Target{Depth: 2, Path: "/home/about", Method: http.MethodGet}, actualResults)
 }
 
-func TestIntegrationStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T) {
+func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T) {
 	logger, _ := test.NewLogger()
 
 	testServer := buildTestServer(&sync.Map{})
@@ -125,7 +125,7 @@ func TestIntegrationStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t
 	assertTargetsContains(t, scan.Target{Depth: 2, Path: "/home/about", Method: http.MethodGet}, actualResults)
 }
 
-func TestIntegrationShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
+func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
 	requestMap := &sync.Map{}
