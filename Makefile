@@ -6,10 +6,6 @@ ifeq ($(TRAVIS), true)
 TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic
 endif
 
-ifeq ($(SCRUTINIZER), true)
-TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic
-endif
-
 .PHONY: dep
 dep:
 	@go get github.com/golang/dep/cmd/dep
