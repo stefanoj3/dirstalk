@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +28,12 @@ func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"verbose mode",
 	)
 
-	cmd.AddCommand(newScanCommand(logger))
+	scanCmd, err := newScanCommand(logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create scan command")
+	}
+
+	cmd.AddCommand(scanCmd)
 
 	return cmd, nil
 }

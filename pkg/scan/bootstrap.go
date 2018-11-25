@@ -23,7 +23,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 		logger,
 	)
 
-	r := NewReProcessor(eventManager, cnf.HttpMethods, cnf.Dictionary)
+	r := NewReProcessor(eventManager, cnf.HTTPMethods, cnf.Dictionary)
 
 	eventManager.On(EventResultFound, r.ReProcess)
 	eventManager.On(EventTargetProduced, s.AddTarget)
@@ -31,7 +31,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 
 	targetProducer := NewTargetProducer(
 		eventManager,
-		cnf.HttpMethods,
+		cnf.HTTPMethods,
 		cnf.Dictionary,
 		cnf.ScanDepth,
 	)

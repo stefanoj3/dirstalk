@@ -14,15 +14,15 @@ import (
 const (
 	flagDictionary      = "dictionary"
 	flagDictionaryShort = "d"
-	flagHttpMethods     = "http-methods"
-	flagHttpTimeout     = "http-timeout"
+	flagHTTPMethods     = "http-methods"
+	flagHTTPTimeout     = "http-timeout"
 	flagScanDepth       = "scan-depth"
 	flagThreads         = "threads"
 	flagThreadsShort    = "t"
 	flagSocks5Host      = "socks5"
 )
 
-func newScanCommand(logger *logrus.Logger) *cobra.Command {
+func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "scan [url]",
 		Short: "Scan the given URL",
@@ -35,11 +35,18 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 		"",
 		"dictionary to use for the scan",
 	)
-	cmd.MarkFlagFilename(flagDictionary)
-	cmd.MarkFlagRequired(flagDictionary)
+	err := cmd.MarkFlagFilename(flagDictionary)
+	if err != nil {
+		return nil, err
+	}
+
+	err = cmd.MarkFlagRequired(flagDictionary)
+	if err != nil {
+		return nil, err
+	}
 
 	cmd.Flags().StringSlice(
-		flagHttpMethods,
+		flagHTTPMethods,
 		[]string{"GET"},
 		"comma separated list of http methods to use; eg: GET,POST,PUT",
 	)
@@ -52,7 +59,7 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 	)
 
 	cmd.Flags().IntP(
-		flagHttpTimeout,
+		flagHTTPTimeout,
 		"",
 		5000,
 		"timeout in milliseconds",
@@ -72,12 +79,12 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 		"socks5 host to use",
 	)
 
-	return cmd
+	return cmd, nil
 }
 
 func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []string) error {
 	f := func(cmd *cobra.Command, args []string) error {
-		u, err := getUrl(args)
+		u, err := getURL(args)
 		if err != nil {
 			return err
 		}
@@ -97,7 +104,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 	return f
 }
 
-func getUrl(args []string) (*url.URL, error) {
+func getURL(args []string) (*url.URL, error) {
 	if len(args) == 0 {
 		return nil, errors.New("no URL provided")
 	}

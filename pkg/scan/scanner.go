@@ -58,7 +58,7 @@ func (s *Scanner) AddTarget(target Target) {
 }
 
 func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
-	u := normalizeBaseUrl(*baseUrl)
+	u := normalizeBaseURL(*baseUrl)
 
 	for i := 0; i < workers; i++ {
 		go s.work(u)
@@ -68,13 +68,13 @@ func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
 	s.workerWaitGroup.Wait()
 }
 
-func (s *Scanner) work(baseUrl url.URL) {
+func (s *Scanner) work(baseURL url.URL) {
 	attempts := 3
 
 	for {
 		select {
 		case target := <-s.jobQueue:
-			s.processTarget(baseUrl, target)
+			s.processTarget(baseURL, target)
 			continue
 		case <-time.After(400 * time.Millisecond):
 		}
@@ -95,14 +95,14 @@ func (s *Scanner) Release() {
 	s.isReleased.Set()
 }
 
-func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
+func (s *Scanner) processTarget(baseURL url.URL, target Target) {
 	s.logger.WithFields(logrus.Fields{
 		"method": target.Method,
 		"depth":  target.Depth,
 		"path":   target.Path,
 	}).Debug("Working")
 
-	u := buildUrl(baseUrl, target)
+	u := buildURL(baseURL, target)
 	req, err := http.NewRequest(target.Method, u.String(), nil)
 	if err != nil {
 		s.logger.WithFields(logrus.Fields{
@@ -141,17 +141,17 @@ func (s *Scanner) processTarget(baseUrl url.URL, target Target) {
 	s.eventEmitter.Emit(EventResultFound, result)
 }
 
-func normalizeBaseUrl(baseUrl url.URL) url.URL {
-	if strings.HasSuffix(baseUrl.Path, "/") {
-		return baseUrl
+func normalizeBaseURL(baseURL url.URL) url.URL {
+	if strings.HasSuffix(baseURL.Path, "/") {
+		return baseURL
 	}
 
-	baseUrl.Path += "/"
+	baseURL.Path += "/"
 
-	return baseUrl
+	return baseURL
 }
 
-func buildUrl(baseUrl url.URL, target Target) url.URL {
-	baseUrl.Path = path.Join(baseUrl.Path, target.Path)
-	return baseUrl
+func buildURL(baseURL url.URL, target Target) url.URL {
+	baseURL.Path = path.Join(baseURL.Path, target.Path)
+	return baseURL
 }

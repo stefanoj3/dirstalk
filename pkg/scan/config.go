@@ -4,7 +4,7 @@ import "net/url"
 
 type Config struct {
 	Dictionary            []string
-	HttpMethods           []string
+	HTTPMethods           []string
 	Threads               int
 	TimeoutInMilliseconds int
 	ScanDepth             int
