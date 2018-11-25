@@ -46,7 +46,7 @@ func (r *ReProcessor) ReProcess(result *Result) {
 	for _, entry := range r.dictionary {
 		for _, httpMethod := range r.httpMethods {
 			t := result.Target
-			t.Depth -= 1
+			t.Depth--
 			t.Path = path.Join(t.Path, entry)
 			t.Method = httpMethod
 

@@ -19,7 +19,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to generate dictionary from file")
 	}
 
-	c.HttpMethods, err = cmd.Flags().GetStringSlice(flagHttpMethods)
+	c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagHTTPMethods)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http methods flag")
 	}
@@ -29,7 +29,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to read threads flag")
 	}
 
-	c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagHttpTimeout)
+	c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagHTTPTimeout)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http-timeout flag")
 	}
