@@ -1,9 +1,13 @@
 SRC_DIRS=cmd pkg
 
+TESTARGS=-v -race -cover
+
 ifeq ($(TRAVIS), true)
 TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic
-else
-TESTARGS=-v -race -cover
+endif
+
+ifeq ($(SCRUTINIZER), true)
+TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic
 endif
 
 .PHONY: dep
