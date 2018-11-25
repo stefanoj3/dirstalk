@@ -1,4 +1,5 @@
 # Dirstalk
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/03cd98af06aa472cbd5587eec706d544)](https://app.codacy.com/app/esse-gab2/dirstalk?utm_source=github.com&utm_medium=referral&utm_content=stefanoj3/dirstalk&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.com/stefanoj3/dirstalk.svg?branch=master)](https://travis-ci.com/stefanoj3/dirstalk)
 [![codecov](https://codecov.io/gh/stefanoj3/dirstalk/branch/master/graph/badge.svg)](https://codecov.io/gh/stefanoj3/dirstalk)
 
