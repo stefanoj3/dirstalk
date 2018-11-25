@@ -22,7 +22,7 @@ const (
 	flagSocks5Host      = "socks5"
 )
 
-func newScanCommand(logger *logrus.Logger) *cobra.Command {
+func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "scan [url]",
 		Short: "Scan the given URL",
@@ -35,8 +35,15 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 		"",
 		"dictionary to use for the scan",
 	)
-	cmd.MarkFlagFilename(flagDictionary)
-	cmd.MarkFlagRequired(flagDictionary)
+	err := cmd.MarkFlagFilename(flagDictionary)
+	if err != nil {
+		return nil, err
+	}
+
+	err = cmd.MarkFlagRequired(flagDictionary)
+	if err != nil {
+		return nil, err
+	}
 
 	cmd.Flags().StringSlice(
 		flagHTTPMethods,
@@ -72,7 +79,7 @@ func newScanCommand(logger *logrus.Logger) *cobra.Command {
 		"socks5 host to use",
 	)
 
-	return cmd
+	return cmd, nil
 }
 
 func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []string) error {

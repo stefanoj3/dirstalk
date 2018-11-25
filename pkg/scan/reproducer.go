@@ -33,7 +33,7 @@ func (r *ReProcessor) ReProcess(result *Result) {
 	}
 
 	// no point in appending to a filename
-	if pathutil.HasExtension(result.Target.Path) == true {
+	if pathutil.HasExtension(result.Target.Path) {
 		return
 	}
 
