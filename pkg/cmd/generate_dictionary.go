@@ -5,10 +5,9 @@ import (
 	"io"
 	"os"
 
-	"github.com/stefanoj3/dirstalk/pkg/dictionary"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 )
 
 func newGenerateDictionaryCommand() *cobra.Command {
