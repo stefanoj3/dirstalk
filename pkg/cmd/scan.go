@@ -11,17 +11,6 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
-const (
-	flagDictionary      = "dictionary"
-	flagDictionaryShort = "d"
-	flagHTTPMethods     = "http-methods"
-	flagHTTPTimeout     = "http-timeout"
-	flagScanDepth       = "scan-depth"
-	flagThreads         = "threads"
-	flagThreadsShort    = "t"
-	flagSocks5Host      = "socks5"
-)
-
 func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "scan [url]",
