@@ -31,12 +31,11 @@ type Result struct {
 }
 
 type Scanner struct {
-	httpClient      Doer
-	eventEmitter    *emission.Emitter
-	logger          *logrus.Logger
-	jobQueue        chan Target
-	workerWaitGroup sync.WaitGroup
-	isReleased      *abool.AtomicBool
+	httpClient   Doer
+	eventEmitter *emission.Emitter
+	logger       *logrus.Logger
+	jobQueue     chan Target
+	isReleased   *abool.AtomicBool
 }
 
 func NewScanner(
@@ -60,12 +59,18 @@ func (s *Scanner) AddTarget(target Target) {
 func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
 	u := normalizeBaseURL(*baseUrl)
 
+	wg := sync.WaitGroup{}
+
 	for i := 0; i < workers; i++ {
-		go s.work(u)
-		s.workerWaitGroup.Add(1)
+		wg.Add(1)
+		go func() {
+			s.work(u)
+			wg.Done()
+		}()
+
 	}
 
-	s.workerWaitGroup.Wait()
+	wg.Wait()
 }
 
 func (s *Scanner) work(baseURL url.URL) {
@@ -87,8 +92,6 @@ func (s *Scanner) work(baseURL url.URL) {
 			break
 		}
 	}
-
-	s.workerWaitGroup.Done()
 }
 
 func (s *Scanner) Release() {
