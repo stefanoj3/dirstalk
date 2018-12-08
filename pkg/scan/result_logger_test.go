@@ -65,6 +65,7 @@ func TestResultLogger(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
+		tc := tc
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
