@@ -22,8 +22,8 @@ func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
 
 	cmd.PersistentFlags().BoolVarP(
 		&verbose,
-		"verbose",
-		"v",
+		flagVerbose,
+		flagVerboseShort,
 		false,
 		"verbose mode",
 	)
@@ -34,6 +34,7 @@ func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	}
 
 	cmd.AddCommand(scanCmd)
+	cmd.AddCommand(newGenerateDictionaryCommand())
 
 	return cmd, nil
 }

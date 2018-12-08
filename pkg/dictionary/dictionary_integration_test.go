@@ -8,7 +8,7 @@ import (
 )
 
 func TestDictionaryFromFile(t *testing.T) {
-	entries, err := dictionary.NewDictionaryFromFile("datafile/dict.txt")
+	entries, err := dictionary.NewDictionaryFromFile("testdata/dict.txt")
 	assert.NoError(t, err)
 
 	expectedValue := []string{
@@ -20,7 +20,7 @@ func TestDictionaryFromFile(t *testing.T) {
 }
 
 func TestDictionaryFromFileWithInvalidPath(t *testing.T) {
-	d, err := dictionary.NewDictionaryFromFile("datafile/gibberish_nonexisting_file")
+	d, err := dictionary.NewDictionaryFromFile("testdata/gibberish_nonexisting_file")
 	assert.Error(t, err)
 	assert.Nil(t, d)
 }
