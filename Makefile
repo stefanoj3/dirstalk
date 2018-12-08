@@ -8,10 +8,10 @@ endif
 
 .PHONY: dep
 dep:
-	@go get github.com/golang/dep/cmd/dep
-	@go get golang.org/x/tools/cmd/goimports
-	@go get golang.org/x/lint/golint
-	@go get github.com/golangci/golangci-lint/cmd/golangci-lint
+	@go get -u github.com/golang/dep/cmd/dep
+	@go get -u golang.org/x/tools/cmd/goimports
+	@go get -u golang.org/x/lint/golint
+	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	@dep ensure
 
 .PHONY: test

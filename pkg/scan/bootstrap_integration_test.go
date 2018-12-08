@@ -9,7 +9,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/armon/go-socks5"
+	socks5 "github.com/armon/go-socks5"
 	"github.com/chuckpreslar/emission"
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
