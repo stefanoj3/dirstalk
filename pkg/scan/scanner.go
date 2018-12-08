@@ -137,7 +137,6 @@ func (s *Scanner) processTarget(baseURL url.URL, target Target) {
 
 	result := &Result{
 		Target:   target,
-		URL:      &u,
 		Response: res,
 	}
 

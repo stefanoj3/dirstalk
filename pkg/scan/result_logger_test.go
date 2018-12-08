@@ -76,6 +76,7 @@ func TestResultLogger(t *testing.T) {
 				&scan.Result{
 					Response: &http.Response{
 						StatusCode: tc.statusCode,
+						Request:    &http.Request{},
 					},
 				},
 			)

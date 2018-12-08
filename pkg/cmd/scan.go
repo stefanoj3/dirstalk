@@ -87,6 +87,11 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 		printer := scan.NewResultLogger(logger)
 		eventManager.On(scan.EventResultFound, printer.Log)
 
+		summarizer := scan.NewResultSummarizer(logger.Out)
+		eventManager.On(scan.EventResultFound, summarizer.Add)
+
+		defer summarizer.Summarize()
+
 		return scan.StartScan(logger, eventManager, cnf, u)
 	}
 
