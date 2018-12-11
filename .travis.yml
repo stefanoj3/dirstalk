@@ -9,6 +9,23 @@ language: go
 go:
   - "1.11.x"
 
+matrix:
+  include:
+    - os: linux
+      go: "1.11.x"
+      sudo: true
+      cache:
+        directories:
+        - $HOME/.cache/go-build
+        - $HOME/gopath/pkg/mod
+
+    - os: osx
+      go: "1.11.x"
+      cache:
+        directories:
+        - $HOME/Library/Caches/go-build
+        - $HOME/gopath/pkg/mod
+
 script:
 - make dep
 - make check
