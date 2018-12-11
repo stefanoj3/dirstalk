@@ -80,7 +80,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 
 		cnf, err := scanConfigFromCmd(cmd)
 		if err != nil {
-			return errors.Wrap(err, "failed to build config")
+			return errors.Wrap(err, "failed to build config bla")
 		}
 
 		eventManager := emission.NewEmitter()
