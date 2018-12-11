@@ -9,6 +9,8 @@ import (
 )
 
 func TestAbsolutePathsGenerator(t *testing.T) {
+	t.Parallel()
+
 	b := &bytes.Buffer{}
 
 	dictionaryGenerator := dictionary.NewGenerator(b)
@@ -30,6 +32,8 @@ testdata/directory_to_generate_dictionary/subfolder/subsubfolder/myfile2.php
 }
 
 func TestFilenamePathsGenerator(t *testing.T) {
+	t.Parallel()
+
 	b := &bytes.Buffer{}
 
 	dictionaryGenerator := dictionary.NewGenerator(b)

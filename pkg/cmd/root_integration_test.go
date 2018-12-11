@@ -17,8 +17,6 @@ import (
 )
 
 func TestRootCommand(t *testing.T) {
-	t.Parallel()
-
 	logger, _ := test.NewLogger()
 
 	c, err := cmd.NewRootCommand(logger)
@@ -78,8 +76,6 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 }
 
 func TestVersionCommand(t *testing.T) {
-	t.Parallel()
-
 	logger, buf := test.NewLogger()
 
 	c, err := cmd.NewRootCommand(logger)

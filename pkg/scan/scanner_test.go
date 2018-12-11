@@ -15,6 +15,8 @@ import (
 )
 
 func TestScannerShouldEmitEventWhenScanningATarget(t *testing.T) {
+	t.Parallel()
+
 	result := &scan.Result{}
 
 	emitter := emission.NewEmitter()
