@@ -17,6 +17,22 @@ go:
     # Don't wait for tip tests to finish. Mark the test run green if the
     # tests pass on the stable versions of Go.
     fast_finish: true
+    include:
+      - os: linux
+        go: "1.11.x"
+        sudo: true
+        cache:
+          directories:
+          - $HOME/.cache/go-build
+          - $HOME/gopath/pkg/mod
+
+      - os: osx
+        go: "1.11.x"
+        cache:
+          directories:
+          - $HOME/Library/Caches/go-build
+          - $HOME/gopath/pkg/mod
+
 
 install:
 - make dep
