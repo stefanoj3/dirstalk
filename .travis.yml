@@ -1,13 +1,6 @@
 sudo: required
 
-os:
-  - linux
-  - osx
-
 language: go
-
-go:
-  - "1.11.x"
 
 matrix:
   include:
