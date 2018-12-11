@@ -1,0 +1,45 @@
+before:
+  hooks:
+    - make dep
+builds:
+  -
+    env:
+      - CGO_ENABLED=0
+
+    main: ./cmd/dirstalk/main.go
+
+    goos:
+      - freebsd
+      - linux
+      - darwin
+      - openbsd
+      - android
+
+    goarch:
+      - 386
+      - amd64
+      - arm
+      - arm64
+
+    ldflags:
+      - -X github.com/stefanoj3/dirstalk/pkg/cmd.Version={{.Version}}
+      - -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime={{.Timestamp}}
+
+archive:
+  replacements:
+    darwin: Darwin
+    linux: Linux
+    openbsd: OpenBSD
+    freebsd: FreeBSD
+    android: Android
+    386: i386
+    amd64: x86_64
+
+checksum:
+  name_template: 'checksums.txt'
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'

@@ -30,3 +30,9 @@ check:
 .PHONY: fix
 fix:
 	@goimports -w $(SRC_DIRS)
+
+# this tasks require goreleaser to be in the path
+.PHONY: release-snapshot
+release-snapshot:
+	@echo "Creating release snapshot..."
+	@goreleaser --snapshot --rm-dist
