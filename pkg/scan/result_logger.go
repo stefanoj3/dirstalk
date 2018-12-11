@@ -1,6 +1,10 @@
 package scan
 
-import "github.com/sirupsen/logrus"
+import (
+	"net/http"
+
+	"github.com/sirupsen/logrus"
+)
 
 const (
 	breakingText = "Found something breaking"
@@ -22,12 +26,12 @@ func (c *ResultLogger) Log(result *Result) {
 	l := c.logger.WithFields(logrus.Fields{
 		"status-code": statusCode,
 		"method":      result.Target.Method,
-		"url":         result.URL,
+		"url":         result.Response.Request.URL,
 	})
 
-	if statusCode == 404 {
+	if statusCode == http.StatusNotFound {
 		l.Debug(notFoundText)
-	} else if statusCode >= 500 {
+	} else if statusCode >= http.StatusInternalServerError {
 		l.Warn(breakingText)
 	} else {
 		l.Info(foundText)

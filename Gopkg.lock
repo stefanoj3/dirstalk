@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:558b53577dc0c9fde49b08405d706b202bcac3064320e9be53a75fc866280ee3"
+  name = "github.com/DiSiqueira/GoTree"
+  packages = ["."]
+  pruneopts = ""
+  revision = "53a8e837f2952215f256fc9acf4ecb2045b056fb"
+  version = "2.0.3"
+
+[[projects]]
   branch = "master"
   digest = "1:979b5ee68ad69cf2b7408f8893bf7e50bad3a022058d73291bb1bef04be35217"
   name = "github.com/armon/go-socks5"
@@ -132,6 +140,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/DiSiqueira/GoTree",
     "github.com/armon/go-socks5",
     "github.com/chuckpreslar/emission",
     "github.com/pkg/errors",

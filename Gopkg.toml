@@ -43,3 +43,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/tevino/abool"
+
+[[constraint]]
+  name = "github.com/DiSiqueira/GoTree"
+  version = "2.0.3"

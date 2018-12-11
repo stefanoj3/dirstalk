@@ -27,7 +27,7 @@ project.
 - [x] Can generate dictionary starting from a folder containing files/subdirectories
 - [ ] Can be compiled for multiple platform/architectures (min: OSX x64, Linux 386, Linux x64, Linux arm, Linux arm64)
 - [x] A CI is running the tests suite and display the code coverage
-- [ ] Print results as a tree highlighting the statuses received
+- [x] Print results as a tree and a detailed list of the results found
 - [ ] Produce detailed documentation
 
 ### Someday
