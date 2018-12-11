@@ -35,6 +35,7 @@ func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
 
 	cmd.AddCommand(scanCmd)
 	cmd.AddCommand(newGenerateDictionaryCommand())
+	cmd.AddCommand(newVersionCommand(logger.Out))
 
 	return cmd, nil
 }
