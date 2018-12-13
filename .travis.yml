@@ -1,13 +1,25 @@
 sudo: required
 
-os:
-  - linux
-  - osx
-
 language: go
 
-go:
-  - "1.11.x"
+matrix:
+  include:
+    - os: linux
+      go: "1.11.x"
+      sudo: true
+      cache:
+        directories:
+        - $HOME/.cache/go-build
+        - $HOME/gopath/pkg/mod
+        - $HOME/gopath/pkg/dep
+
+    - os: osx
+      go: "1.11.x"
+      cache:
+        directories:
+        - $HOME/Library/Caches/go-build
+        - $HOME/gopath/pkg/mod
+        - $HOME/gopath/pkg/dep
 
 script:
 - make dep
@@ -16,3 +28,11 @@ script:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: curl -sL https://git.io/goreleaser | bash
+    on:
+      tags: true
+      condition: $TRAVIS_OS_NAME = linux

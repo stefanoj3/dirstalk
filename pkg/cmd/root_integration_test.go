@@ -75,6 +75,21 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 	assert.Contains(t, string(content), "root_integration_test.go")
 }
 
+func TestVersionCommand(t *testing.T) {
+	logger, buf := test.NewLogger()
+
+	c, err := cmd.NewRootCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	_, _, err = executeCommandC(c, "version")
+	assert.NoError(t, err)
+
+	// Ensure the command ran and produced some of the expected output
+	// it is not in the scope of this test to ensure the correct output
+	assert.Contains(t, buf.String(), "Version: ")
+}
+
 func executeCommandC(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
 	buf := new(bytes.Buffer)
 	root.SetOutput(buf)

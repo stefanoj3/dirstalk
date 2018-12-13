@@ -20,6 +20,8 @@ func TestDictionaryFromFile(t *testing.T) {
 }
 
 func TestDictionaryFromFileWithInvalidPath(t *testing.T) {
+	t.Parallel()
+
 	d, err := dictionary.NewDictionaryFromFile("testdata/gibberish_nonexisting_file")
 	assert.Error(t, err)
 	assert.Nil(t, d)
