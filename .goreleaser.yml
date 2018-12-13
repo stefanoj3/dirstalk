@@ -13,7 +13,6 @@ builds:
       - linux
       - darwin
       - openbsd
-      - android
 
     goarch:
       - 386
