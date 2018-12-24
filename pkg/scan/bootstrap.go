@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
+
 	"github.com/chuckpreslar/emission"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -23,7 +25,12 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 		logger,
 	)
 
-	r := NewReProcessor(eventManager, cnf.HTTPMethods, cnf.Dictionary)
+	dict, err := dictionary.NewDictionaryFrom(cnf.DictionaryPath, c)
+	if err != nil {
+		return errors.Wrap(err, "failed to ")
+	}
+
+	r := NewReProcessor(eventManager, cnf.HTTPMethods, dict)
 
 	eventManager.On(EventResultFound, r.ReProcess)
 	eventManager.On(EventTargetProduced, s.AddTarget)
@@ -32,7 +39,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 	targetProducer := NewTargetProducer(
 		eventManager,
 		cnf.HTTPMethods,
-		cnf.Dictionary,
+		dict,
 		cnf.ScanDepth,
 	)
 
@@ -41,7 +48,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 	logger.WithFields(logrus.Fields{
 		"url":               u.String(),
 		"threads":           cnf.Threads,
-		"dictionary.length": len(cnf.Dictionary),
+		"dictionary.length": len(dict),
 	}).Info("Starting scan")
 
 	s.Scan(u, cnf.Threads)

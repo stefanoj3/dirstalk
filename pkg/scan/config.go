@@ -3,7 +3,7 @@ package scan
 import "net/url"
 
 type Config struct {
-	Dictionary            []string
+	DictionaryPath        string
 	HTTPMethods           []string
 	Threads               int
 	TimeoutInMilliseconds int

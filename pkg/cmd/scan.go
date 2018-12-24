@@ -22,7 +22,7 @@ func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		flagDictionary,
 		flagDictionaryShort,
 		"",
-		"dictionary to use for the scan",
+		"dictionary to use for the scan (path to local file or remote url)",
 	)
 	err := cmd.MarkFlagFilename(flagDictionary)
 	if err != nil {

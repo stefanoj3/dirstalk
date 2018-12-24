@@ -29,7 +29,7 @@ func TestStartScan(t *testing.T) {
 
 	config := &scan.Config{
 		Threads:               3,
-		Dictionary:            []string{"/home", "/about"},
+		DictionaryPath:        "testdata/dictionary1.txt",
 		HTTPMethods:           []string{http.MethodGet},
 		TimeoutInMilliseconds: 50,
 		ScanDepth:             3,
@@ -94,7 +94,7 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 
 	config := &scan.Config{
 		Threads:               3,
-		Dictionary:            []string{"/home", "/about"},
+		DictionaryPath:        "testdata/dictionary1.txt",
 		HTTPMethods:           []string{http.MethodGet},
 		TimeoutInMilliseconds: 50,
 		ScanDepth:             3,
@@ -139,7 +139,7 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 
 	config := &scan.Config{
 		Threads:               3,
-		Dictionary:            []string{"/home"},
+		DictionaryPath:        "testdata/dictionary2.txt",
 		HTTPMethods:           []string{http.MethodGet},
 		TimeoutInMilliseconds: 50,
 		ScanDepth:             3,
