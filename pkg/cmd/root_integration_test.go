@@ -55,6 +55,40 @@ func TestScanCommand(t *testing.T) {
 	assert.Equal(t, int32(3), calls)
 }
 
+func TestScanWithRemoteDictionary(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := cmd.NewRootCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	dictionaryServer := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			dict := `home
+home/index.php
+blabla
+`
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte(dict))
+		}),
+	)
+	defer dictionaryServer.Close()
+
+	var calls int32
+	srv := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			atomic.AddInt32(&calls, 1)
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer srv.Close()
+
+	_, _, err = executeCommandC(c, "scan", srv.URL, "--dictionary", dictionaryServer.URL)
+	assert.NoError(t, err)
+
+	assert.Equal(t, int32(3), calls)
+}
+
 func TestDictionaryGenerateCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 

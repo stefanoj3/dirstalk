@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
@@ -14,10 +13,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	var err error
 
-	c.Dictionary, err = dictionary.NewDictionaryFromFile(cmd.Flag(flagDictionary).Value.String())
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to generate dictionary from file")
-	}
+	c.DictionaryPath = cmd.Flag(flagDictionary).Value.String()
 
 	c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagHTTPMethods)
 	if err != nil {
