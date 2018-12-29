@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+const commentPrefix = "#"
+
 func NewDictionaryFrom(path string, doer Doer) ([]string, error) {
 	_, err := url.ParseRequestURI(path)
 	if err != nil {
@@ -33,7 +35,12 @@ func dictionaryFromReader(reader io.Reader) []string {
 	entries := make([]string, 0)
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
-		entries = append(entries, scanner.Text())
+		line := scanner.Text()
+		if isAComment(line) {
+			continue
+		}
+
+		entries = append(entries, line)
 	}
 	return entries
 }
@@ -60,4 +67,8 @@ func newDictionaryFromRemoteFile(path string, doer Doer) ([]string, error) {
 	}
 
 	return dictionaryFromReader(res.Body), nil
+}
+
+func isAComment(line string) bool {
+	return line[0:1] == commentPrefix
 }
