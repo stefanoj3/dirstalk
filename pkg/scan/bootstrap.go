@@ -27,7 +27,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 
 	dict, err := dictionary.NewDictionaryFrom(cnf.DictionaryPath, c)
 	if err != nil {
-		return errors.Wrap(err, "failed to ")
+		return errors.Wrap(err, "failed to build dictionary")
 	}
 
 	r := NewReProcessor(eventManager, cnf.HTTPMethods, dict)

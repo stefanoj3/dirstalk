@@ -1,3 +1,6 @@
+# a comment
 home
 home/index.php
+# another comment
 blabla
+# yet another comment
