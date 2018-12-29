@@ -36,6 +36,10 @@ func dictionaryFromReader(reader io.Reader) []string {
 	scanner := bufio.NewScanner(reader)
 	for scanner.Scan() {
 		line := scanner.Text()
+		if len(line) == 0 {
+			continue
+		}
+
 		if isAComment(line) {
 			continue
 		}
