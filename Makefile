@@ -61,4 +61,4 @@ help:
 .PHONY: build
 ## Builds binary from source
 build:
-	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "$(LD_FLAGS)" -o dist/linux_build cmd/dirstalk/main.go
+	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "$(LD_FLAGS)" -o dist/dirstalk cmd/dirstalk/main.go
