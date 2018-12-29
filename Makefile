@@ -46,10 +46,10 @@ release-snapshot:
 	@goreleaser --snapshot --rm-dist
 
 .PHONY: release
-## Creates a release snapshot - requires goreleaser to be available in the $PATH
+## Creates a release - requires goreleaser to be available in the $PATH
 release:
-	@echo "Creating release snapshot..."
-	@goreleaser release --skip-release --rm-dist
+	@echo "Creating release ..."
+	@goreleaser release --skip-publish --rm-dist
 
 .PHONY: help
 ## Display this help screen - requires gawk
