@@ -13,7 +13,7 @@ RUN make build
 FROM scratch
 
 COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /go/src/github.com/stefanoj3/dirstalk/dist/linux_build /bin/dirstalk
+COPY --from=builder /go/src/github.com/stefanoj3/dirstalk/dist/dirstalk /bin/dirstalk
 
 USER dirstalkuser
 CMD ["dirstalk"]
