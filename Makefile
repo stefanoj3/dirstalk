@@ -2,7 +2,7 @@ SRC_DIRS=cmd pkg
 
 TESTARGS=-v -race -cover
 
-VERSION=$(shell git describe | git rev-parse HEAD)
+VERSION=$(shell git describe || git rev-parse HEAD)
 DATE=$(shell date +%s)
 LD_FLAGS=-extldflags '-static' -X github.com/stefanoj3/dirstalk/pkg/cmd.Version=$(VERSION) -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime=$(DATE)
 
