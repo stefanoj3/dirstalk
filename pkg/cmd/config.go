@@ -43,5 +43,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		}
 	}
 
+	c.UserAgent = cmd.Flag(flagUserAgent).Value.String()
+
 	return c, nil
 }

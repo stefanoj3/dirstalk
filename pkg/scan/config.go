@@ -9,4 +9,5 @@ type Config struct {
 	TimeoutInMilliseconds int
 	ScanDepth             int
 	Socks5Url             *url.URL
+	UserAgent             string
 }

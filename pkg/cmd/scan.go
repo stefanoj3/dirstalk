@@ -68,6 +68,13 @@ func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"socks5 host to use",
 	)
 
+	cmd.Flags().StringP(
+		flagUserAgent,
+		"",
+		"",
+		"user agent to use for http requests",
+	)
+
 	return cmd, nil
 }
 
