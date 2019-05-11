@@ -6,7 +6,8 @@
 Dirstalk is a multi threaded application designed to brute force paths on web servers.
 
 The tool contains functionalities similar to the ones offered by
-[dirbuster](https://www.owasp.org/index.php/Category:OWASP_DirBuster_Project).
+[dirbuster](https://www.owasp.org/index.php/Category:OWASP_DirBuster_Project) 
+and [dirb](https://tools.kali.org/web-applications/dirb).
 
 ## Contents
 - [How to use it](#-how-to-use-it)
