@@ -89,6 +89,46 @@ blabla
 	assert.Equal(t, int32(3), calls)
 }
 
+func TestScanWithUserAgentFlag(t *testing.T) {
+	const testUserAgent = "my_test_user_agent"
+
+	logger, _ := test.NewLogger()
+
+	c, err := cmd.NewRootCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	var callsWithMatchingUserAgent int32
+	var callsWithNonMatchingUserAgent int32
+
+	srv := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get("User-Agent") == testUserAgent {
+				atomic.AddInt32(&callsWithMatchingUserAgent, 1)
+			} else {
+				atomic.AddInt32(&callsWithNonMatchingUserAgent, 1)
+			}
+
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer srv.Close()
+
+	_, _, err = executeCommandC(
+		c,
+		"scan",
+		srv.URL,
+		"--user-agent",
+		testUserAgent,
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.NoError(t, err)
+
+	assert.Equal(t, int32(3), callsWithMatchingUserAgent)
+	assert.Equal(t, int32(0), callsWithNonMatchingUserAgent)
+}
+
 func TestDictionaryGenerateCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 

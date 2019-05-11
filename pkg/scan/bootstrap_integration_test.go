@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"sync"
 	"testing"
+	"time"
 
 	socks5 "github.com/armon/go-socks5"
 	"github.com/chuckpreslar/emission"
@@ -23,6 +24,7 @@ func TestStartScan(t *testing.T) {
 
 	requestMap := &sync.Map{}
 	testServer := buildTestServer(requestMap)
+	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
 	assert.NoError(t, err)
@@ -85,6 +87,7 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 	logger, _ := test.NewLogger()
 
 	testServer := buildTestServer(&sync.Map{})
+	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
 	assert.NoError(t, err)
@@ -125,11 +128,52 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 	assertTargetsContains(t, scan.Target{Depth: 2, Path: "/home/about", Method: http.MethodGet}, actualResults)
 }
 
+func TestShouldUseTheSpecifiedUserAgent(t *testing.T) {
+	const testUserAgent = "my_test_user_agent"
+
+	logger, _ := test.NewLogger()
+
+	var request *http.Request
+	doneChannel := make(chan bool)
+
+	testServer := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			request = r
+			doneChannel <- true
+		}),
+	)
+	defer testServer.Close()
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	config := &scan.Config{
+		Threads:               3,
+		DictionaryPath:        "testdata/one_element_dictionary.txt",
+		HTTPMethods:           []string{http.MethodGet},
+		TimeoutInMilliseconds: 50,
+		ScanDepth:             3,
+		UserAgent:             testUserAgent,
+	}
+
+	eventManager := emission.NewEmitter()
+	err = scan.StartScan(logger, eventManager, config, u)
+	assert.NoError(t, err)
+
+	select {
+	case <-doneChannel:
+		assert.Equal(t, testUserAgent, request.Header.Get("User-Agent"))
+	case <-time.After(time.Second * 1):
+		t.Fatal("failed to receive request")
+	}
+}
+
 func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
 	requestMap := &sync.Map{}
 	testServer := buildTestServer(requestMap)
+	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
 	assert.NoError(t, err)

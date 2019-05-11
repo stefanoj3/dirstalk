@@ -14,6 +14,7 @@ const (
 	flagThreads         = "threads"
 	flagThreadsShort    = "t"
 	flagSocks5Host      = "socks5"
+	flagUserAgent       = "user-agent"
 
 	// Generate dictionary flags
 	flagOutput           = "out"

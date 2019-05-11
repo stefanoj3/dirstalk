@@ -58,7 +58,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 	return nil
 }
 
-func buildClientFrom(cnf *Config) (*http.Client, error) {
+func buildClientFrom(cnf *Config) (Doer, error) {
 	c := &http.Client{
 		Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
 	}
@@ -73,5 +73,5 @@ func buildClientFrom(cnf *Config) (*http.Client, error) {
 		c.Transport = tbTransport
 	}
 
-	return c, nil
+	return newUserAgentDoerDecorator(c, cnf.UserAgent), nil
 }
