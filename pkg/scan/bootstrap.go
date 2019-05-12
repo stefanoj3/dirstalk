@@ -1,15 +1,16 @@
 package scan
 
 import (
+	"context"
+	"net"
 	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/stefanoj3/dirstalk/pkg/dictionary"
-
 	"github.com/chuckpreslar/emission"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"golang.org/x/net/proxy"
 )
 
@@ -69,7 +70,11 @@ func buildClientFrom(cnf *Config) (Doer, error) {
 			return nil, err
 		}
 
-		tbTransport := &http.Transport{Dial: tbDialer.Dial}
+		tbTransport := &http.Transport{
+			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, e error) {
+				return tbDialer.Dial(network, addr)
+			},
+		}
 		c.Transport = tbTransport
 	}
 

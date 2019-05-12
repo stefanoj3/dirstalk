@@ -11,7 +11,7 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
-func newScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
+func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "scan [url]",
 		Short: "Scan the given URL",

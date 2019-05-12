@@ -22,7 +22,7 @@ func init() {
 	}
 }
 
-func newVersionCommand(out io.Writer) *cobra.Command {
+func NewVersionCommand(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Print the current version",
