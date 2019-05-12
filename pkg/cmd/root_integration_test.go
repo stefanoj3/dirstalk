@@ -10,6 +10,8 @@ import (
 	"sync/atomic"
 	"testing"
 
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/stefanoj3/dirstalk/pkg/cmd"
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
@@ -19,11 +21,11 @@ import (
 func TestRootCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
-	_, out, err := executeCommandC(c)
+	_, out, err := executeCommand(c)
 	assert.NoError(t, err)
 
 	// ensure the summary is printed
@@ -36,7 +38,7 @@ func TestRootCommand(t *testing.T) {
 func TestScanCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
@@ -49,7 +51,7 @@ func TestScanCommand(t *testing.T) {
 	)
 	defer srv.Close()
 
-	_, _, err = executeCommandC(c, "scan", srv.URL, "--dictionary", "testdata/dict.txt")
+	_, _, err = executeCommand(c, "scan", srv.URL, "--dictionary", "testdata/dict.txt")
 	assert.NoError(t, err)
 
 	assert.Equal(t, int32(3), calls)
@@ -58,7 +60,7 @@ func TestScanCommand(t *testing.T) {
 func TestScanWithRemoteDictionary(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
@@ -83,7 +85,7 @@ blabla
 	)
 	defer srv.Close()
 
-	_, _, err = executeCommandC(c, "scan", srv.URL, "--dictionary", dictionaryServer.URL)
+	_, _, err = executeCommand(c, "scan", srv.URL, "--dictionary", dictionaryServer.URL)
 	assert.NoError(t, err)
 
 	assert.Equal(t, int32(3), calls)
@@ -94,7 +96,7 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
@@ -114,7 +116,7 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 	)
 	defer srv.Close()
 
-	_, _, err = executeCommandC(
+	_, _, err = executeCommand(
 		c,
 		"scan",
 		srv.URL,
@@ -132,13 +134,13 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 func TestDictionaryGenerateCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
 	testFilePath := "testdata/" + test.RandStringRunes(10)
 	defer removeTestFile(testFilePath)
-	_, _, err = executeCommandC(c, "dictionary.generate", ".", "-o", testFilePath)
+	_, _, err = executeCommand(c, "dictionary.generate", ".", "-o", testFilePath)
 	assert.NoError(t, err)
 
 	content, err := ioutil.ReadFile(testFilePath)
@@ -152,11 +154,11 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 func TestVersionCommand(t *testing.T) {
 	logger, buf := test.NewLogger()
 
-	c, err := cmd.NewRootCommand(logger)
+	c, err := createCommand(logger)
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommandC(c, "version")
+	_, _, err = executeCommand(c, "version")
 	assert.NoError(t, err)
 
 	// Ensure the command ran and produced some of the expected output
@@ -164,7 +166,7 @@ func TestVersionCommand(t *testing.T) {
 	assert.Contains(t, buf.String(), "Version: ")
 }
 
-func executeCommandC(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
+func executeCommand(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
 	buf := new(bytes.Buffer)
 	root.SetOutput(buf)
 
@@ -182,4 +184,22 @@ func removeTestFile(path string) {
 	}
 
 	_ = os.Remove(path)
+}
+
+func createCommand(logger *logrus.Logger) (*cobra.Command, error) {
+	dirStalkCmd, err := cmd.NewRootCommand(logger)
+	if err != nil {
+		return nil, err
+	}
+
+	scanCmd, err := cmd.NewScanCommand(logger)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create scan command")
+	}
+
+	dirStalkCmd.AddCommand(scanCmd)
+	dirStalkCmd.AddCommand(cmd.NewGenerateDictionaryCommand())
+	dirStalkCmd.AddCommand(cmd.NewVersionCommand(logger.Out))
+
+	return dirStalkCmd, nil
 }

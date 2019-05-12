@@ -10,7 +10,7 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 )
 
-func newGenerateDictionaryCommand() *cobra.Command {
+func NewGenerateDictionaryCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dictionary.generate [path]",
 		Short: "Generate a dictionary from the given folder",
