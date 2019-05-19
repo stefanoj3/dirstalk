@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/proxy"
 )
 
+// StartScan is a convenience method that wires together all the dependencies needed to start a scan
 func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Config, u *url.URL) error {
 	c, err := buildClientFrom(cnf)
 	if err != nil {
