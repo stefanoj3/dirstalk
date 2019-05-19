@@ -17,25 +17,18 @@ const (
 	jobQueueSize = 100
 )
 
+// Target represents the target to scan
 type Target struct {
 	Path   string
 	Method string
 	Depth  int
 }
 
-// Result represent the result of the scan of a single URL
+// Result represents the result of the scan of a single URL
 type Result struct {
 	Target   Target
 	URL      *url.URL
 	Response *http.Response
-}
-
-type Scanner struct {
-	httpClient   Doer
-	eventEmitter *emission.Emitter
-	logger       *logrus.Logger
-	jobQueue     chan Target
-	isReleased   *abool.AtomicBool
 }
 
 func NewScanner(
@@ -50,6 +43,14 @@ func NewScanner(
 		jobQueue:     make(chan Target, jobQueueSize),
 		isReleased:   abool.New(),
 	}
+}
+
+type Scanner struct {
+	httpClient   Doer
+	eventEmitter *emission.Emitter
+	logger       *logrus.Logger
+	jobQueue     chan Target
+	isReleased   *abool.AtomicBool
 }
 
 func (s *Scanner) AddTarget(target Target) {
@@ -99,41 +100,30 @@ func (s *Scanner) Release() {
 }
 
 func (s *Scanner) processTarget(baseURL url.URL, target Target) {
-	s.logger.WithFields(logrus.Fields{
+	l := s.logger.WithFields(logrus.Fields{
 		"method": target.Method,
 		"depth":  target.Depth,
 		"path":   target.Path,
-	}).Debug("Working")
+	})
+
+	l.Debug("Working")
 
 	u := buildURL(baseURL, target)
 	req, err := http.NewRequest(target.Method, u.String(), nil)
 	if err != nil {
-		s.logger.WithFields(logrus.Fields{
-			"url":    target.Path,
-			"method": target.Method,
-			"depth":  target.Depth,
-			"error":  err.Error(),
-		}).Error(
-			"failed to build request",
-		)
+		l.WithError(err).Error("failed to build request")
 		return
 	}
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
-
-		s.logger.WithFields(logrus.Fields{
-			"url":    target.Path,
-			"method": target.Method,
-			"depth":  target.Depth,
-			"error":  err.Error(),
-		}).Warn(
-			"failed to perform request",
-		)
+		l.WithError(err).Warn("failed to perform request")
 		return
 	}
 
-	res.Body.Close()
+	if err := res.Body.Close(); err != nil {
+		l.WithError(err).Warn("failed to close response body")
+	}
 
 	result := &Result{
 		Target:   target,

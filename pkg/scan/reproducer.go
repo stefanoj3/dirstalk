@@ -12,15 +12,15 @@ var statusCodesToSkip = map[int]bool{
 	404: false,
 }
 
+func NewReProcessor(eventEmitter *emission.Emitter, httpMethods []string, dictionary []string) *ReProcessor {
+	return &ReProcessor{eventEmitter: eventEmitter, httpMethods: httpMethods, dictionary: dictionary}
+}
+
 type ReProcessor struct {
 	eventEmitter   *emission.Emitter
 	httpMethods    []string
 	dictionary     []string
 	resultRegistry sync.Map
-}
-
-func NewReProcessor(eventEmitter *emission.Emitter, httpMethods []string, dictionary []string) *ReProcessor {
-	return &ReProcessor{eventEmitter: eventEmitter, httpMethods: httpMethods, dictionary: dictionary}
 }
 
 func (r *ReProcessor) ReProcess(result *Result) {

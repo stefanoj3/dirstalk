@@ -12,12 +12,12 @@ const (
 	notFoundText = "Not found"
 )
 
-type ResultLogger struct {
-	logger *logrus.Logger
-}
-
 func NewResultLogger(logger *logrus.Logger) *ResultLogger {
 	return &ResultLogger{logger: logger}
+}
+
+type ResultLogger struct {
+	logger *logrus.Logger
 }
 
 func (c *ResultLogger) Log(result *Result) {

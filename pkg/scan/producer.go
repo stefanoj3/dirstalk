@@ -4,13 +4,6 @@ import (
 	"github.com/chuckpreslar/emission"
 )
 
-type TargetProducer struct {
-	eventEmitter *emission.Emitter
-	methods      []string
-	dictionary   []string
-	depth        int
-}
-
 func NewTargetProducer(
 	eventEmitter *emission.Emitter,
 	methods []string,
@@ -24,6 +17,13 @@ func NewTargetProducer(
 		depth:        depth,
 	}
 
+}
+
+type TargetProducer struct {
+	eventEmitter *emission.Emitter
+	methods      []string
+	dictionary   []string
+	depth        int
 }
 
 func (p *TargetProducer) Run() {
