@@ -9,12 +9,12 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Generator struct {
-	out io.Writer
-}
-
 func NewGenerator(out io.Writer) *Generator {
 	return &Generator{out: out}
+}
+
+type Generator struct {
+	out io.Writer
 }
 
 func (g *Generator) GenerateDictionaryFrom(path string, absoluteOnly bool) error {

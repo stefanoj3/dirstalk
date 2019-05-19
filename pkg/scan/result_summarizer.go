@@ -10,15 +10,15 @@ import (
 	gotree "github.com/DiSiqueira/GoTree"
 )
 
+func NewResultSummarizer(out io.Writer) *ResultSummarizer {
+	return &ResultSummarizer{out: out}
+}
+
 type ResultSummarizer struct {
 	out             io.Writer
 	results         []*Result
 	resultsReceived int
 	mux             sync.RWMutex
-}
-
-func NewResultSummarizer(out io.Writer) *ResultSummarizer {
-	return &ResultSummarizer{out: out}
 }
 
 func (s *ResultSummarizer) Add(result *Result) {
