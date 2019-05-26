@@ -151,6 +151,32 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 	assert.Contains(t, string(content), "root_integration_test.go")
 }
 
+func TestGenerateDictionaryWithoutOutputPath(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	_, _, err = executeCommand(c, "dictionary.generate", ".")
+	assert.NoError(t, err)
+}
+
+func TestGenerateDictionaryWithInvalidDirectory(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	fakePath := "./" + test.RandStringRunes(10)
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	_, _, err = executeCommand(c, "dictionary.generate", fakePath)
+	assert.Error(t, err)
+
+	assert.Contains(t, err.Error(), "unable to use the provided path")
+	assert.Contains(t, err.Error(), fakePath)
+}
+
 func TestVersionCommand(t *testing.T) {
 	logger, buf := test.NewLogger()
 
