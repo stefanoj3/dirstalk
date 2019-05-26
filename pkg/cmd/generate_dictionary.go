@@ -65,7 +65,7 @@ func getOutputForDictionaryGenerator(cmd *cobra.Command) (io.Writer, error) {
 		return os.Stdout, nil
 	}
 
-	file, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, errors.Wrap(err, "cannot write on the path provided")
 	}

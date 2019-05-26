@@ -17,6 +17,7 @@ dep:
 	@go get -u golang.org/x/tools/cmd/goimports
 	@go get -u golang.org/x/lint/golint
 	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	@go get -u github.com/securego/gosec/cmd/gosec
 	@dep ensure
 
 .PHONY: test
@@ -33,6 +34,7 @@ check:
 	@go vet ./...
 	@goimports -l $(SRC_DIRS) | tee /dev/tty | xargs -I {} test -z {}
 	@golangci-lint run
+	@gosec ./...
 
 .PHONY: fix
 ## Run goimports against the source code

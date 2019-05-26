@@ -22,7 +22,7 @@ func NewDictionaryFrom(path string, doer Doer) ([]string, error) {
 }
 
 func newDictionaryFromLocalFile(path string) ([]string, error) {
-	file, err := os.Open(path)
+	file, err := os.Open(path) // #nosec
 	if err != nil {
 		return nil, errors.Wrapf(err, "dictionary: unable to open: %s", path)
 	}
