@@ -133,14 +133,8 @@ func TestShouldUseTheSpecifiedUserAgent(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	var request *http.Request
-	doneChannel := make(chan bool)
-
-	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			request = r
-			doneChannel <- true
-		}),
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
 	defer testServer.Close()
 
@@ -160,19 +154,18 @@ func TestShouldUseTheSpecifiedUserAgent(t *testing.T) {
 	err = scan.StartScan(logger, eventManager, config, u)
 	assert.NoError(t, err)
 
-	select {
-	case <-doneChannel:
-		assert.Equal(t, testUserAgent, request.Header.Get("User-Agent"))
-	case <-time.After(time.Second * 1):
-		t.Fatal("failed to receive request")
-	}
+	assert.True(t, serverAssertion.Len() > 0)
+	serverAssertion.Range(func(_ int, r http.Request) {
+		assert.Equal(t, testUserAgent, r.Header.Get("User-Agent"))
+	})
 }
 
 func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	requestMap := &sync.Map{}
-	testServer := buildTestServer(requestMap)
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
 	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
@@ -212,10 +205,7 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	assert.Len(t, actualResults, 0)
 	assert.Contains(t, loggerBuffer.String(), "connection refused")
 
-	requestMap.Range(func(key, value interface{}) bool {
-		t.Fatal("no request was supposed to be recorded: socks5 is down, the server should remain unreachable")
-		return true
-	})
+	assert.True(t, serverAssertion.Len() == 0)
 }
 
 func TestShouldRetainCookiesSetByTheServerWhenCookieJarIsEnabled(t *testing.T) {
