@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"net/http"
+	"net/http/cookiejar"
 	"net/url"
 	"time"
 
@@ -63,6 +64,14 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 func buildClientFrom(cnf *Config) (Doer, error) {
 	c := &http.Client{
 		Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
+	}
+
+	if cnf.UseCookieJar {
+		jar, err := cookiejar.New(nil)
+		if err != nil {
+			return nil, err
+		}
+		c.Jar = jar
 	}
 
 	if cnf.Socks5Url != nil {

@@ -15,6 +15,7 @@ const (
 	flagThreadsShort    = "t"
 	flagSocks5Host      = "socks5"
 	flagUserAgent       = "user-agent"
+	flagCookieJar       = "use-cookie-jar"
 
 	// Generate dictionary flags
 	flagOutput           = "out"

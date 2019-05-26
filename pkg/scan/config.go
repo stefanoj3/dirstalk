@@ -11,4 +11,5 @@ type Config struct {
 	ScanDepth             int
 	Socks5Url             *url.URL
 	UserAgent             string
+	UseCookieJar          bool
 }
