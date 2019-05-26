@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	socks5 "github.com/armon/go-socks5"
+	"github.com/armon/go-socks5"
 	"github.com/chuckpreslar/emission"
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
@@ -133,14 +133,8 @@ func TestShouldUseTheSpecifiedUserAgent(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	var request *http.Request
-	doneChannel := make(chan bool)
-
-	testServer := httptest.NewServer(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			request = r
-			doneChannel <- true
-		}),
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
 	defer testServer.Close()
 
@@ -160,19 +154,18 @@ func TestShouldUseTheSpecifiedUserAgent(t *testing.T) {
 	err = scan.StartScan(logger, eventManager, config, u)
 	assert.NoError(t, err)
 
-	select {
-	case <-doneChannel:
-		assert.Equal(t, testUserAgent, request.Header.Get("User-Agent"))
-	case <-time.After(time.Second * 1):
-		t.Fatal("failed to receive request")
-	}
+	assert.True(t, serverAssertion.Len() > 0)
+	serverAssertion.Range(func(_ int, r http.Request) {
+		assert.Equal(t, testUserAgent, r.Header.Get("User-Agent"))
+	})
 }
 
 func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	requestMap := &sync.Map{}
-	testServer := buildTestServer(requestMap)
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
 	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
@@ -212,9 +205,87 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	assert.Len(t, actualResults, 0)
 	assert.Contains(t, loggerBuffer.String(), "connection refused")
 
-	requestMap.Range(func(key, value interface{}) bool {
-		t.Fatal("no request was supposed to be recorded: socks5 is down, the server should remain unreachable")
-		return true
+	assert.True(t, serverAssertion.Len() == 0)
+}
+
+func TestShouldRetainCookiesSetByTheServerWhenCookieJarIsEnabled(t *testing.T) {
+	const (
+		cookieName  = "my_cookies_name"
+		cookieValue = "my_cookie_value_123"
+	)
+	logger, _ := test.NewLogger()
+
+	once := sync.Once{}
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			once.Do(func() {
+				http.SetCookie(
+					w,
+					&http.Cookie{
+						Name:    cookieName,
+						Value:   cookieValue,
+						Expires: time.Now().AddDate(0, 1, 0),
+					},
+				)
+			})
+		}),
+	)
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	config := &scan.Config{
+		Threads:               1,
+		DictionaryPath:        "testdata/dictionary1.txt",
+		HTTPMethods:           []string{http.MethodGet},
+		TimeoutInMilliseconds: 400,
+		ScanDepth:             2,
+		UseCookieJar:          true,
+	}
+	eventManager := emission.NewEmitter()
+
+	err = scan.StartScan(logger, eventManager, config, u)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 14, serverAssertion.Len())
+	serverAssertion.Range(func(index int, r http.Request) {
+		if index == 0 { // the first request should have no cookies
+			assert.Equal(t, 0, len(r.Cookies()))
+			return
+		}
+
+		assert.Equal(t, 1, len(r.Cookies()), "Only one cookie expected, got: %v", r.Cookies())
+		assert.Equal(t, cookieName, r.Cookies()[0].Name)
+		assert.Equal(t, cookieValue, r.Cookies()[0].Value)
+	})
+}
+
+func TestShouldNotSendAnyCookieIfServerSetNoneWhenUsingCookieJar(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	config := &scan.Config{
+		Threads:               1,
+		DictionaryPath:        "testdata/dictionary1.txt",
+		HTTPMethods:           []string{http.MethodGet},
+		TimeoutInMilliseconds: 400,
+		ScanDepth:             2,
+		UseCookieJar:          true,
+	}
+	eventManager := emission.NewEmitter()
+
+	err = scan.StartScan(logger, eventManager, config, u)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 14, serverAssertion.Len())
+	serverAssertion.Range(func(index int, r http.Request) {
+		assert.Equal(t, 0, len(r.Cookies()), "No cookies expected, got: %v", r.Cookies())
 	})
 }
 

@@ -75,6 +75,14 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"user agent to use for http requests",
 	)
 
+	cmd.Flags().BoolP(
+		flagCookieJar,
+		"",
+		false,
+		"enables the use of a cookie jar: it will retain any cookie sent "+
+			"from the server and send them for the following requests",
+	)
+
 	return cmd, nil
 }
 

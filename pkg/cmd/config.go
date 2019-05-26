@@ -45,5 +45,10 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	c.UserAgent = cmd.Flag(flagUserAgent).Value.String()
 
+	c.UseCookieJar, err = cmd.Flags().GetBool(flagCookieJar)
+	if err != nil {
+		return nil, errors.Wrap(err, "cookie jar flag is invalid")
+	}
+
 	return c, nil
 }
