@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -50,5 +53,37 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "cookie jar flag is invalid")
 	}
 
+	rawCookies, err := cmd.Flags().GetStringSlice(flagCookies)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read cookies flag")
+	}
+
+	c.Cookies, err = rawCookiesToCookies(rawCookies)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert rawCookies to objects")
+	}
+
 	return c, nil
+}
+
+func rawCookiesToCookies(rawCookies []string) ([]*http.Cookie, error) {
+	cookies := make([]*http.Cookie, 0, len(rawCookies))
+
+	for _, rawCookie := range rawCookies {
+		parts := strings.Split(rawCookie, "=")
+		if len(parts) != 2 {
+			return nil, errors.Errorf("cookie format is invalid: %s", rawCookie)
+		}
+
+		cookies = append(
+			cookies,
+			&http.Cookie{
+				Name:    parts[0],
+				Value:   parts[1],
+				Expires: time.Now().AddDate(0, 0, 2),
+			},
+		)
+	}
+
+	return cookies, nil
 }

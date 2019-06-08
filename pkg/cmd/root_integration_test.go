@@ -7,8 +7,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
-	"sync/atomic"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -42,19 +43,17 @@ func TestScanCommand(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
-	var calls int32
-	srv := httptest.NewServer(
+	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			atomic.AddInt32(&calls, 1)
 			w.WriteHeader(http.StatusNotFound)
 		}),
 	)
-	defer srv.Close()
+	defer testServer.Close()
 
-	_, _, err = executeCommand(c, "scan", srv.URL, "--dictionary", "testdata/dict.txt")
+	_, _, err = executeCommand(c, "scan", testServer.URL, "--dictionary", "testdata/dict.txt", "-v")
 	assert.NoError(t, err)
 
-	assert.Equal(t, int32(3), calls)
+	assert.Equal(t, 3, serverAssertion.Len())
 }
 
 func TestScanWithRemoteDictionary(t *testing.T) {
@@ -76,19 +75,17 @@ blabla
 	)
 	defer dictionaryServer.Close()
 
-	var calls int32
-	srv := httptest.NewServer(
+	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			atomic.AddInt32(&calls, 1)
 			w.WriteHeader(http.StatusNotFound)
 		}),
 	)
-	defer srv.Close()
+	defer testServer.Close()
 
-	_, _, err = executeCommand(c, "scan", srv.URL, "--dictionary", dictionaryServer.URL)
+	_, _, err = executeCommand(c, "scan", testServer.URL, "--dictionary", dictionaryServer.URL)
 	assert.NoError(t, err)
 
-	assert.Equal(t, int32(3), calls)
+	assert.Equal(t, 3, serverAssertion.Len())
 }
 
 func TestScanWithUserAgentFlag(t *testing.T) {
@@ -100,26 +97,17 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
-	var callsWithMatchingUserAgent int32
-	var callsWithNonMatchingUserAgent int32
-
-	srv := httptest.NewServer(
+	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Header.Get("User-Agent") == testUserAgent {
-				atomic.AddInt32(&callsWithMatchingUserAgent, 1)
-			} else {
-				atomic.AddInt32(&callsWithNonMatchingUserAgent, 1)
-			}
-
 			w.WriteHeader(http.StatusNotFound)
 		}),
 	)
-	defer srv.Close()
+	defer testServer.Close()
 
 	_, _, err = executeCommand(
 		c,
 		"scan",
-		srv.URL,
+		testServer.URL,
 		"--user-agent",
 		testUserAgent,
 		"--dictionary",
@@ -127,8 +115,129 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	assert.Equal(t, int32(3), callsWithMatchingUserAgent)
-	assert.Equal(t, int32(0), callsWithNonMatchingUserAgent)
+	assert.Equal(t, 3, serverAssertion.Len())
+	serverAssertion.Range(func(_ int, r http.Request) {
+		assert.Equal(t, testUserAgent, r.Header.Get("User-Agent"))
+	})
+}
+
+func TestScanWithCookies(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--cookies",
+		"name1=val1,name2=val2",
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.NoError(t, err)
+
+	serverAssertion.Range(func(_ int, r http.Request) {
+		assert.Equal(t, 2, len(r.Cookies()))
+
+		assert.Equal(t, r.Cookies()[0].Name, "name1")
+		assert.Equal(t, r.Cookies()[0].Value, "val1")
+
+		assert.Equal(t, r.Cookies()[1].Name, "name2")
+		assert.Equal(t, r.Cookies()[1].Value, "val2")
+	})
+}
+
+func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
+	const malformedCookie = "gibberish"
+
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--cookies",
+		malformedCookie,
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "cookie format is invalid")
+	assert.Contains(t, err.Error(), malformedCookie)
+
+	assert.Equal(t, 0, serverAssertion.Len())
+}
+
+func TestScanWithCookieJar(t *testing.T) {
+	const (
+		serverCookieName  = "server_cookie_name"
+		serverCookieValue = "server_cookie_value"
+	)
+
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	once := sync.Once{}
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			once.Do(func() {
+				http.SetCookie(
+					w,
+					&http.Cookie{
+						Name:    serverCookieName,
+						Value:   serverCookieValue,
+						Expires: time.Now().AddDate(0, 1, 0),
+					},
+				)
+			})
+		}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--use-cookie-jar",
+		"--dictionary",
+		"testdata/dict.txt",
+		"-t",
+		"1",
+	)
+	assert.NoError(t, err)
+
+	serverAssertion.Range(func(index int, r http.Request) {
+		if index == 0 { // first request should have no cookies
+			assert.Equal(t, 0, len(r.Cookies()))
+			return
+		}
+
+		assert.Equal(t, 1, len(r.Cookies()))
+		assert.Equal(t, r.Cookies()[0].Name, serverCookieName)
+		assert.Equal(t, r.Cookies()[0].Value, serverCookieValue)
+	})
 }
 
 func TestDictionaryGenerateCommand(t *testing.T) {

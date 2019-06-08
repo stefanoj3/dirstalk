@@ -1,6 +1,9 @@
 package scan
 
-import "net/url"
+import (
+	"net/http"
+	"net/url"
+)
 
 // Config represents the configuration needed to perform a scan
 type Config struct {
@@ -12,4 +15,5 @@ type Config struct {
 	Socks5Url             *url.URL
 	UserAgent             string
 	UseCookieJar          bool
+	Cookies               []*http.Cookie
 }

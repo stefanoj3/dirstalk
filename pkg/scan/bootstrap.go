@@ -1,23 +1,26 @@
 package scan
 
 import (
-	"context"
-	"net"
 	"net/http"
-	"net/http/cookiejar"
 	"net/url"
-	"time"
 
 	"github.com/chuckpreslar/emission"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
-	"golang.org/x/net/proxy"
+	"github.com/stefanoj3/dirstalk/pkg/scan/client"
 )
 
 // StartScan is a convenience method that wires together all the dependencies needed to start a scan
 func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Config, u *url.URL) error {
-	c, err := buildClientFrom(cnf)
+	c, err := client.NewClientFromConfig(
+		cnf.TimeoutInMilliseconds,
+		cnf.Socks5Url,
+		cnf.UserAgent,
+		cnf.UseCookieJar,
+		cnf.Cookies,
+		u,
+	)
 	if err != nil {
 		return errors.Wrap(err, "failed to build client")
 	}
@@ -52,6 +55,9 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 		"url":               u.String(),
 		"threads":           cnf.Threads,
 		"dictionary.length": len(dict),
+		"cookies":           strigifyCookies(cnf.Cookies),
+		"user-agent":        cnf.UserAgent,
+		"socks5":            cnf.Socks5Url,
 	}).Info("Starting scan")
 
 	s.Scan(u, cnf.Threads)
@@ -61,32 +67,12 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 	return nil
 }
 
-func buildClientFrom(cnf *Config) (Doer, error) {
-	c := &http.Client{
-		Timeout: time.Millisecond * time.Duration(cnf.TimeoutInMilliseconds),
+func strigifyCookies(cookies []*http.Cookie) string {
+	result := ""
+
+	for _, cookie := range cookies {
+		result += cookie.Name + "=" + cookie.Value + ";"
 	}
 
-	if cnf.UseCookieJar {
-		jar, err := cookiejar.New(nil)
-		if err != nil {
-			return nil, err
-		}
-		c.Jar = jar
-	}
-
-	if cnf.Socks5Url != nil {
-		tbDialer, err := proxy.FromURL(cnf.Socks5Url, proxy.Direct)
-		if err != nil {
-			return nil, err
-		}
-
-		tbTransport := &http.Transport{
-			DialContext: func(ctx context.Context, network, addr string) (conn net.Conn, e error) {
-				return tbDialer.Dial(network, addr)
-			},
-		}
-		c.Transport = tbTransport
-	}
-
-	return newUserAgentDoerDecorator(c, cnf.UserAgent), nil
+	return result
 }

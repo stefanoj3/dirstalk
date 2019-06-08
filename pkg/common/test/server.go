@@ -40,6 +40,13 @@ func (s *ServerAssertion) Range(fn func(index int, r http.Request)) {
 	}
 }
 
+func (s *ServerAssertion) At(index int, fn func(r http.Request)) {
+	s.requestsMx.RLock()
+	defer s.requestsMx.RUnlock()
+
+	fn(s.requests[index])
+}
+
 func (s *ServerAssertion) Len() int {
 	s.requestsMx.RLock()
 	defer s.requestsMx.RUnlock()

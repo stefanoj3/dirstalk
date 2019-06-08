@@ -289,6 +289,55 @@ func TestShouldNotSendAnyCookieIfServerSetNoneWhenUsingCookieJar(t *testing.T) {
 	})
 }
 
+func TestShouldSendCookiesWhenSpecified(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	cookies := []*http.Cookie{
+		{
+			Name:    "name1",
+			Value:   "value1",
+			Expires: time.Now().AddDate(0, 0, 2),
+		},
+		{
+			Name:    "name2",
+			Value:   "value2",
+			Expires: time.Now().AddDate(0, 0, 2),
+		},
+	}
+
+	config := &scan.Config{
+		Threads:               3,
+		DictionaryPath:        "testdata/dictionary1.txt",
+		HTTPMethods:           []string{http.MethodGet},
+		TimeoutInMilliseconds: 400,
+		ScanDepth:             2,
+		UseCookieJar:          false,
+		Cookies:               cookies,
+	}
+	eventManager := emission.NewEmitter()
+
+	err = scan.StartScan(logger, eventManager, config, u)
+	assert.NoError(t, err)
+
+	assert.True(t, serverAssertion.Len() > 0)
+	serverAssertion.Range(func(index int, r http.Request) {
+		assert.Equal(t, 2, len(r.Cookies()), "Expecting two cookies, got: %v", r.Cookies())
+
+		assert.Equal(t, r.Cookies()[0].Name, cookies[0].Name)
+		assert.Equal(t, r.Cookies()[0].Value, cookies[0].Value)
+
+		assert.Equal(t, r.Cookies()[1].Name, cookies[1].Name)
+		assert.Equal(t, r.Cookies()[1].Value, cookies[1].Value)
+	})
+}
+
 func assertTargetsContains(t *testing.T, target scan.Target, results []scan.Target) {
 	for _, actualResult := range results {
 		if target == actualResult {

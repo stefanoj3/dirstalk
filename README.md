@@ -52,6 +52,9 @@ dirstalk scan http://someaddress.url/ \
 - `--scan-depth` the maximum recursion depth
 - `--threads` the number of threads performing concurrent requests
 - `--socks5` SOCKS5 server to connect to (all the requests including the one to fetch the remote dictionary will go through it)
+- `--cookies` comma separated list of cookies to add to each request; eg name=value,name2=value2
+- `--use-cookie-jar` enables the use of a cookie jar: it will retain any cookie sent from the server and send them for the following requests
+- `--user-agent` user agent to use for http requests
 
 ##### Useful resources
 - [here](https://github.com/dustyfresh/dictionaries/tree/master/DirBuster-Lists) you can find dictionaries that can be used with dirstalk
