@@ -19,6 +19,7 @@ func NewClientFromConfig(
 	userAgent string,
 	useCookieJar bool,
 	cookies []*http.Cookie,
+	headers map[string]string,
 	u *url.URL,
 ) (*http.Client, error) {
 	transport := http.Transport{
@@ -61,9 +62,17 @@ func NewClientFromConfig(
 	}
 
 	var err error
+
 	c.Transport, err = decorateTransportWithUserAgentDecorator(c.Transport, userAgent)
 	if err != nil {
 		return nil, errors.Wrap(err, "NewClientFromConfig: failed to decorate transport")
+	}
+
+	if len(headers) > 0 {
+		c.Transport, err = decorateTransportWithHeadersDecorator(c.Transport, headers)
+		if err != nil {
+			return nil, errors.Wrap(err, "NewClientFromConfig: failed to decorate transport")
+		}
 	}
 
 	return c, nil

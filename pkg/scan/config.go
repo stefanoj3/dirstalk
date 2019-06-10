@@ -16,4 +16,5 @@ type Config struct {
 	UserAgent             string
 	UseCookieJar          bool
 	Cookies               []*http.Cookie
+	Headers               map[string]string
 }

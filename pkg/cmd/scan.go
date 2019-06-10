@@ -89,6 +89,12 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"cookie to add to each request; eg name=value (can be specified multiple times)",
 	)
 
+	cmd.Flags().StringArray(
+		flagHeader,
+		[]string{},
+		"header to add to each request; eg name=value (can be specified multiple times)",
+	)
+
 	return cmd, nil
 }
 

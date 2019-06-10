@@ -17,7 +17,7 @@ const (
 	flagUserAgent       = "user-agent"
 	flagCookieJar       = "use-cookie-jar"
 	flagCookie          = "cookie"
-	flagHeaders         = "header"
+	flagHeader          = "header"
 
 	// Generate dictionary flags
 	flagOutput           = "out"

@@ -44,7 +44,9 @@ dirstalk scan http://someaddress.url/ \
 --socks5 127.0.0.1:9150 \
 --cookie name=value \
 --use-cookie-jar \
---user-agent my_user_agent
+--user-agent my_user_agent \
+--header "Authorization: Bearer 123"
+
 ```
 
 
@@ -58,6 +60,7 @@ dirstalk scan http://someaddress.url/ \
 - `--cookie` cookie to add to each request; eg name=value (can be specified multiple times)
 - `--use-cookie-jar` enables the use of a cookie jar: it will retain any cookie sent from the server and send them for the following requests
 - `--user-agent` user agent to use for http requests
+- `--header` header to add to each request; eg name=value (can be specified multiple times)
 
 ##### Useful resources
 - [here](https://github.com/dustyfresh/dictionaries/tree/master/DirBuster-Lists) you can find dictionaries that can be used with dirstalk
