@@ -53,7 +53,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "cookie jar flag is invalid")
 	}
 
-	rawCookies, err := cmd.Flags().GetStringSlice(flagCookies)
+	rawCookies, err := cmd.Flags().GetStringArray(flagCookie)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read cookies flag")
 	}
@@ -63,7 +63,32 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to convert rawCookies to objects")
 	}
 
+	rawHeaders, err := cmd.Flags().GetStringArray(flagHeader)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read cookies flag")
+	}
+
+	c.Headers, err = rawHeadersToHeaders(rawHeaders)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert rawHeaders")
+	}
+
 	return c, nil
+}
+
+func rawHeadersToHeaders(rawHeaders []string) (map[string]string, error) {
+	headers := make(map[string]string, len(rawHeaders)*2)
+
+	for _, rawHeader := range rawHeaders {
+		parts := strings.Split(rawHeader, ":")
+		if len(parts) != 2 {
+			return nil, errors.Errorf("header is in invalid format: %s", rawHeader)
+		}
+
+		headers[parts[0]] = parts[1]
+	}
+
+	return headers, nil
 }
 
 func rawCookiesToCookies(rawCookies []string) ([]*http.Cookie, error) {

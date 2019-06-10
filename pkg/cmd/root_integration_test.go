@@ -91,7 +91,7 @@ blabla
 func TestScanWithUserAgentFlag(t *testing.T) {
 	const testUserAgent = "my_test_user_agent"
 
-	logger, _ := test.NewLogger()
+	logger, loggerBuffer := test.NewLogger()
 
 	c, err := createCommand(logger)
 	assert.NoError(t, err)
@@ -119,10 +119,13 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 	serverAssertion.Range(func(_ int, r http.Request) {
 		assert.Equal(t, testUserAgent, r.Header.Get("User-Agent"))
 	})
+
+	// to ensure we print the user agent to the cli
+	assert.Contains(t, loggerBuffer.String(), testUserAgent)
 }
 
 func TestScanWithCookies(t *testing.T) {
-	logger, _ := test.NewLogger()
+	logger, loggerBuffer := test.NewLogger()
 
 	c, err := createCommand(logger)
 	assert.NoError(t, err)
@@ -137,8 +140,10 @@ func TestScanWithCookies(t *testing.T) {
 		c,
 		"scan",
 		testServer.URL,
-		"--cookies",
-		"name1=val1,name2=val2",
+		"--cookie",
+		"name1=val1",
+		"--cookie",
+		"name2=val2",
 		"--dictionary",
 		"testdata/dict.txt",
 	)
@@ -153,6 +158,10 @@ func TestScanWithCookies(t *testing.T) {
 		assert.Equal(t, r.Cookies()[1].Name, "name2")
 		assert.Equal(t, r.Cookies()[1].Value, "val2")
 	})
+
+	// to ensure we print the cookies to the cli
+	assert.Contains(t, loggerBuffer.String(), "name1=val1")
+	assert.Contains(t, loggerBuffer.String(), "name2=val2")
 }
 
 func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
@@ -175,7 +184,7 @@ func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
 		c,
 		"scan",
 		testServer.URL,
-		"--cookies",
+		"--cookie",
 		malformedCookie,
 		"--dictionary",
 		"testdata/dict.txt",
@@ -238,6 +247,102 @@ func TestScanWithCookieJar(t *testing.T) {
 		assert.Equal(t, r.Cookies()[0].Name, serverCookieName)
 		assert.Equal(t, r.Cookies()[0].Value, serverCookieValue)
 	})
+}
+
+func TestScanWithUnknownFlagShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--gibberishflag",
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unknown flag")
+
+	assert.Equal(t, 0, serverAssertion.Len())
+}
+
+func TestScanWithHeaders(t *testing.T) {
+	logger, loggerBuffer := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--header",
+		"Accept-Language: en-US,en;q=0.5",
+		"--header",
+		`"Authorization: Bearer 123"`,
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.NoError(t, err)
+
+	serverAssertion.Range(func(_ int, r http.Request) {
+		assert.Equal(t, 2, len(r.Header))
+
+		assert.Equal(t, "en-US,en;q=0.5", r.Header.Get("Accept-Language"))
+		assert.Equal(t, "Bearer 123", r.Header.Get("Authorization"))
+	})
+
+	// to ensure we print the headers to the cli
+	assert.Contains(t, loggerBuffer.String(), "Accept-Language")
+	assert.Contains(t, loggerBuffer.String(), "Authorization")
+	assert.Contains(t, loggerBuffer.String(), "Bearer 123")
+}
+
+func TestScanWithMalformedHeaderShouldErr(t *testing.T) {
+	const malformedHeader = "gibberish"
+
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--header",
+		"Accept-Language: en-US,en;q=0.5",
+		"--header",
+		malformedHeader,
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), malformedHeader)
+	assert.Contains(t, err.Error(), "header is in invalid format")
+
+	assert.Equal(t, 0, serverAssertion.Len())
 }
 
 func TestDictionaryGenerateCommand(t *testing.T) {

@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -19,6 +20,7 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 		cnf.UserAgent,
 		cnf.UseCookieJar,
 		cnf.Cookies,
+		cnf.Headers,
 		u,
 	)
 	if err != nil {
@@ -54,10 +56,14 @@ func StartScan(logger *logrus.Logger, eventManager *emission.Emitter, cnf *Confi
 	logger.WithFields(logrus.Fields{
 		"url":               u.String(),
 		"threads":           cnf.Threads,
-		"dictionary.length": len(dict),
-		"cookies":           strigifyCookies(cnf.Cookies),
-		"user-agent":        cnf.UserAgent,
+		"dictionary-length": len(dict),
+		"scan-depth":        cnf.ScanDepth,
+		"timeout":           cnf.TimeoutInMilliseconds,
 		"socks5":            cnf.Socks5Url,
+		"cookies":           strigifyCookies(cnf.Cookies),
+		"cookie-jar":        cnf.UseCookieJar,
+		"headers":           stringyfyHeaders(cnf.Headers),
+		"user-agent":        cnf.UserAgent,
 	}).Info("Starting scan")
 
 	s.Scan(u, cnf.Threads)
@@ -71,7 +77,17 @@ func strigifyCookies(cookies []*http.Cookie) string {
 	result := ""
 
 	for _, cookie := range cookies {
-		result += cookie.Name + "=" + cookie.Value + ";"
+		result += fmt.Sprintf("{%s=%s}", cookie.Name, cookie.Value)
+	}
+
+	return result
+}
+
+func stringyfyHeaders(headers map[string]string) string {
+	result := ""
+
+	for name, value := range headers {
+		result += fmt.Sprintf("{%s:%s}", name, value)
 	}
 
 	return result

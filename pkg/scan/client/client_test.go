@@ -26,6 +26,7 @@ func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 		false,
 		nil,
 		nil,
+		nil,
 	)
 	assert.NoError(t, err)
 
@@ -72,6 +73,7 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 		"",
 		true,
 		cookies,
+		map[string]string{},
 		u,
 	)
 	assert.NoError(t, err)
@@ -130,6 +132,7 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 		"",
 		false,
 		cookies,
+		map[string]string{},
 		u,
 	)
 	assert.NoError(t, err)
@@ -149,6 +152,42 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 	})
 }
 
+func TestShouldForwardProvidedHeader(t *testing.T) {
+	const (
+		headerName  = "my_header_name"
+		headerValue = "my_header_value_123"
+	)
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	c, err := client.NewClientFromConfig(
+		100,
+		nil,
+		"",
+		false,
+		nil,
+		map[string]string{headerName: headerValue},
+		u,
+	)
+	assert.NoError(t, err)
+
+	res, err := c.Get(testServer.URL)
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+
+	assert.Equal(t, 1, serverAssertion.Len())
+
+	serverAssertion.At(0, func(r http.Request) {
+		assert.Equal(t, headerValue, r.Header.Get(headerName))
+
+	})
+}
+
 func TestShouldFailToCreateAClientWithInvalidSocks5Url(t *testing.T) {
 	u := url.URL{Scheme: "potatoscheme"}
 
@@ -158,6 +197,7 @@ func TestShouldFailToCreateAClientWithInvalidSocks5Url(t *testing.T) {
 		"",
 		false,
 		nil,
+		map[string]string{},
 		nil,
 	)
 	assert.Nil(t, c)
