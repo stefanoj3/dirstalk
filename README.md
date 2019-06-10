@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.com/stefanoj3/dirstalk.svg?branch=master)](https://travis-ci.com/stefanoj3/dirstalk)
 [![codecov](https://codecov.io/gh/stefanoj3/dirstalk/branch/master/graph/badge.svg)](https://codecov.io/gh/stefanoj3/dirstalk)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/stefanoj3/dirstalk/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/stefanoj3/dirstalk/?branch=master)
+![Docker Pulls](https://img.shields.io/docker/pulls/stefanoj3/dirstalk.svg)
 
 Dirstalk is a multi threaded application designed to brute force paths on web servers.
 
