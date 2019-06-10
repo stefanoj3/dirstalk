@@ -53,7 +53,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "cookie jar flag is invalid")
 	}
 
-	rawCookies, err := cmd.Flags().GetStringSlice(flagCookies)
+	rawCookies, err := cmd.Flags().GetStringArray(flagCookie)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read cookies flag")
 	}

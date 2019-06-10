@@ -137,8 +137,10 @@ func TestScanWithCookies(t *testing.T) {
 		c,
 		"scan",
 		testServer.URL,
-		"--cookies",
-		"name1=val1,name2=val2",
+		"--cookie",
+		"name1=val1",
+		"--cookie",
+		"name2=val2",
 		"--dictionary",
 		"testdata/dict.txt",
 	)
@@ -175,7 +177,7 @@ func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
 		c,
 		"scan",
 		testServer.URL,
-		"--cookies",
+		"--cookie",
 		malformedCookie,
 		"--dictionary",
 		"testdata/dict.txt",
@@ -238,6 +240,32 @@ func TestScanWithCookieJar(t *testing.T) {
 		assert.Equal(t, r.Cookies()[0].Name, serverCookieName)
 		assert.Equal(t, r.Cookies()[0].Value, serverCookieValue)
 	})
+}
+
+func TestScanWithUnknownHeaderShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--gibberishflag",
+		"--dictionary",
+		"testdata/dict.txt",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "unknown flag")
+
+	assert.Equal(t, 0, serverAssertion.Len())
 }
 
 func TestDictionaryGenerateCommand(t *testing.T) {

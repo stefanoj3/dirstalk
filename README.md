@@ -41,7 +41,10 @@ dirstalk scan http://someaddress.url/ \
 --http-timeout 10000 \
 --scan-depth 10 \
 --threads 10 \
---socks5 127.0.0.1:9150
+--socks5 127.0.0.1:9150 \
+--cookie name=value \
+--use-cookie-jar \
+--user-agent my_user_agent
 ```
 
 
@@ -52,7 +55,7 @@ dirstalk scan http://someaddress.url/ \
 - `--scan-depth` the maximum recursion depth
 - `--threads` the number of threads performing concurrent requests
 - `--socks5` SOCKS5 server to connect to (all the requests including the one to fetch the remote dictionary will go through it)
-- `--cookies` comma separated list of cookies to add to each request; eg name=value,name2=value2
+- `--cookie` cookie to add to each request; eg name=value (can be specified multiple times)
 - `--use-cookie-jar` enables the use of a cookie jar: it will retain any cookie sent from the server and send them for the following requests
 - `--user-agent` user agent to use for http requests
 

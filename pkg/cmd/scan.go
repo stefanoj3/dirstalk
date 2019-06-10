@@ -83,10 +83,10 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 			"from the server and send them for the following requests",
 	)
 
-	cmd.Flags().StringSlice(
-		flagCookies,
+	cmd.Flags().StringArray(
+		flagCookie,
 		[]string{},
-		"comma separated list of cookies to add to each request; eg name=value,name2=value2",
+		"cookie to add to each request; eg name=value (can be specified multiple times)",
 	)
 
 	return cmd, nil
