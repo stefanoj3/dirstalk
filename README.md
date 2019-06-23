@@ -102,11 +102,10 @@ make build                                   # to build an executable for your h
 
 [dep](https://github.com/golang/dep) is the tool of choice for dependency management.
 
-If you have [gawk](https://www.gnu.org/software/gawk/) available in your PATH you can also just launch
 ```bash
 make help
 ```
-to obtain a description of every command available in the Makefile.
+will print a description of every command available in the Makefile.
 
 Wanna add a functionality? fix a bug? fork and create a PR.
 
