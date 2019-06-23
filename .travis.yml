@@ -24,7 +24,8 @@ matrix:
 script:
 - make dep
 - make check
-- make test
+- make tests
+- make functional-tests
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

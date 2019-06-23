@@ -94,7 +94,7 @@ Then you can just:
 go get github.com/stefanoj3/dirstalk         # (or your fork) to obtain the source code
 cd $GOPATH/src/github.com/stefanoj3/dirstalk # to go inside the project folder
 make dep                                     # to fetch all the required tools and dependencies
-make test                                    # to run the test suite
+make tests                                   # to run the test suite
 make check                                   # to check for any code style issue
 make fix                                     # to automatically fix the code style using goimports
 make build                                   # to build an executable for your host OS (not tested under windows) 
