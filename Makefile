@@ -20,12 +20,16 @@ dep:
 	@go get -u github.com/securego/gosec/cmd/gosec
 	@dep ensure
 
-.PHONY: test
+.PHONY: tests
 ## Execute tests
-test:
+tests:
 	@echo "Executing tests"
 	@CGO_ENABLED=1 go test $(TESTARGS) ./...
 
+.PHONY: functional-tests
+## Execute functional test
+functional-tests: build build-testserver
+	./functional-tests.sh
 
 .PHONY: check
 ## Run checks against the codebase
@@ -60,7 +64,12 @@ release:
 build:
 	CGO_ENABLED=0 go build -a -installsuffix cgo -ldflags "$(LD_FLAGS)" -o dist/dirstalk cmd/dirstalk/main.go
 
-.PHONY: build
+.PHONY: build-testserver
+## Builds binary for testserver used for the functional tests
+build-testserver:
+	go build -o dist/testserver cmd/testserver/main.go
+
+.PHONY: help
 HELP_WIDTH="                       "
 ## Display makefile help
 help:
