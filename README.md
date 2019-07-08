@@ -90,7 +90,7 @@ If you are using an arch based linux distribution you can fetch it via AUR: http
 
 Example:
 ```bash
-yay -S aur/dirstak
+yay -S aur/dirstalk
 ```
 
 
