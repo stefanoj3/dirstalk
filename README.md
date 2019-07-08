@@ -86,6 +86,13 @@ The result will be printed to the stdout if no out flag is specified.
 You can download a release from [here](https://github.com/stefanoj3/dirstalk/releases)
 or you can use a docker image. (eg `docker run stefanoj3/dirstalk dirstalk <cmd>`)
 
+If you are using an arch based linux distribution you can fetch it via AUR: https://aur.archlinux.org/packages/dirstalk/
+
+Example:
+```bash
+yay -S aur/dirstak
+```
+
 
 ## [↑](#contents) Development
 All you need to do local development is to have [make](https://www.gnu.org/software/make/)
