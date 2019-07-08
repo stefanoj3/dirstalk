@@ -19,7 +19,6 @@ and [dirb](https://tools.kali.org/web-applications/dirb).
 - [Download](#-download)
 - [Development](#-development)
 - [License](https://github.com/stefanoj3/dirstalk/blob/master/LICENSE.md)
-- [Milestones](#-milestones)
 
 ## [↑](#contents) How to use it
 
@@ -109,25 +108,8 @@ will print a description of every command available in the Makefile.
 
 Wanna add a functionality? fix a bug? fork and create a PR.
 
-## [↑](#contents) Milestones
-
-### Version 1.0
-- [x] Scan a given url
-- [x] Specify how many threads to use
-- [x] Specify http verbs to use
-- [x] Specify dictionary to use (either local or remote file)
-- [x] Specify http request timeout
-- [x] Specify verbosity of the log
-- [x] Specify scan depth
-- [x] Socks5 support
-- [x] Can generate dictionary starting from a folder containing files/subdirectories
-- [x] Can be compiled for multiple platform/architectures (min: OSX x64, Linux 386, Linux x64, Linux arm, Linux arm64)
-- [x] A CI is running the tests suite and display the code coverage
-- [x] Print results as a tree and a detailed list of the results found
-- [x] Has detailed documentation
-
-### Someday
-- [ ] Add support for rotating SOCKS5 proxies
-- [ ] Scan a website pages looking for links to bruteforce
-- [ ] Expose a webserver that can be used to launch scans and check their status
-- [ ] Introduce metrics that can give a sense of how much of the dictionary was found on the remote server
+## Plans for the future
+- Add support for rotating SOCKS5 proxies
+- Scan a website pages looking for links to bruteforce
+- Expose a webserver that can be used to launch scans and check their status
+- Introduce metrics that can give a sense of how much of the dictionary was found on the remote server
