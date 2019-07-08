@@ -11,6 +11,9 @@ The tool contains functionalities similar to the ones offered by
 [dirbuster](https://www.owasp.org/index.php/Category:OWASP_DirBuster_Project) 
 and [dirb](https://tools.kali.org/web-applications/dirb).
 
+Here you can see it in action:
+[![asciicast](https://asciinema.org/a/ehvNAUetjWbNExQegA2KPaHuY.svg)](https://asciinema.org/a/ehvNAUetjWbNExQegA2KPaHuY)
+
 ## Contents
 - [How to use it](#-how-to-use-it)
     - [Scan](#scan)
