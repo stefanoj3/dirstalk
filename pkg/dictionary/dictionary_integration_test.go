@@ -3,6 +3,7 @@ package dictionary_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
 	"time"
 
@@ -12,6 +13,21 @@ import (
 
 func TestDictionaryFromFile(t *testing.T) {
 	entries, err := dictionary.NewDictionaryFrom("testdata/dict.txt", &http.Client{})
+	assert.NoError(t, err)
+
+	expectedValue := []string{
+		"home",
+		"home/index.php",
+		"blabla",
+	}
+	assert.Equal(t, expectedValue, entries)
+}
+
+func TestDictionaryFromAbsolutePath(t *testing.T) {
+	path, err := filepath.Abs("testdata/dict.txt")
+	assert.NoError(t, err)
+
+	entries, err := dictionary.NewDictionaryFrom(path, &http.Client{})
 	assert.NoError(t, err)
 
 	expectedValue := []string{
@@ -37,6 +53,7 @@ func TestNewDictionaryFromRemoteFile(t *testing.T) {
 /about
 /contacts
 something
+potato
 `
 			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte(dict))
@@ -52,6 +69,7 @@ something
 		"/about",
 		"/contacts",
 		"something",
+		"potato",
 	}
 	assert.Equal(t, expectedValue, entries)
 }

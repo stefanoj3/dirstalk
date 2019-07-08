@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"io"
 	"net/http"
-	"net/url"
 	"os"
 
 	"github.com/pkg/errors"
@@ -13,8 +12,7 @@ import (
 const commentPrefix = "#"
 
 func NewDictionaryFrom(path string, doer Doer) ([]string, error) {
-	_, err := url.ParseRequestURI(path)
-	if err != nil {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return newDictionaryFromLocalFile(path)
 	}
 
