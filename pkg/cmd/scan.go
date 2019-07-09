@@ -1,14 +1,17 @@
 package cmd
 
 import (
+	"fmt"
+	"net/http"
 	"net/url"
-
-	"github.com/chuckpreslar/emission"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
+	"github.com/stefanoj3/dirstalk/pkg/scan/client"
+	"github.com/stefanoj3/dirstalk/pkg/scan/producer"
 )
 
 func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
@@ -110,16 +113,7 @@ func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []st
 			return errors.Wrap(err, "failed to build config")
 		}
 
-		eventManager := emission.NewEmitter()
-		printer := scan.NewResultLogger(logger)
-		eventManager.On(scan.EventResultFound, printer.Log)
-
-		summarizer := scan.NewResultSummarizer(logger.Out)
-		eventManager.On(scan.EventResultFound, summarizer.Add)
-
-		defer summarizer.Summarize()
-
-		return scan.StartScan(logger, eventManager, cnf, u)
+		return startScan(logger, cnf, u)
 	}
 
 	return f
@@ -138,4 +132,81 @@ func getURL(args []string) (*url.URL, error) {
 	}
 
 	return u, nil
+}
+
+// startScan is a convenience method that wires together all the dependencies needed to start a scan
+func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
+	c, err := client.NewClientFromConfig(
+		cnf.TimeoutInMilliseconds,
+		cnf.Socks5Url,
+		cnf.UserAgent,
+		cnf.UseCookieJar,
+		cnf.Cookies,
+		cnf.Headers,
+		u,
+	)
+	if err != nil {
+		return errors.Wrap(err, "failed to build client")
+	}
+
+	dict, err := dictionary.NewDictionaryFrom(cnf.DictionaryPath, c)
+	if err != nil {
+		return errors.Wrap(err, "failed to build dictionary")
+	}
+
+	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
+	reproducer := producer.NewReProducer(targetProducer)
+
+	s := scan.NewScanner(
+		c,
+		targetProducer,
+		reproducer,
+		logger,
+	)
+
+	logger.WithFields(logrus.Fields{
+		"url":               u.String(),
+		"threads":           cnf.Threads,
+		"dictionary-length": len(dict),
+		"scan-depth":        cnf.ScanDepth,
+		"timeout":           cnf.TimeoutInMilliseconds,
+		"socks5":            cnf.Socks5Url,
+		"cookies":           strigifyCookies(cnf.Cookies),
+		"cookie-jar":        cnf.UseCookieJar,
+		"headers":           stringyfyHeaders(cnf.Headers),
+		"user-agent":        cnf.UserAgent,
+	}).Info("Starting scan")
+
+	resultLogger := scan.NewResultLogger(logger)
+	summarizer := scan.NewResultSummarizer(logger.Out)
+	for result := range s.Scan(u, cnf.Threads) {
+		resultLogger.Log(result)
+		summarizer.Add(result)
+	}
+
+	summarizer.Summarize()
+
+	logger.Info("Finished scan")
+
+	return nil
+}
+
+func strigifyCookies(cookies []*http.Cookie) string {
+	result := ""
+
+	for _, cookie := range cookies {
+		result += fmt.Sprintf("{%s=%s}", cookie.Name, cookie.Value)
+	}
+
+	return result
+}
+
+func stringyfyHeaders(headers map[string]string) string {
+	result := ""
+
+	for name, value := range headers {
+		result += fmt.Sprintf("{%s:%s}", name, value)
+	}
+
+	return result
 }

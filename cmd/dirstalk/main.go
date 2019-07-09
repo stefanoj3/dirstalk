@@ -33,7 +33,7 @@ func createCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	}
 
 	dirStalkCmd.AddCommand(scanCmd)
-	dirStalkCmd.AddCommand(cmd.NewGenerateDictionaryCommand())
+	dirStalkCmd.AddCommand(cmd.NewGenerateDictionaryCommand(logger.Out))
 	dirStalkCmd.AddCommand(cmd.NewVersionCommand(logger.Out))
 
 	return dirStalkCmd, nil

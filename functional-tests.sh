@@ -63,12 +63,15 @@ assert_contains "$SCAN_RESULT" "error" "an error is expected when no argument is
 
 SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:8080 2>&1 || true);
 assert_contains "$SCAN_RESULT" "/index" "result expected when performing scan"
-assert_contains "$SCAN_RESULT" "6 requests made, 2 results found" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "/index/home" "result expected when performing scan"
+assert_contains "$SCAN_RESULT" "8 requests made, 3 results found" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── index" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "│   └── home" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "└── home" "a recap was expected when performing a scan"
+
 assert_not_contains "$SCAN_RESULT" "error" "no error is expected for a successful scan"
 
 
 DICTIONARY_GENERATE_RESULT=$(./dist/dirstalk dictionary.generate resources/tests 2>&1 || true);
 assert_contains "$DICTIONARY_GENERATE_RESULT" "dictionary.txt" "dictionary generation should contains a file in the folder"
 assert_not_contains "$DICTIONARY_GENERATE_RESULT" "error" "no error is expected when generating a dictionary successfully"
-
-

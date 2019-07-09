@@ -27,21 +27,15 @@ func NewVersionCommand(out io.Writer) *cobra.Command {
 		Use:   "version",
 		Short: "Print the current version",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			_, err := fmt.Fprintln(
+			_, _ = fmt.Fprintln(
 				out,
 				fmt.Sprintf("Version: %s", Version),
 			)
-			if err != nil {
-				return err
-			}
 
-			_, err = fmt.Fprintln(
+			_, _ = fmt.Fprintln(
 				out,
 				fmt.Sprintf("Built at: %s", BuildTime),
 			)
-			if err != nil {
-				return err
-			}
 
 			return nil
 		},

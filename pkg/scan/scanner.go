@@ -6,15 +6,8 @@ import (
 	"path"
 	"strings"
 	"sync"
-	"time"
 
-	"github.com/chuckpreslar/emission"
 	"github.com/sirupsen/logrus"
-	"github.com/tevino/abool"
-)
-
-const (
-	jobQueueSize = 100
 )
 
 // Target represents the target to scan
@@ -27,79 +20,66 @@ type Target struct {
 // Result represents the result of the scan of a single URL
 type Result struct {
 	Target   Target
-	URL      *url.URL
 	Response *http.Response
 }
 
 func NewScanner(
 	httpClient Doer,
-	eventEmitter *emission.Emitter,
+	producer Producer,
+	reproducer ReProducer,
 	logger *logrus.Logger,
 ) *Scanner {
 	return &Scanner{
-		httpClient:   httpClient,
-		eventEmitter: eventEmitter,
-		logger:       logger,
-		jobQueue:     make(chan Target, jobQueueSize),
-		isReleased:   abool.New(),
+		httpClient: httpClient,
+		producer:   producer,
+		reproducer: reproducer,
+		logger:     logger,
 	}
 }
 
 type Scanner struct {
-	httpClient   Doer
-	eventEmitter *emission.Emitter
-	logger       *logrus.Logger
-	jobQueue     chan Target
-	isReleased   *abool.AtomicBool
+	httpClient Doer
+	producer   Producer
+	reproducer ReProducer
+	logger     *logrus.Logger
 }
 
-func (s *Scanner) AddTarget(target Target) {
-	s.jobQueue <- target
-}
+func (s *Scanner) Scan(baseUrl *url.URL, workers int) <-chan Result {
+	resultChannel := make(chan Result, workers)
 
-func (s *Scanner) Scan(baseUrl *url.URL, workers int) {
 	u := normalizeBaseURL(*baseUrl)
 
 	wg := sync.WaitGroup{}
 
+	producerChannel := s.producer.Produce()
+	reproducer := s.reproducer.Reproduce()
+
 	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go func() {
-			s.work(u)
-			wg.Done()
+			defer wg.Done()
+
+			for target := range producerChannel {
+				s.processTarget(u, target, reproducer, resultChannel)
+			}
 		}()
 
 	}
 
-	wg.Wait()
+	go func() {
+		wg.Wait()
+		close(resultChannel)
+	}()
+
+	return resultChannel
 }
 
-func (s *Scanner) work(baseURL url.URL) {
-	attempts := 3
-
-	for {
-		select {
-		case target := <-s.jobQueue:
-			s.processTarget(baseURL, target)
-			continue
-		case <-time.After(400 * time.Millisecond):
-		}
-
-		if s.isReleased.IsSet() {
-			attempts--
-		}
-
-		if attempts == 0 {
-			break
-		}
-	}
-}
-
-func (s *Scanner) Release() {
-	s.isReleased.Set()
-}
-
-func (s *Scanner) processTarget(baseURL url.URL, target Target) {
+func (s *Scanner) processTarget(
+	baseURL url.URL,
+	target Target,
+	reproducer func(r Result) <-chan Target,
+	results chan<- Result,
+) {
 	l := s.logger.WithFields(logrus.Fields{
 		"method": target.Method,
 		"depth":  target.Depth,
@@ -117,7 +97,7 @@ func (s *Scanner) processTarget(baseURL url.URL, target Target) {
 
 	res, err := s.httpClient.Do(req)
 	if err != nil {
-		l.WithError(err).Warn("failed to perform request")
+		l.WithError(err).Error("failed to perform request")
 		return
 	}
 
@@ -125,12 +105,16 @@ func (s *Scanner) processTarget(baseURL url.URL, target Target) {
 		l.WithError(err).Warn("failed to close response body")
 	}
 
-	result := &Result{
+	result := Result{
 		Target:   target,
 		Response: res,
 	}
 
-	s.eventEmitter.Emit(EventResultFound, result)
+	results <- result
+
+	for newTarget := range reproducer(result) {
+		s.processTarget(baseURL, newTarget, reproducer, results)
+	}
 }
 
 func normalizeBaseURL(baseURL url.URL) url.URL {

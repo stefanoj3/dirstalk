@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 	"strings"
 	"sync"
 
@@ -16,12 +17,12 @@ func NewResultSummarizer(out io.Writer) *ResultSummarizer {
 
 type ResultSummarizer struct {
 	out             io.Writer
-	results         []*Result
+	results         []Result
 	resultsReceived int
 	mux             sync.RWMutex
 }
 
-func (s *ResultSummarizer) Add(result *Result) {
+func (s *ResultSummarizer) Add(result Result) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
@@ -35,8 +36,8 @@ func (s *ResultSummarizer) Add(result *Result) {
 }
 
 func (s *ResultSummarizer) Summarize() {
-	s.mux.RLock()
-	defer s.mux.RUnlock()
+	s.mux.Lock()
+	defer s.mux.Unlock()
 
 	s.printSummary()
 	s.printTree()
@@ -64,8 +65,11 @@ func (s *ResultSummarizer) printSummary() {
 func (s *ResultSummarizer) printTree() {
 	root := gotree.New("/")
 
-	treeMap := map[string]gotree.Tree{}
+	sort.Slice(s.results, func(i, j int) bool {
+		return s.results[i].Target.Path > s.results[j].Target.Path
+	})
 
+	// TODO: improve efficiency
 	for _, r := range s.results {
 		currentBranch := root
 
@@ -75,14 +79,25 @@ func (s *ResultSummarizer) printTree() {
 				continue
 			}
 
-			t, ok := treeMap[p]
-			if !ok {
-				currentBranch = currentBranch.Add(p)
-				treeMap[p] = currentBranch
+			found := false
+
+			for _, item := range currentBranch.Items() {
+				if item.Text() != p {
+					continue
+				}
+
+				currentBranch = item
+				found = true
+				break
+			}
+
+			if found {
 				continue
 			}
 
-			currentBranch = t
+			newTree := gotree.New(p)
+			currentBranch.AddTree(newTree)
+			currentBranch = newTree
 		}
 	}
 

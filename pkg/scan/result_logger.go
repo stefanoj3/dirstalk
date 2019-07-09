@@ -20,7 +20,7 @@ type ResultLogger struct {
 	logger *logrus.Logger
 }
 
-func (c *ResultLogger) Log(result *Result) {
+func (c *ResultLogger) Log(result Result) {
 	statusCode := result.Response.StatusCode
 
 	l := c.logger.WithFields(logrus.Fields{

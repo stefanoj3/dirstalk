@@ -19,11 +19,6 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/chuckpreslar/emission"
-
 [[constraint]]
   name = "github.com/pkg/errors"
   version = "0.8.0"
@@ -39,10 +34,6 @@
 [[constraint]]
   name = "github.com/stretchr/testify"
   version = "1.2.2"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/tevino/abool"
 
 [[constraint]]
   name = "github.com/DiSiqueira/GoTree"

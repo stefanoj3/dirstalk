@@ -23,6 +23,11 @@ func TestDictionaryFromFile(t *testing.T) {
 	assert.Equal(t, expectedValue, entries)
 }
 
+func TestShouldFailToCreateDictionaryFromInvalidPath(t *testing.T) {
+	_, err := dictionary.NewDictionaryFrom("http:///home/\n", &http.Client{})
+	assert.Error(t, err)
+}
+
 func TestDictionaryFromAbsolutePath(t *testing.T) {
 	path, err := filepath.Abs("testdata/dict.txt")
 	assert.NoError(t, err)
