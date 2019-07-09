@@ -10,11 +10,11 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 )
 
-func NewGenerateDictionaryCommand() *cobra.Command {
+func NewGenerateDictionaryCommand(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dictionary.generate [path]",
 		Short: "Generate a dictionary from the given folder",
-		RunE:  buildGenerateDictionaryFunc(),
+		RunE:  buildGenerateDictionaryFunc(out),
 	}
 
 	cmd.Flags().StringP(
@@ -34,14 +34,14 @@ func NewGenerateDictionaryCommand() *cobra.Command {
 	return cmd
 }
 
-func buildGenerateDictionaryFunc() func(cmd *cobra.Command, args []string) error {
+func buildGenerateDictionaryFunc(out io.Writer) func(cmd *cobra.Command, args []string) error {
 	f := func(cmd *cobra.Command, args []string) error {
 		p, err := getPath(args)
 		if err != nil {
 			return err
 		}
 
-		out, err := getOutputForDictionaryGenerator(cmd)
+		out, err := getOutputForDictionaryGenerator(cmd, out)
 		if err != nil {
 			return err
 		}
@@ -59,10 +59,10 @@ func buildGenerateDictionaryFunc() func(cmd *cobra.Command, args []string) error
 	return f
 }
 
-func getOutputForDictionaryGenerator(cmd *cobra.Command) (io.Writer, error) {
+func getOutputForDictionaryGenerator(cmd *cobra.Command, out io.Writer) (io.Writer, error) {
 	output := cmd.Flag(flagOutput).Value.String()
 	if output == "" {
-		return os.Stdout, nil
+		return out, nil
 	}
 
 	file, err := os.OpenFile(output, os.O_CREATE|os.O_WRONLY, 0600)

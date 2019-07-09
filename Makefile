@@ -1,13 +1,13 @@
 SRC_DIRS=cmd pkg
 
-TESTARGS=-v -race -cover
+TESTARGS=-v -race -cover -timeout 20s
 
 VERSION=$(shell git describe || git rev-parse HEAD)
 DATE=$(shell date +%s)
 LD_FLAGS=-extldflags '-static' -X github.com/stefanoj3/dirstalk/pkg/cmd.Version=$(VERSION) -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime=$(DATE)
 
 ifeq ($(TRAVIS), true)
-TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic
+TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
 endif
 
 .PHONY: dep
