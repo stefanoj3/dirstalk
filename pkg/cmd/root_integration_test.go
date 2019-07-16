@@ -14,8 +14,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const socks5TestServerHost = "127.0.0.1:8899"
-
 func TestRootCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
@@ -50,7 +48,7 @@ func TestVersionCommand(t *testing.T) {
 
 func executeCommand(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
 	buf := new(bytes.Buffer)
-	root.SetOutput(buf)
+	root.SetOut(buf)
 
 	a := []string{""}
 	os.Args = append(a, args...)

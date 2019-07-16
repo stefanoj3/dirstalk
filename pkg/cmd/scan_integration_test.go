@@ -13,6 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const socks5TestServerHost = "127.0.0.1:8899"
+
 func TestScanCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
@@ -22,7 +24,13 @@ func TestScanCommand(t *testing.T) {
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/test/" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
 			w.WriteHeader(http.StatusNotFound)
+
 		}),
 	)
 	defer testServer.Close()
@@ -32,14 +40,34 @@ func TestScanCommand(t *testing.T) {
 		"scan",
 		testServer.URL,
 		"--dictionary",
-		"testdata/dict.txt",
+		"testdata/dict2.txt",
 		"-v",
 		"--http-timeout",
 		"300",
 	)
 	assert.NoError(t, err)
 
-	assert.Equal(t, 3, serverAssertion.Len())
+	assert.Equal(t, 8, serverAssertion.Len())
+
+	requestsMap := map[string]string{}
+
+	serverAssertion.Range(func(_ int, r http.Request) {
+		requestsMap[r.URL.Path] = r.Method
+	})
+
+	expectedRequests := map[string]string{
+		"/test/":               http.MethodGet,
+		"/test/home":           http.MethodGet,
+		"/test/blabla":         http.MethodGet,
+		"/test/home/index.php": http.MethodGet,
+		"/test/test/":          http.MethodGet,
+
+		"/home":           http.MethodGet,
+		"/blabla":         http.MethodGet,
+		"/home/index.php": http.MethodGet,
+	}
+
+	assert.Equal(t, expectedRequests, requestsMap)
 }
 
 func TestScanWithRemoteDictionary(t *testing.T) {
