@@ -3,11 +3,11 @@ package scan
 import (
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 	"sync"
 
 	"github.com/sirupsen/logrus"
+	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
 )
 
 // Target represents the target to scan
@@ -128,6 +128,7 @@ func normalizeBaseURL(baseURL url.URL) url.URL {
 }
 
 func buildURL(baseURL url.URL, target Target) url.URL {
-	baseURL.Path = path.Join(baseURL.Path, target.Path)
+	baseURL.Path = urlpath.Join(baseURL.Path, target.Path)
+
 	return baseURL
 }

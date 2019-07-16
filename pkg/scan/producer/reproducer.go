@@ -1,9 +1,9 @@
 package producer
 
 import (
-	"path"
 	"sync"
 
+	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
 	"github.com/stefanoj3/dirstalk/pkg/pathutil"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
@@ -62,7 +62,7 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 			for target := range r.producer.Produce() {
 				newTarget := result.Target
 				newTarget.Depth--
-				newTarget.Path = path.Join(newTarget.Path, target.Path)
+				newTarget.Path = urlpath.Join(newTarget.Path, target.Path)
 				newTarget.Method = target.Method
 
 				resultChannel <- newTarget
