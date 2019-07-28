@@ -28,6 +28,19 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 	assert.Contains(t, string(content), "root_integration_test.go")
 }
 
+func TestDictionaryGenerateCommandShouldErrWhenNoTargetIsProvided(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	_, _, err = executeCommand(c, "dictionary.generate")
+	assert.Error(t, err)
+
+	assert.Contains(t, err.Error(), "no path provided")
+}
+
 func TestDictionaryGenerateShouldFailWhenAFilePathIsProvidedInsteadOfADirectory(t *testing.T) {
 	logger, _ := test.NewLogger()
 
