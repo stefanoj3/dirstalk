@@ -77,17 +77,21 @@ func TestScanWithNoTargetShouldErr(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, c)
 
-	testServer, serverAssertion := test.NewServerWithAssertion(
-		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusNotFound)
-		}),
-	)
-	defer testServer.Close()
-
 	_, _, err = executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt")
 	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "no URL provided")
+}
 
-	assert.Equal(t, 0, serverAssertion.Len())
+func TestScanWithInvalidTargetShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	_, _, err = executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt", "localhost%%2")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid URI")
 }
 
 func TestScanCommandCanBeInterrupted(t *testing.T) {
@@ -506,6 +510,38 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	assert.Contains(t, loggerBuffer.String(), "failed to perform request")
 	assert.Contains(t, loggerBuffer.String(), "socks connect tcp")
 	assert.Contains(t, loggerBuffer.String(), "connect: connection refused")
+}
+
+func TestShouldFailToStartWithAnInvalidSocks5Address(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict.txt",
+		"-v",
+		"--http-timeout",
+		"300",
+		"--socks5",
+		"localhost%%2", // invalid
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "invalid URL escape")
+
+	assert.Equal(t, 0, serverAssertion.Len())
 }
 
 func startSocks5TestServer(t *testing.T) net.Listener {
