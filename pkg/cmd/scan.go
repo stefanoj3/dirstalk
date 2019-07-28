@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
+	"os/signal"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -179,14 +181,28 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 
 	resultLogger := scan.NewResultLogger(logger)
 	summarizer := scan.NewResultSummarizer(logger.Out)
-	for result := range s.Scan(u, cnf.Threads) {
-		resultLogger.Log(result)
-		summarizer.Add(result)
+
+	osSigint := make(chan os.Signal, 1)
+	signal.Notify(osSigint, os.Interrupt)
+
+	finishFunc := func() {
+		summarizer.Summarize()
+		logger.Info("Finished scan")
 	}
 
-	summarizer.Summarize()
+	for result := range s.Scan(u, cnf.Threads) {
+		select {
+		case <-osSigint:
+			logger.Info("Received sigint, terminating...")
+			finishFunc()
+			return nil
+		default:
+			resultLogger.Log(result)
+			summarizer.Add(result)
+		}
+	}
 
-	logger.Info("Finished scan")
+	finishFunc()
 
 	return nil
 }

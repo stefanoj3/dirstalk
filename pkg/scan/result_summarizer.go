@@ -28,7 +28,7 @@ func (s *ResultSummarizer) Add(result Result) {
 
 	s.resultsReceived++
 
-	if result.Response.StatusCode == http.StatusNotFound {
+	if result.StatusCode == http.StatusNotFound {
 		return
 	}
 
@@ -39,6 +39,10 @@ func (s *ResultSummarizer) Summarize() {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
+	sort.Slice(s.results, func(i, j int) bool {
+		return s.results[i].Target.Path < s.results[j].Target.Path
+	})
+
 	s.printSummary()
 	s.printTree()
 
@@ -47,9 +51,9 @@ func (s *ResultSummarizer) Summarize() {
 			s.out,
 			fmt.Sprintf(
 				"%s [%d] [%s]",
-				r.Response.Request.URL,
-				r.Response.StatusCode,
-				r.Response.Request.Method,
+				r.URL.String(),
+				r.StatusCode,
+				r.Target.Method,
 			),
 		)
 	}
@@ -65,15 +69,11 @@ func (s *ResultSummarizer) printSummary() {
 func (s *ResultSummarizer) printTree() {
 	root := gotree.New("/")
 
-	sort.Slice(s.results, func(i, j int) bool {
-		return s.results[i].Target.Path > s.results[j].Target.Path
-	})
-
 	// TODO: improve efficiency
 	for _, r := range s.results {
 		currentBranch := root
 
-		parts := strings.Split(r.Response.Request.URL.Path, "/")
+		parts := strings.Split(r.URL.Path, "/")
 		for _, p := range parts {
 			if len(p) == 0 {
 				continue
