@@ -135,9 +135,25 @@ func TestResultSummarizer(t *testing.T) {
 		),
 	)
 
+	// Adding twice the same result should not change the outcome
+	summarizer.Add(
+		scan.NewResult(
+			scan.Target{
+				Method: http.MethodGet,
+				Path:   "/path/to/my/files",
+			},
+			&http.Response{
+				StatusCode: 200,
+				Request: &http.Request{
+					URL: test.MustParseUrl(t, "http://mysite/path/to/my/files"),
+				},
+			},
+		),
+	)
+
 	summarizer.Summarize()
 
-	expectedResult := `8 requests made, 7 results found
+	expectedResult := `9 requests made, 7 results found
 /
 ├── contacts
 ├── home
