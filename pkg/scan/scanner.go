@@ -19,8 +19,21 @@ type Target struct {
 
 // Result represents the result of the scan of a single URL
 type Result struct {
-	Target   Target
+	Target Target
+
+	StatusCode int
+	URL        url.URL
+
 	Response *http.Response
+}
+
+// NewResult creates a new instance of the Result entity based on the Target and Response
+func NewResult(target Target, response *http.Response) Result {
+	return Result{
+		Target:     target,
+		StatusCode: response.StatusCode,
+		URL:        *response.Request.URL,
+	}
 }
 
 func NewScanner(
@@ -105,11 +118,7 @@ func (s *Scanner) processTarget(
 		l.WithError(err).Warn("failed to close response body")
 	}
 
-	result := Result{
-		Target:   target,
-		Response: res,
-	}
-
+	result := NewResult(target, res)
 	results <- result
 
 	for newTarget := range reproducer(result) {

@@ -40,7 +40,7 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 		go func() {
 			defer close(resultChannel)
 
-			if _, ok := statusCodesToSkip[result.Response.StatusCode]; ok {
+			if _, ok := statusCodesToSkip[result.StatusCode]; ok {
 				return
 			}
 

@@ -21,12 +21,12 @@ type ResultLogger struct {
 }
 
 func (c *ResultLogger) Log(result Result) {
-	statusCode := result.Response.StatusCode
+	statusCode := result.StatusCode
 
 	l := c.logger.WithFields(logrus.Fields{
 		"status-code": statusCode,
 		"method":      result.Target.Method,
-		"url":         result.Response.Request.URL,
+		"url":         result.URL.String(),
 	})
 
 	if statusCode == http.StatusNotFound {

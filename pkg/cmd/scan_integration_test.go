@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"sync"
+	"syscall"
 	"testing"
 	"time"
 
@@ -30,7 +31,6 @@ func TestScanCommand(t *testing.T) {
 			}
 
 			w.WriteHeader(http.StatusNotFound)
-
 		}),
 	)
 	defer testServer.Close()
@@ -68,6 +68,68 @@ func TestScanCommand(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedRequests, requestsMap)
+}
+
+func TestScanWithNoTargetShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt")
+	assert.Error(t, err)
+
+	assert.Equal(t, 0, serverAssertion.Len())
+}
+
+func TestScanCommandCanBeInterrupted(t *testing.T) {
+	logger, loggerBuffer := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			time.Sleep(time.Millisecond * 650)
+
+			if r.URL.Path == "/test/" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	go func() {
+		time.Sleep(time.Millisecond * 200)
+		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+	}()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"-v",
+		"--http-timeout",
+		"900",
+	)
+	assert.NoError(t, err)
+
+	assert.True(t, serverAssertion.Len() > 0)
+	assert.Contains(t, loggerBuffer.String(), "Received sigint")
 }
 
 func TestScanWithRemoteDictionary(t *testing.T) {

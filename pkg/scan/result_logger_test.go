@@ -2,6 +2,7 @@ package scan_test
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
@@ -73,12 +74,15 @@ func TestResultLogger(t *testing.T) {
 
 			resultLogger := scan.NewResultLogger(logger)
 			resultLogger.Log(
-				scan.Result{
-					Response: &http.Response{
+				scan.NewResult(
+					scan.Target{},
+					&http.Response{
 						StatusCode: tc.statusCode,
-						Request:    &http.Request{},
+						Request: &http.Request{
+							URL: &url.URL{},
+						},
 					},
-				},
+				),
 			)
 
 			assert.Contains(t, loggerBuffer.String(), tc.expectedMsg)
