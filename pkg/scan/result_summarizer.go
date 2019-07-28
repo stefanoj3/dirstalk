@@ -12,12 +12,13 @@ import (
 )
 
 func NewResultSummarizer(out io.Writer) *ResultSummarizer {
-	return &ResultSummarizer{out: out}
+	return &ResultSummarizer{out: out, resultMap: make(map[string]struct{})}
 }
 
 type ResultSummarizer struct {
 	out             io.Writer
 	results         []Result
+	resultMap       map[string]struct{}
 	resultsReceived int
 	mux             sync.RWMutex
 }
@@ -28,9 +29,17 @@ func (s *ResultSummarizer) Add(result Result) {
 
 	s.resultsReceived++
 
+	key := keyForResult(result)
+	_, found := s.resultMap[key]
+	if found {
+		return
+	}
+
 	if result.StatusCode == http.StatusNotFound {
 		return
 	}
+
+	s.resultMap[key] = struct{}{}
 
 	s.results = append(s.results, result)
 }
@@ -102,4 +111,8 @@ func (s *ResultSummarizer) printTree() {
 	}
 
 	fmt.Fprintln(s.out, root.Print())
+}
+
+func keyForResult(result Result) string {
+	return fmt.Sprintf("%s~%s", result.URL.String(), result.Target.Method)
 }
