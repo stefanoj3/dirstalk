@@ -1,29 +1,37 @@
-package scan
+package summarizer
 
 import (
 	"fmt"
-	"io"
 	"net/http"
 	"sort"
 	"strings"
 	"sync"
 
+	"github.com/sirupsen/logrus"
+	"github.com/stefanoj3/dirstalk/pkg/scan"
+
 	gotree "github.com/DiSiqueira/GoTree"
 )
 
-func NewResultSummarizer(out io.Writer) *ResultSummarizer {
-	return &ResultSummarizer{out: out, resultMap: make(map[string]struct{})}
+const (
+	breakingText = "Found something breaking"
+	foundText    = "Found"
+	notFoundText = "Not found"
+)
+
+func NewResultSummarizer(logger *logrus.Logger) *ResultSummarizer {
+	return &ResultSummarizer{logger: logger, resultMap: make(map[string]struct{})}
 }
 
 type ResultSummarizer struct {
-	out             io.Writer
-	results         []Result
+	logger          *logrus.Logger
+	results         []scan.Result
 	resultMap       map[string]struct{}
 	resultsReceived int
 	mux             sync.RWMutex
 }
 
-func (s *ResultSummarizer) Add(result Result) {
+func (s *ResultSummarizer) Add(result scan.Result) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
 
@@ -35,6 +43,7 @@ func (s *ResultSummarizer) Add(result Result) {
 		return
 	}
 
+	s.log(result)
 	if result.StatusCode == http.StatusNotFound {
 		return
 	}
@@ -57,7 +66,7 @@ func (s *ResultSummarizer) Summarize() {
 
 	for _, r := range s.results {
 		fmt.Fprintln(
-			s.out,
+			s.logger.Out,
 			fmt.Sprintf(
 				"%s [%d] [%s]",
 				r.URL.String(),
@@ -70,7 +79,7 @@ func (s *ResultSummarizer) Summarize() {
 
 func (s *ResultSummarizer) printSummary() {
 	fmt.Fprintln(
-		s.out,
+		s.logger.Out,
 		fmt.Sprintf("%d requests made, %d results found", s.resultsReceived, len(s.results)),
 	)
 }
@@ -110,9 +119,27 @@ func (s *ResultSummarizer) printTree() {
 		}
 	}
 
-	fmt.Fprintln(s.out, root.Print())
+	fmt.Fprintln(s.logger.Out, root.Print())
 }
 
-func keyForResult(result Result) string {
+func (s *ResultSummarizer) log(result scan.Result) {
+	statusCode := result.StatusCode
+
+	l := s.logger.WithFields(logrus.Fields{
+		"status-code": statusCode,
+		"method":      result.Target.Method,
+		"url":         result.URL.String(),
+	})
+
+	if statusCode == http.StatusNotFound {
+		l.Debug(notFoundText)
+	} else if statusCode >= http.StatusInternalServerError {
+		l.Warn(breakingText)
+	} else {
+		l.Info(foundText)
+	}
+}
+
+func keyForResult(result scan.Result) string {
 	return fmt.Sprintf("%s~%s", result.URL.String(), result.Target.Method)
 }
