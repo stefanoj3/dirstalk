@@ -3,10 +3,13 @@ package dictionary_test
 import (
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/stefanoj3/dirstalk/pkg/common/test"
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stretchr/testify/assert"
 )
@@ -41,6 +44,19 @@ func TestDictionaryFromAbsolutePath(t *testing.T) {
 		"blabla",
 	}
 	assert.Equal(t, expectedValue, entries)
+}
+
+func TestDictionaryWithUnableToReadFolderShouldFail(t *testing.T) {
+	newFolderPath := "testdata/" + test.RandStringRunes(10)
+
+	err := os.Mkdir(newFolderPath, 0200)
+	assert.NoError(t, err)
+
+	defer removeTestDirectory(t, newFolderPath)
+
+	_, err = dictionary.NewDictionaryFrom(newFolderPath, &http.Client{})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "permission denied")
 }
 
 func TestDictionaryFromFileWithInvalidPath(t *testing.T) {
@@ -117,4 +133,25 @@ func TestNewDictionaryFromRemoteShouldFailWhenRemoteReturnNon200Status(t *testin
 	assert.Contains(t, err.Error(), "status code 403")
 
 	assert.Nil(t, entries)
+}
+
+func removeTestDirectory(t *testing.T, path string) {
+	if !strings.Contains(path, "testdata") {
+		t.Fatalf("cannot delete `%s`, it is not in a `testdata` folder", path)
+		return
+	}
+
+	stats, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("failed to read `%s` properties", path)
+	}
+
+	if !stats.IsDir() {
+		t.Fatalf("cannot delete `%s`, it is not a directory", path)
+	}
+
+	err = os.Remove(path)
+	if err != nil {
+		t.Fatalf("failed to remove `%s`: %s", path, err.Error())
+	}
 }
