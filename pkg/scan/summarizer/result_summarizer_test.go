@@ -17,7 +17,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 	logger.SetLevel(logrus.FatalLevel)
 
-	sut := summarizer.NewResultSummarizer(logger)
+	sut := summarizer.NewResultSummarizer([]int{http.StatusNotFound}, logger)
 
 	sut.Add(
 		scan.NewResult(
@@ -250,7 +250,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 				},
 			),
 			expectedToContain: []string{
-				"Not found",
+				"Ignored",
 				"method=GET",
 				"status-code=404",
 				`url="http://mysite/gibberish"`,
@@ -263,7 +263,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 		t.Run(tc.result.Target.Path, func(t *testing.T) {
 			t.Parallel()
 			logger, loggerBuffer := test.NewLogger()
-			sut := summarizer.NewResultSummarizer(logger)
+			sut := summarizer.NewResultSummarizer([]int{http.StatusNotFound}, logger)
 
 			sut.Add(tc.result)
 

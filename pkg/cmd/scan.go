@@ -46,6 +46,12 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"comma separated list of http methods to use; eg: GET,POST,PUT",
 	)
 
+	cmd.Flags().IntSlice(
+		flagHTTPStatusesToIgnore,
+		[]int{http.StatusNotFound},
+		"comma separated list of http statuses to ignore when showing results; eg: 404,301",
+	)
+
 	cmd.Flags().IntP(
 		flagThreads,
 		flagThreadsShort,
@@ -158,7 +164,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	}
 
 	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
-	reproducer := producer.NewReProducer(targetProducer)
+	reproducer := producer.NewReProducer(targetProducer, cnf.HTTPStatusesToIgnore)
 
 	s := scan.NewScanner(
 		c,
@@ -180,7 +186,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		"user-agent":        cnf.UserAgent,
 	}).Info("Starting scan")
 
-	resultSummarizer := summarizer.NewResultSummarizer(logger)
+	resultSummarizer := summarizer.NewResultSummarizer(cnf.HTTPStatusesToIgnore, logger)
 
 	osSigint := make(chan os.Signal, 1)
 	signal.Notify(osSigint, os.Interrupt)

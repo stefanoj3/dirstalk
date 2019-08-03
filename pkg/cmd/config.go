@@ -23,6 +23,11 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to read http methods flag")
 	}
 
+	c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagHTTPStatusesToIgnore)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read http methods flag")
+	}
+
 	c.Threads, err = cmd.Flags().GetInt(flagThreads)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read threads flag")

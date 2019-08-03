@@ -51,6 +51,8 @@ func TestScanCommand(t *testing.T) {
 		"--dictionary",
 		"testdata/dict2.txt",
 		"-v",
+		"--http-statuses-to-ignore",
+		"404",
 		"--http-timeout",
 		"300",
 	)
@@ -98,6 +100,37 @@ func TestScanCommand(t *testing.T) {
 `
 
 	assert.Contains(t, loggerBuffer.String(), expectedResultTree)
+}
+
+func TestScanWithInvalidStatusesToIgnoreShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"-v",
+		"--http-statuses-to-ignore",
+		"300,gibberish,404",
+		"--http-timeout",
+		"300",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "strconv.Atoi: parsing")
+	assert.Contains(t, err.Error(), "gibberish")
+
+	assert.Equal(t, 0, serverAssertion.Len())
 }
 
 func TestScanWithNoTargetShouldErr(t *testing.T) {
