@@ -32,6 +32,9 @@ func NewClientFromConfig(
 	c := &http.Client{
 		Timeout:   time.Millisecond * time.Duration(timeoutInMilliseconds),
 		Transport: &transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
 	}
 
 	if useCookieJar {
