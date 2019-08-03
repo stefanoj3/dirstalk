@@ -20,7 +20,7 @@ func TestScanningWithEmptyProducerWillProduceNoResults(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -58,7 +58,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -109,7 +109,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -175,7 +175,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -249,7 +249,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -312,7 +312,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod),
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
 		logger,
 	)
 

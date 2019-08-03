@@ -9,6 +9,7 @@ import (
 type Config struct {
 	DictionaryPath        string
 	HTTPMethods           []string
+	HTTPStatusesToIgnore  []int
 	Threads               int
 	TimeoutInMilliseconds int
 	ScanDepth             int

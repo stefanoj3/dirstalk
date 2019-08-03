@@ -16,19 +16,30 @@ import (
 const (
 	breakingText = "Found something breaking"
 	foundText    = "Found"
-	notFoundText = "Not found"
+	ignoredText  = "Ignored"
 )
 
-func NewResultSummarizer(logger *logrus.Logger) *ResultSummarizer {
-	return &ResultSummarizer{logger: logger, resultMap: make(map[string]struct{})}
+func NewResultSummarizer(httpStatusesToIgnore []int, logger *logrus.Logger) *ResultSummarizer {
+	httpStatusesToIgnoreMap := make(map[int]struct{}, len(httpStatusesToIgnore))
+
+	for _, statusToIgnore := range httpStatusesToIgnore {
+		httpStatusesToIgnoreMap[statusToIgnore] = struct{}{}
+	}
+
+	return &ResultSummarizer{
+		httpStatusesToIgnoreMap: httpStatusesToIgnoreMap,
+		logger:                  logger,
+		resultMap:               make(map[string]struct{}),
+	}
 }
 
 type ResultSummarizer struct {
-	logger          *logrus.Logger
-	results         []scan.Result
-	resultMap       map[string]struct{}
-	resultsReceived int
-	mux             sync.RWMutex
+	httpStatusesToIgnoreMap map[int]struct{}
+	logger                  *logrus.Logger
+	results                 []scan.Result
+	resultMap               map[string]struct{}
+	resultsReceived         int
+	mux                     sync.RWMutex
 }
 
 func (s *ResultSummarizer) Add(result scan.Result) {
@@ -44,7 +55,7 @@ func (s *ResultSummarizer) Add(result scan.Result) {
 	}
 
 	s.log(result)
-	if result.StatusCode == http.StatusNotFound {
+	if _, found := s.httpStatusesToIgnoreMap[result.StatusCode]; found {
 		return
 	}
 
@@ -131,8 +142,8 @@ func (s *ResultSummarizer) log(result scan.Result) {
 		"url":         result.URL.String(),
 	})
 
-	if statusCode == http.StatusNotFound {
-		l.Debug(notFoundText)
+	if _, found := s.httpStatusesToIgnoreMap[result.StatusCode]; found {
+		l.Debug(ignoredText)
 	} else if statusCode >= http.StatusInternalServerError {
 		l.Warn(breakingText)
 	} else {

@@ -20,7 +20,7 @@ func TestNewReProducer(t *testing.T) {
 
 	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
 
-	sut := producer.NewReProducer(dictionaryProducer)
+	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
 
 	result := scan.NewResult(
 		scan.Target{
@@ -92,7 +92,7 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 
 	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
 
-	sut := producer.NewReProducer(dictionaryProducer)
+	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
 
 	result := scan.NewResult(
 		scan.Target{
@@ -127,7 +127,7 @@ func TestReProducerShouldProduceNothingFor404Response(t *testing.T) {
 
 	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
 
-	sut := producer.NewReProducer(dictionaryProducer)
+	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
 
 	result := scan.NewResult(
 		scan.Target{
