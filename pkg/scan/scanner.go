@@ -19,12 +19,9 @@ type Target struct {
 
 // Result represents the result of the scan of a single URL
 type Result struct {
-	Target Target
-
+	Target     Target
 	StatusCode int
 	URL        url.URL
-
-	Response *http.Response
 }
 
 // NewResult creates a new instance of the Result entity based on the Target and Response
@@ -108,22 +105,95 @@ func (s *Scanner) processTarget(
 		return
 	}
 
+	s.processRequest(l, req, target, results, reproducer, baseURL)
+}
+
+func (s *Scanner) processRequest(
+	l *logrus.Entry,
+	req *http.Request,
+	target Target,
+	results chan<- Result,
+	reproducer func(r Result) <-chan Target,
+	baseURL url.URL,
+) {
 	res, err := s.httpClient.Do(req)
 	if err != nil {
 		l.WithError(err).Error("failed to perform request")
 		return
 	}
-
 	if err := res.Body.Close(); err != nil {
 		l.WithError(err).Warn("failed to close response body")
 	}
 
+	// TODO: also add a cached version of the client to avoid doing the same requests multiple times
+	// (eg if there are multiple pages redirecting to the same URL maybe we can do the call only once)
 	result := NewResult(target, res)
 	results <- result
+
+	redirectTarget, shouldRedirect := s.shouldRedirect(l, req, res, target.Depth)
+	if shouldRedirect {
+		s.processTarget(baseURL, redirectTarget, reproducer, results)
+	}
 
 	for newTarget := range reproducer(result) {
 		s.processTarget(baseURL, newTarget, reproducer, results)
 	}
+}
+
+func (s *Scanner) shouldRedirect(l *logrus.Entry, req *http.Request, res *http.Response, targetDepth int) (Target, bool) {
+	if targetDepth == 0 {
+		l.Debug("depth is 0, not following any redirect")
+		return Target{}, false
+	}
+
+	redirectMethod := req.Method
+	location := res.Header.Get("Location")
+
+	if location == "" {
+		return Target{}, false
+	}
+
+	redirectStatusCodes := map[int]bool{
+		http.StatusMovedPermanently:  true,
+		http.StatusFound:             true,
+		http.StatusSeeOther:          true,
+		http.StatusTemporaryRedirect: false,
+		http.StatusPermanentRedirect: false,
+	}
+
+	shouldOverrideRequestMethod, shouldRedirect := redirectStatusCodes[res.StatusCode]
+	if !shouldRedirect {
+		return Target{}, false
+	}
+
+	// RFC 2616 allowed automatic redirection only with GET and
+	// HEAD requests. RFC 7231 lifts this restriction, but we still
+	// restrict other methods to GET to maintain compatibility.
+	// See Issue 18570.
+	if shouldOverrideRequestMethod {
+		if req.Method != "GET" && req.Method != "HEAD" {
+			redirectMethod = "GET"
+		}
+	}
+
+	u, err := url.Parse(location)
+	if err != nil {
+		l.WithError(err).
+			WithField("location", location).
+			Warn("failed to parse location for redirect")
+		return Target{}, false
+	}
+
+	if u.Host != "" && u.Host != req.Host {
+		l.Debug("skipping redirect, pointing to a different host")
+		return Target{}, false
+	}
+
+	return Target{
+		Path:   u.Path,
+		Method: redirectMethod,
+		Depth:  targetDepth - 1,
+	}, true
 }
 
 func normalizeBaseURL(baseURL url.URL) url.URL {

@@ -17,7 +17,7 @@ import (
 const socks5TestServerHost = "127.0.0.1:8899"
 
 func TestScanCommand(t *testing.T) {
-	logger, _ := test.NewLogger()
+	logger, loggerBuffer := test.NewLogger()
 
 	c, err := createCommand(logger)
 	assert.NoError(t, err)
@@ -27,6 +27,15 @@ func TestScanCommand(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/test/" {
 				w.WriteHeader(http.StatusOK)
+				return
+			}
+			if r.URL.Path == "/potato" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			if r.URL.Path == "/test/test/" {
+				http.Redirect(w, r, "/potato", http.StatusMovedPermanently)
 				return
 			}
 
@@ -47,7 +56,7 @@ func TestScanCommand(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	assert.Equal(t, 8, serverAssertion.Len())
+	assert.Equal(t, 17, serverAssertion.Len())
 
 	requestsMap := map[string]string{}
 
@@ -60,7 +69,19 @@ func TestScanCommand(t *testing.T) {
 		"/test/home":           http.MethodGet,
 		"/test/blabla":         http.MethodGet,
 		"/test/home/index.php": http.MethodGet,
-		"/test/test/":          http.MethodGet,
+		"/potato":              http.MethodGet,
+
+		"/potato/test/":          http.MethodGet,
+		"/potato/home":           http.MethodGet,
+		"/potato/home/index.php": http.MethodGet,
+		"/potato/blabla":         http.MethodGet,
+
+		"/test/test/test/":          http.MethodGet,
+		"/test/test/home":           http.MethodGet,
+		"/test/test/home/index.php": http.MethodGet,
+		"/test/test/blabla":         http.MethodGet,
+
+		"/test/test/": http.MethodGet,
 
 		"/home":           http.MethodGet,
 		"/blabla":         http.MethodGet,
@@ -68,6 +89,15 @@ func TestScanCommand(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedRequests, requestsMap)
+
+	expectedResultTree := `/
+├── potato
+└── test
+    └── test
+
+`
+
+	assert.Contains(t, loggerBuffer.String(), expectedResultTree)
 }
 
 func TestScanWithNoTargetShouldErr(t *testing.T) {
