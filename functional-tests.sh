@@ -30,7 +30,7 @@ function assert_not_contains {
     local contains=$2
     local msg=$3
 
-    if ! echo "$actual" | grep -v "$contains" > /dev/null; then
+    if printf -- '%s' "$actual" | egrep -q -- "$contains"; then
         echo "ERROR: $msg"
         echo "Failed to assert that $actual does not contain $contains"
         exit 1;
@@ -82,6 +82,8 @@ assert_contains "$SCAN_RESULT" "\-\-socks5" "socks5 help is expected to be print
 assert_contains "$SCAN_RESULT" "\-\-threads" "threads help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-user-agent" "user-agent help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-scan-depth" "scan-depth help is expected to be printed"
+
+assert_not_contains "$SCAN_RESULT" "error" "no error is expected when priting scan help"
 
 DICTIONARY_GENERATE_RESULT=$(./dist/dirstalk dictionary.generate resources/tests 2>&1 || true);
 assert_contains "$DICTIONARY_GENERATE_RESULT" "dictionary.txt" "dictionary generation should contains a file in the folder"
