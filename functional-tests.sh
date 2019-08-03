@@ -71,6 +71,17 @@ assert_contains "$SCAN_RESULT" "    └── home" "a recap was expected when p
 
 assert_not_contains "$SCAN_RESULT" "error" "no error is expected for a successful scan"
 
+SCAN_RESULT=$(./dist/dirstalk scan -h 2>&1 || true);
+assert_contains "$SCAN_RESULT" "\-\-dictionary" "dictionary help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-cookie" "cookie help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-header" "header help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-http-methods" "http-methods help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-http-statuses-to-ignore" "http-statuses-to-ignore help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-http-timeout" "http-timeout help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-socks5" "socks5 help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-threads" "threads help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-user-agent" "user-agent help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-scan-depth" "scan-depth help is expected to be printed"
 
 DICTIONARY_GENERATE_RESULT=$(./dist/dirstalk dictionary.generate resources/tests 2>&1 || true);
 assert_contains "$DICTIONARY_GENERATE_RESULT" "dictionary.txt" "dictionary generation should contains a file in the folder"
