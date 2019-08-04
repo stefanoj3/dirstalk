@@ -12,6 +12,7 @@ type Config struct {
 	HTTPStatusesToIgnore  []int
 	Threads               int
 	TimeoutInMilliseconds int
+	CacheRequests         bool
 	ScanDepth             int
 	Socks5Url             *url.URL
 	UserAgent             string

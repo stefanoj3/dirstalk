@@ -52,6 +52,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		test.MustParseUrl(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -102,6 +103,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		test.MustParseUrl(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -168,6 +170,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		test.MustParseUrl(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -179,7 +182,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		logger,
 	)
 
-	results := make([]scan.Result, 0, 4)
+	results := make([]scan.Result, 0, 3)
 	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
@@ -242,6 +245,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		test.MustParseUrl(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -305,6 +309,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		test.MustParseUrl(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -316,7 +321,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		logger,
 	)
 
-	results := make([]scan.Result, 0, 4)
+	results := make([]scan.Result, 0, 2)
 	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
@@ -344,4 +349,62 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 	assert.Contains(t, loggerBufferAsString, "skipping redirect, pointing to a different host")
 	assert.NotContains(t, loggerBufferAsString, "error")
 	assert.Equal(t, 2, serverAssertion.Len())
+}
+
+func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
+	logger, loggerBuffer := test.NewLogger()
+
+	prod := producer.NewDictionaryProducer(
+		[]string{http.MethodGet},
+		[]string{"/home", "/home"}, // twice the same entry to trick the client into doing the same request twice
+		3,
+	)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	c, err := client.NewClientFromConfig(
+		1000,
+		nil,
+		"",
+		false,
+		nil,
+		nil,
+		true,
+		test.MustParseUrl(t, testServer.URL),
+	)
+	assert.NoError(t, err)
+
+	sut := scan.NewScanner(
+		c,
+		prod,
+		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		logger,
+	)
+
+	results := make([]scan.Result, 0, 1)
+	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
+
+	for r := range resultsChannel {
+		results = append(results, r)
+	}
+
+	expectedResults := []scan.Result{
+		{
+			Target:     scan.Target{Path: "/home", Method: http.MethodGet, Depth: 3},
+			StatusCode: http.StatusNotFound,
+			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
+		},
+	}
+
+	assert.Equal(t, expectedResults, results)
+
+	loggerBufferAsString := loggerBuffer.String()
+	assert.Contains(t, loggerBufferAsString, "/home")
+	assert.Contains(t, loggerBufferAsString, "/home: this request has been made already")
+	assert.Equal(t, 1, serverAssertion.Len())
 }

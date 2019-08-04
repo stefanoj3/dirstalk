@@ -49,7 +49,7 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 	cmd.Flags().IntSlice(
 		flagHTTPStatusesToIgnore,
 		[]int{http.StatusNotFound},
-		"comma separated list of http statuses to ignore when showing results; eg: 404,301",
+		"comma separated list of http statuses to ignore when showing and processing results; eg: 404,301",
 	)
 
 	cmd.Flags().IntP(
@@ -64,6 +64,14 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"",
 		5000,
 		"timeout in milliseconds",
+	)
+
+	cmd.Flags().BoolP(
+		flagHTTPCacheRequests,
+		"",
+		true,
+		"cache requests to avoid performing the same request multiple times within the same scan (EG if the "+
+			"server reply with the same redirect location multiple times, dirstalk will follow it only once)",
 	)
 
 	cmd.Flags().IntP(
@@ -152,6 +160,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		cnf.UseCookieJar,
 		cnf.Cookies,
 		cnf.Headers,
+		cnf.CacheRequests,
 		u,
 	)
 	if err != nil {

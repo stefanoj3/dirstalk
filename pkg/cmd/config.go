@@ -38,6 +38,11 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to read http-timeout flag")
 	}
 
+	c.CacheRequests, err = cmd.Flags().GetBool(flagHTTPCacheRequests)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read http-cache-requests flag")
+	}
+
 	c.ScanDepth, err = cmd.Flags().GetInt(flagScanDepth)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http-timeout flag")
