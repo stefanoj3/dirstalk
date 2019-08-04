@@ -11,6 +11,7 @@ const (
 	flagHTTPMethods          = "http-methods"
 	flagHTTPStatusesToIgnore = "http-statuses-to-ignore"
 	flagHTTPTimeout          = "http-timeout"
+	flagHTTPCacheRequests    = "http-cache-requests"
 	flagScanDepth            = "scan-depth"
 	flagThreads              = "threads"
 	flagThreadsShort         = "t"

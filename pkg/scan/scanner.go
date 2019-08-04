@@ -8,6 +8,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
+	"github.com/stefanoj3/dirstalk/pkg/scan/client"
 )
 
 // Target represents the target to scan
@@ -117,6 +118,10 @@ func (s *Scanner) processRequest(
 	baseURL url.URL,
 ) {
 	res, err := s.httpClient.Do(req)
+	if err != nil && strings.Contains(err.Error(), client.ErrRequestRedundant.Error()) {
+		l.WithError(err).Debug("skipping, request was already made")
+		return
+	}
 	if err != nil {
 		l.WithError(err).Error("failed to perform request")
 		return
@@ -125,8 +130,6 @@ func (s *Scanner) processRequest(
 		l.WithError(err).Warn("failed to close response body")
 	}
 
-	// TODO: also add a cached version of the client to avoid doing the same requests multiple times
-	// (eg if there are multiple pages redirecting to the same URL maybe we can do the call only once)
 	result := NewResult(target, res)
 	results <- result
 

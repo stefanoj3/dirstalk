@@ -75,6 +75,7 @@ SCAN_RESULT=$(./dist/dirstalk scan -h 2>&1 || true);
 assert_contains "$SCAN_RESULT" "\-\-dictionary" "dictionary help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-cookie" "cookie help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-header" "header help is expected to be printed"
+assert_contains "$SCAN_RESULT" "\-\-http-cache-requests" "http-cache-requests help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-http-methods" "http-methods help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-http-statuses-to-ignore" "http-statuses-to-ignore help is expected to be printed"
 assert_contains "$SCAN_RESULT" "\-\-http-timeout" "http-timeout help is expected to be printed"

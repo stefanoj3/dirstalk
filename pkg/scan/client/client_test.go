@@ -26,6 +26,7 @@ func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 		false,
 		nil,
 		nil,
+		true,
 		nil,
 	)
 	assert.NoError(t, err)
@@ -74,6 +75,7 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 		true,
 		cookies,
 		map[string]string{},
+		false,
 		u,
 	)
 	assert.NoError(t, err)
@@ -133,6 +135,7 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 		false,
 		cookies,
 		map[string]string{},
+		true,
 		u,
 	)
 	assert.NoError(t, err)
@@ -172,6 +175,7 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 		false,
 		nil,
 		map[string]string{headerName: headerValue},
+		true,
 		u,
 	)
 	assert.NoError(t, err)
@@ -198,10 +202,46 @@ func TestShouldFailToCreateAClientWithInvalidSocks5Url(t *testing.T) {
 		false,
 		nil,
 		map[string]string{},
+		true,
 		nil,
 	)
 	assert.Nil(t, c)
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "unknown scheme")
+}
+
+func TestShouldNotRepeatTheSameRequestTwice(t *testing.T) {
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	c, err := client.NewClientFromConfig(
+		100,
+		nil,
+		"",
+		false,
+		nil,
+		nil,
+		true,
+		u,
+	)
+	assert.NoError(t, err)
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	assert.NoError(t, err)
+
+	res, err := c.Do(req)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusOK, res.StatusCode)
+
+	res, err = c.Do(req)
+	assert.Contains(t, err.Error(), client.ErrRequestRedundant.Error())
+	assert.Nil(t, res)
+
+	assert.Equal(t, 1, serverAssertion.Len())
 }
