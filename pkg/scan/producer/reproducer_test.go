@@ -31,7 +31,7 @@ func TestNewReProducer(t *testing.T) {
 		&http.Response{
 			StatusCode: http.StatusOK,
 			Request: &http.Request{
-				URL: test.MustParseUrl(t, "http://mysite/contacts"),
+				URL: test.MustParseURL(t, "http://mysite/contacts"),
 			},
 		},
 	)
@@ -103,7 +103,7 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 		&http.Response{
 			StatusCode: http.StatusOK,
 			Request: &http.Request{
-				URL: test.MustParseUrl(t, "http://mysite/contacts"),
+				URL: test.MustParseURL(t, "http://mysite/contacts"),
 			},
 		},
 	)

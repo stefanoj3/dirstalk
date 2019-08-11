@@ -15,7 +15,7 @@ func Join(elem ...string) string {
 	last := elem[len(elem)-1]
 
 	if strings.HasSuffix(last, "/") && !strings.HasSuffix(joined, "/") {
-		joined = joined + "/"
+		joined += "/"
 	}
 
 	return joined

@@ -27,7 +27,7 @@ func TestScanningWithEmptyProducerWillProduceNoResults(t *testing.T) {
 		logger,
 	)
 
-	results := sut.Scan(test.MustParseUrl(t, "http://localhost/"), 10)
+	results := sut.Scan(test.MustParseURL(t, "http://localhost/"), 10)
 
 	for r := range results {
 		t.Fatalf("No results expected, got %s", r.Target.Path)
@@ -56,7 +56,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 	sut := scan.NewScanner(
@@ -67,7 +67,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		logger,
 	)
 
-	results := sut.Scan(test.MustParseUrl(t, testServer.URL), 10)
+	results := sut.Scan(test.MustParseURL(t, testServer.URL), 10)
 
 	for r := range results {
 		t.Fatalf("No results expected, got %s", r.Target.Path)
@@ -108,7 +108,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 
@@ -121,7 +121,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 	)
 
 	results := make([]scan.Result, 0, 2)
-	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 10)
+	resultsChannel := sut.Scan(test.MustParseURL(t, testServer.URL), 10)
 
 	for r := range resultsChannel {
 		results = append(results, r)
@@ -131,7 +131,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 		{
 			Target:     scan.Target{Path: "/home", Method: http.MethodGet, Depth: 3},
 			StatusCode: http.StatusOK,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
+			URL:        *test.MustParseURL(t, testServer.URL+"/home"),
 		},
 	}
 
@@ -176,7 +176,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 
@@ -189,7 +189,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 	)
 
 	results := make([]scan.Result, 0, 3)
-	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
+	resultsChannel := sut.Scan(test.MustParseURL(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
 		results = append(results, r)
@@ -199,12 +199,12 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		{
 			Target:     scan.Target{Path: "/home", Method: http.MethodPatch, Depth: 3},
 			StatusCode: http.StatusMovedPermanently,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
+			URL:        *test.MustParseURL(t, testServer.URL+"/home"),
 		},
 		{
 			Target:     scan.Target{Path: "/potato", Method: http.MethodGet, Depth: 2},
 			StatusCode: http.StatusCreated,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/potato"),
+			URL:        *test.MustParseURL(t, testServer.URL+"/potato"),
 		},
 	}
 
@@ -243,7 +243,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 
@@ -256,7 +256,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 	)
 
 	results := make([]scan.Result, 0, 1)
-	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
+	resultsChannel := sut.Scan(test.MustParseURL(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
 		results = append(results, r)
@@ -266,7 +266,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		{
 			Target:     scan.Target{Path: "/home", Method: http.MethodPatch, Depth: 0},
 			StatusCode: http.StatusMovedPermanently,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
+			URL:        *test.MustParseURL(t, testServer.URL+"/home"),
 		},
 	}
 
@@ -308,7 +308,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 
@@ -321,7 +321,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 	)
 
 	results := make([]scan.Result, 0, 2)
-	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
+	resultsChannel := sut.Scan(test.MustParseURL(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
 		results = append(results, r)
@@ -331,7 +331,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		{
 			Target:     scan.Target{Path: "/home", Method: http.MethodPatch, Depth: 3},
 			StatusCode: http.StatusMovedPermanently,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
+			URL:        *test.MustParseURL(t, testServer.URL+"/home"),
 		},
 	}
 
@@ -367,7 +367,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 		nil,
 		nil,
 		true,
-		test.MustParseUrl(t, testServer.URL),
+		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
 
@@ -380,7 +380,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 	)
 
 	results := make([]scan.Result, 0, 1)
-	resultsChannel := sut.Scan(test.MustParseUrl(t, testServer.URL), 1)
+	resultsChannel := sut.Scan(test.MustParseURL(t, testServer.URL), 1)
 
 	for r := range resultsChannel {
 		results = append(results, r)

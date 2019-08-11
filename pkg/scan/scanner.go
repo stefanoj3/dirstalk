@@ -58,10 +58,10 @@ type Scanner struct {
 	logger       *logrus.Logger
 }
 
-func (s *Scanner) Scan(baseUrl *url.URL, workers int) <-chan Result {
+func (s *Scanner) Scan(baseURL *url.URL, workers int) <-chan Result {
 	resultChannel := make(chan Result, workers)
 
-	u := normalizeBaseURL(*baseUrl)
+	u := normalizeBaseURL(*baseURL)
 
 	wg := sync.WaitGroup{}
 

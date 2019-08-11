@@ -51,7 +51,7 @@ func executeCommand(root *cobra.Command, args ...string) (c *cobra.Command, outp
 	root.SetOut(buf)
 
 	a := []string{""}
-	os.Args = append(a, args...)
+	os.Args = append(a, args...) //nolint
 
 	c, err = root.ExecuteC()
 
