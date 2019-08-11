@@ -31,7 +31,7 @@ func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	res, err := c.Get(testServer.URL)
+	res, err := c.Get(testServer.URL) //nolint
 	assert.Error(t, err)
 	assert.Nil(t, res)
 
@@ -84,6 +84,8 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
+	defer res.Body.Close()
+
 	assert.Equal(t, 1, serverAssertion.Len())
 
 	serverAssertion.At(0, func(r http.Request) {
@@ -97,6 +99,8 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 	res, err = c.Get(testServer.URL)
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
+
+	defer res.Body.Close()
 
 	assert.Equal(t, 2, serverAssertion.Len())
 
@@ -144,6 +148,8 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
+	defer res.Body.Close()
+
 	assert.Equal(t, 1, serverAssertion.Len())
 
 	serverAssertion.At(0, func(r http.Request) {
@@ -183,6 +189,8 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 	res, err := c.Get(testServer.URL)
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
+
+	defer res.Body.Close()
 
 	assert.Equal(t, 1, serverAssertion.Len())
 
@@ -237,9 +245,12 @@ func TestShouldNotRepeatTheSameRequestTwice(t *testing.T) {
 
 	res, err := c.Do(req)
 	assert.NoError(t, err)
+
+	res.Body.Close()
+
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 
-	res, err = c.Do(req)
+	res, err = c.Do(req) //nolint
 	assert.Contains(t, err.Error(), client.ErrRequestRedundant.Error())
 	assert.Nil(t, res)
 

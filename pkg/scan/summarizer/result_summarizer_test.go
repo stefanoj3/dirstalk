@@ -28,7 +28,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusCreated,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/home"),
+					URL: test.MustParseURL(t, "http://mysite/home"),
 				},
 			},
 		),
@@ -43,7 +43,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusCreated,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/home/hidden"),
+					URL: test.MustParseURL(t, "http://mysite/home/hidden"),
 				},
 			},
 		),
@@ -58,7 +58,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusOK,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/home/about"),
+					URL: test.MustParseURL(t, "http://mysite/home/about"),
 				},
 			},
 		),
@@ -73,7 +73,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusOK,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/home/about/me"),
+					URL: test.MustParseURL(t, "http://mysite/home/about/me"),
 				},
 			},
 		),
@@ -88,7 +88,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusOK,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/home/home"),
+					URL: test.MustParseURL(t, "http://mysite/home/home"),
 				},
 			},
 		),
@@ -103,7 +103,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusOK,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/contacts"),
+					URL: test.MustParseURL(t, "http://mysite/contacts"),
 				},
 			},
 		),
@@ -118,7 +118,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusNotFound,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/gibberish"),
+					URL: test.MustParseURL(t, "http://mysite/gibberish"),
 				},
 			},
 		),
@@ -133,7 +133,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			&http.Response{
 				StatusCode: http.StatusOK,
 				Request: &http.Request{
-					URL: test.MustParseUrl(t, "http://mysite/path/to/my/files"),
+					URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 				},
 			},
 		),
@@ -155,7 +155,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 					&http.Response{
 						StatusCode: http.StatusOK,
 						Request: &http.Request{
-							URL: test.MustParseUrl(t, "http://mysite/path/to/my/files"),
+							URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 						},
 					},
 				),
@@ -207,7 +207,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 				&http.Response{
 					StatusCode: http.StatusOK,
 					Request: &http.Request{
-						URL: test.MustParseUrl(t, "http://mysite/home"),
+						URL: test.MustParseURL(t, "http://mysite/home"),
 					},
 				},
 			),
@@ -227,7 +227,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 				&http.Response{
 					StatusCode: http.StatusBadGateway,
 					Request: &http.Request{
-						URL: test.MustParseUrl(t, "http://mysite/index"),
+						URL: test.MustParseURL(t, "http://mysite/index"),
 					},
 				},
 			),
@@ -247,7 +247,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 				&http.Response{
 					StatusCode: http.StatusNotFound,
 					Request: &http.Request{
-						URL: test.MustParseUrl(t, "http://mysite/gibberish"),
+						URL: test.MustParseURL(t, "http://mysite/gibberish"),
 					},
 				},
 			),

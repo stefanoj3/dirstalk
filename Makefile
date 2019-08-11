@@ -5,6 +5,7 @@ TESTARGS=-v -race -cover -timeout 20s
 VERSION=$(shell git describe || git rev-parse HEAD)
 DATE=$(shell date +%s)
 LD_FLAGS=-extldflags '-static' -X github.com/stefanoj3/dirstalk/pkg/cmd.Version=$(VERSION) -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime=$(DATE)
+GOLANCILINT_ENABLED=golint,scopelint,bodyclose,gocritic,deadcode,gosimple,govet,ineffassign,staticcheck,structcheck,typecheck,unused,varcheck,dupl,misspell,nakedret,unconvert,unparam
 
 ifeq ($(TRAVIS), true)
 TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
@@ -35,9 +36,8 @@ functional-tests: build build-testserver
 ## Run checks against the codebase
 check:
 	@golint -set_exit_status .
-	@go vet ./...
 	@goimports -l $(SRC_DIRS) | tee /dev/tty | xargs -I {} test -z {}
-	@golangci-lint run
+	@golangci-lint run --enable $(GOLANCILINT_ENABLED)
 	@gosec ./...
 
 .PHONY: fix

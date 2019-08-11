@@ -7,5 +7,5 @@ import (
 )
 
 type Scanner interface {
-	Scan(baseUrl *url.URL, workers int) <-chan scan.Result
+	Scan(baseURL *url.URL, workers int) <-chan scan.Result
 }
