@@ -19,4 +19,5 @@ type Config struct {
 	UseCookieJar          bool
 	Cookies               []*http.Cookie
 	Headers               map[string]string
+	Out                   string
 }

@@ -13,6 +13,8 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 	"github.com/stefanoj3/dirstalk/pkg/scan/client"
+	"github.com/stefanoj3/dirstalk/pkg/scan/filter"
+	"github.com/stefanoj3/dirstalk/pkg/scan/output"
 	"github.com/stefanoj3/dirstalk/pkg/scan/producer"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer"
 )
@@ -115,6 +117,12 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"header to add to each request; eg name=value (can be specified multiple times)",
 	)
 
+	cmd.Flags().String(
+		flagResultOutput,
+		"",
+		"path where to store result output",
+	)
+
 	return cmd, nil
 }
 
@@ -173,12 +181,15 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	}
 
 	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
-	reproducer := producer.NewReProducer(targetProducer, cnf.HTTPStatusesToIgnore)
+	reproducer := producer.NewReProducer(targetProducer)
+
+	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore)
 
 	s := scan.NewScanner(
 		c,
 		targetProducer,
 		reproducer,
+		resultFilter,
 		logger,
 	)
 
@@ -189,19 +200,28 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		"scan-depth":        cnf.ScanDepth,
 		"timeout":           cnf.TimeoutInMilliseconds,
 		"socks5":            cnf.Socks5Url,
-		"cookies":           strigifyCookies(cnf.Cookies),
+		"cookies":           stringifyCookies(cnf.Cookies),
 		"cookie-jar":        cnf.UseCookieJar,
-		"headers":           stringyfyHeaders(cnf.Headers),
+		"headers":           stringifyHeaders(cnf.Headers),
 		"user-agent":        cnf.UserAgent,
 	}).Info("Starting scan")
 
-	resultSummarizer := summarizer.NewResultSummarizer(cnf.HTTPStatusesToIgnore, logger)
+	resultSummarizer := summarizer.NewResultSummarizer(logger)
 
 	osSigint := make(chan os.Signal, 1)
 	signal.Notify(osSigint, os.Interrupt)
 
+	outputSaver, err := newOutputSaver(cnf.Out)
+	if err != nil {
+		return errors.Wrap(err, "failed to create output saver")
+	}
+
 	finishFunc := func() {
 		resultSummarizer.Summarize()
+		err := outputSaver.Close()
+		if err != nil {
+			logger.WithError(err).Error("failed to close output file")
+		}
 		logger.Info("Finished scan")
 	}
 
@@ -213,6 +233,10 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 			return nil
 		default:
 			resultSummarizer.Add(result)
+			err := outputSaver.Save(result)
+			if err != nil {
+				return errors.Wrap(err, "failed to add output to file")
+			}
 		}
 	}
 
@@ -221,7 +245,15 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	return nil
 }
 
-func strigifyCookies(cookies []*http.Cookie) string {
+func newOutputSaver(path string) (OutputSaver, error) {
+	if path == "" {
+		return output.NewNullSaver(), nil
+	}
+
+	return output.NewFileSaver(path)
+}
+
+func stringifyCookies(cookies []*http.Cookie) string {
 	result := ""
 
 	for _, cookie := range cookies {
@@ -231,7 +263,7 @@ func strigifyCookies(cookies []*http.Cookie) string {
 	return result
 }
 
-func stringyfyHeaders(headers map[string]string) string {
+func stringifyHeaders(headers map[string]string) string {
 	result := ""
 
 	for name, value := range headers {

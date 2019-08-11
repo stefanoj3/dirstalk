@@ -38,21 +38,24 @@ func NewScanner(
 	httpClient Doer,
 	producer Producer,
 	reproducer ReProducer,
+	resultFilter ResultFilter,
 	logger *logrus.Logger,
 ) *Scanner {
 	return &Scanner{
-		httpClient: httpClient,
-		producer:   producer,
-		reproducer: reproducer,
-		logger:     logger,
+		httpClient:   httpClient,
+		producer:     producer,
+		reproducer:   reproducer,
+		resultFilter: resultFilter,
+		logger:       logger,
 	}
 }
 
 type Scanner struct {
-	httpClient Doer
-	producer   Producer
-	reproducer ReProducer
-	logger     *logrus.Logger
+	httpClient   Doer
+	producer     Producer
+	reproducer   ReProducer
+	resultFilter ResultFilter
+	logger       *logrus.Logger
 }
 
 func (s *Scanner) Scan(baseUrl *url.URL, workers int) <-chan Result {
@@ -131,6 +134,11 @@ func (s *Scanner) processRequest(
 	}
 
 	result := NewResult(target, res)
+
+	if s.resultFilter.ShouldIgnore(result) {
+		return
+	}
+
 	results <- result
 
 	redirectTarget, shouldRedirect := s.shouldRedirect(l, req, res, target.Depth)

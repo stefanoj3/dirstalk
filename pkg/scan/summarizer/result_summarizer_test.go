@@ -17,7 +17,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 	logger.SetLevel(logrus.FatalLevel)
 
-	sut := summarizer.NewResultSummarizer([]int{http.StatusNotFound}, logger)
+	sut := summarizer.NewResultSummarizer(logger)
 
 	sut.Add(
 		scan.NewResult(
@@ -167,9 +167,10 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 
 	sut.Summarize()
 
-	expectedResult := `18 requests made, 7 results found
+	expectedResult := `8 results found
 /
 ├── contacts
+├── gibberish
 ├── home
 │   ├── about
 │   │   └── me
@@ -181,6 +182,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
             └── files
 
 http://mysite/contacts [200] [GET]
+http://mysite/gibberish [404] [GET]
 http://mysite/home [201] [POST]
 http://mysite/home/about [200] [GET]
 http://mysite/home/about/me [200] [GET]
@@ -250,7 +252,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 				},
 			),
 			expectedToContain: []string{
-				"Ignored",
+				"Found",
 				"method=GET",
 				"status-code=404",
 				`url="http://mysite/gibberish"`,
@@ -259,11 +261,11 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+		tc := tc // Pinning ranged variable, more info: https://github.com/kyoh86/scopelint
 		t.Run(tc.result.Target.Path, func(t *testing.T) {
 			t.Parallel()
 			logger, loggerBuffer := test.NewLogger()
-			sut := summarizer.NewResultSummarizer([]int{http.StatusNotFound}, logger)
+			sut := summarizer.NewResultSummarizer(logger)
 
 			sut.Add(tc.result)
 

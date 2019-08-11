@@ -16,37 +16,25 @@ import (
 const (
 	breakingText = "Found something breaking"
 	foundText    = "Found"
-	ignoredText  = "Ignored"
 )
 
-func NewResultSummarizer(httpStatusesToIgnore []int, logger *logrus.Logger) *ResultSummarizer {
-	httpStatusesToIgnoreMap := make(map[int]struct{}, len(httpStatusesToIgnore))
-
-	for _, statusToIgnore := range httpStatusesToIgnore {
-		httpStatusesToIgnoreMap[statusToIgnore] = struct{}{}
-	}
-
+func NewResultSummarizer(logger *logrus.Logger) *ResultSummarizer {
 	return &ResultSummarizer{
-		httpStatusesToIgnoreMap: httpStatusesToIgnoreMap,
-		logger:                  logger,
-		resultMap:               make(map[string]struct{}),
+		logger:    logger,
+		resultMap: make(map[string]struct{}),
 	}
 }
 
 type ResultSummarizer struct {
-	httpStatusesToIgnoreMap map[int]struct{}
-	logger                  *logrus.Logger
-	results                 []scan.Result
-	resultMap               map[string]struct{}
-	resultsReceived         int
-	mux                     sync.RWMutex
+	logger    *logrus.Logger
+	results   []scan.Result
+	resultMap map[string]struct{}
+	mux       sync.RWMutex
 }
 
 func (s *ResultSummarizer) Add(result scan.Result) {
 	s.mux.Lock()
 	defer s.mux.Unlock()
-
-	s.resultsReceived++
 
 	key := keyForResult(result)
 	_, found := s.resultMap[key]
@@ -55,9 +43,6 @@ func (s *ResultSummarizer) Add(result scan.Result) {
 	}
 
 	s.log(result)
-	if _, found := s.httpStatusesToIgnoreMap[result.StatusCode]; found {
-		return
-	}
 
 	s.resultMap[key] = struct{}{}
 
@@ -76,7 +61,7 @@ func (s *ResultSummarizer) Summarize() {
 	s.printTree()
 
 	for _, r := range s.results {
-		fmt.Fprintln(
+		_, _ = fmt.Fprintln(
 			s.logger.Out,
 			fmt.Sprintf(
 				"%s [%d] [%s]",
@@ -89,9 +74,9 @@ func (s *ResultSummarizer) Summarize() {
 }
 
 func (s *ResultSummarizer) printSummary() {
-	fmt.Fprintln(
+	_, _ = fmt.Fprintln(
 		s.logger.Out,
-		fmt.Sprintf("%d requests made, %d results found", s.resultsReceived, len(s.results)),
+		fmt.Sprintf("%d results found", len(s.results)),
 	)
 }
 
@@ -130,7 +115,7 @@ func (s *ResultSummarizer) printTree() {
 		}
 	}
 
-	fmt.Fprintln(s.logger.Out, root.Print())
+	_, _ = fmt.Fprintln(s.logger.Out, root.Print())
 }
 
 func (s *ResultSummarizer) log(result scan.Result) {
@@ -142,9 +127,7 @@ func (s *ResultSummarizer) log(result scan.Result) {
 		"url":         result.URL.String(),
 	})
 
-	if _, found := s.httpStatusesToIgnoreMap[result.StatusCode]; found {
-		l.Debug(ignoredText)
-	} else if statusCode >= http.StatusInternalServerError {
+	if statusCode >= http.StatusInternalServerError {
 		l.Warn(breakingText)
 	} else {
 		l.Info(foundText)

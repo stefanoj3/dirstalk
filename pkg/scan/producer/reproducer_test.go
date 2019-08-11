@@ -20,7 +20,7 @@ func TestNewReProducer(t *testing.T) {
 
 	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
 
-	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
+	sut := producer.NewReProducer(dictionaryProducer)
 
 	result := scan.NewResult(
 		scan.Target{
@@ -92,7 +92,7 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 
 	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
 
-	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
+	sut := producer.NewReProducer(dictionaryProducer)
 
 	result := scan.NewResult(
 		scan.Target{
@@ -102,41 +102,6 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 		},
 		&http.Response{
 			StatusCode: http.StatusOK,
-			Request: &http.Request{
-				URL: test.MustParseUrl(t, "http://mysite/contacts"),
-			},
-		},
-	)
-
-	reproducerFunc := sut.Reproduce()
-	reproducerChannel := reproducerFunc(result)
-
-	targets := make([]scan.Target, 0)
-	for tar := range reproducerChannel {
-		targets = append(targets, tar)
-	}
-
-	assert.Len(t, targets, 0)
-}
-
-func TestReProducerShouldProduceNothingFor404Response(t *testing.T) {
-	t.Parallel()
-
-	methods := []string{http.MethodGet, http.MethodPost}
-	dictionary := []string{"/home", "/about"}
-
-	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
-
-	sut := producer.NewReProducer(dictionaryProducer, []int{http.StatusNotFound})
-
-	result := scan.NewResult(
-		scan.Target{
-			Path:   "/home",
-			Method: http.MethodGet,
-			Depth:  3,
-		},
-		&http.Response{
-			StatusCode: http.StatusNotFound,
 			Request: &http.Request{
 				URL: test.MustParseUrl(t, "http://mysite/contacts"),
 			},

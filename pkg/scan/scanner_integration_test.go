@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stefanoj3/dirstalk/pkg/scan/filter"
+
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 	"github.com/stefanoj3/dirstalk/pkg/scan/client"
@@ -20,7 +22,8 @@ func TestScanningWithEmptyProducerWillProduceNoResults(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -59,7 +62,8 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -111,7 +115,8 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -127,11 +132,6 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 			Target:     scan.Target{Path: "/home", Method: http.MethodGet, Depth: 3},
 			StatusCode: http.StatusOK,
 			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
-		},
-		{
-			Target:     scan.Target{Path: "/home/home", Method: http.MethodGet, Depth: 2},
-			StatusCode: http.StatusNotFound,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home/home"),
 		},
 	}
 
@@ -158,6 +158,11 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 				return
 			}
 
+			if r.URL.Path == "/potato" {
+				w.WriteHeader(http.StatusCreated)
+				return
+			}
+
 			w.WriteHeader(http.StatusNotFound)
 		}),
 	)
@@ -178,7 +183,8 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -197,24 +203,15 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		},
 		{
 			Target:     scan.Target{Path: "/potato", Method: http.MethodGet, Depth: 2},
-			StatusCode: http.StatusNotFound,
+			StatusCode: http.StatusCreated,
 			URL:        *test.MustParseUrl(t, testServer.URL+"/potato"),
-		},
-		{
-			Target:     scan.Target{Path: "/home/home", Method: http.MethodPatch, Depth: 2},
-			StatusCode: http.StatusNotFound,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home/home"),
 		},
 	}
 
 	assert.Equal(t, expectedResults, results)
 
-	loggerBufferAsString := loggerBuffer.String()
-	assert.Contains(t, loggerBufferAsString, "/home")
-	assert.Contains(t, loggerBufferAsString, "/potato")
-	assert.Contains(t, loggerBufferAsString, "/home/home")
-	assert.NotContains(t, loggerBufferAsString, "error")
-	assert.Equal(t, 3, serverAssertion.Len())
+	assert.NotContains(t, loggerBuffer.String(), "error")
+	assert.Equal(t, 4, serverAssertion.Len())
 }
 
 func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
@@ -253,7 +250,8 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -317,7 +315,8 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -334,18 +333,11 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 			StatusCode: http.StatusMovedPermanently,
 			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
 		},
-		{
-			Target:     scan.Target{Path: "/home/home", Method: http.MethodPatch, Depth: 2},
-			StatusCode: http.StatusNotFound,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home/home"),
-		},
 	}
 
 	assert.Equal(t, expectedResults, results)
 
 	loggerBufferAsString := loggerBuffer.String()
-	assert.Contains(t, loggerBufferAsString, "/home")
-	assert.Contains(t, loggerBufferAsString, "/home/home")
 	assert.Contains(t, loggerBufferAsString, "skipping redirect, pointing to a different host")
 	assert.NotContains(t, loggerBufferAsString, "error")
 	assert.Equal(t, 2, serverAssertion.Len())
@@ -382,7 +374,8 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 	sut := scan.NewScanner(
 		c,
 		prod,
-		producer.NewReProducer(prod, []int{http.StatusNotFound}),
+		producer.NewReProducer(prod),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
 		logger,
 	)
 
@@ -393,15 +386,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 		results = append(results, r)
 	}
 
-	expectedResults := []scan.Result{
-		{
-			Target:     scan.Target{Path: "/home", Method: http.MethodGet, Depth: 3},
-			StatusCode: http.StatusNotFound,
-			URL:        *test.MustParseUrl(t, testServer.URL+"/home"),
-		},
-	}
-
-	assert.Equal(t, expectedResults, results)
+	assert.Equal(t, 0, len(results))
 
 	loggerBufferAsString := loggerBuffer.String()
 	assert.Contains(t, loggerBufferAsString, "/home")
