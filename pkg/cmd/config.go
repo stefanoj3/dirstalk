@@ -83,6 +83,8 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to convert rawHeaders")
 	}
 
+	c.Out = cmd.Flag(flagOutput).Value.String()
+
 	return c, nil
 }
 

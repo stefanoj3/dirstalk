@@ -20,6 +20,7 @@ const (
 	flagCookieJar            = "use-cookie-jar"
 	flagCookie               = "cookie"
 	flagHeader               = "header"
+	flagResultOutput         = "out"
 
 	// Generate dictionary flags
 	flagOutput           = "out"

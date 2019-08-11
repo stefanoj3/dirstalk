@@ -1,9 +1,11 @@
 package cmd_test
 
 import (
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"sync"
 	"syscall"
 	"testing"
@@ -100,6 +102,93 @@ func TestScanCommand(t *testing.T) {
 `
 
 	assert.Contains(t, loggerBuffer.String(), expectedResultTree)
+}
+
+func TestScanShouldWriteOutput(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, _ := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/home" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	outputFilename := test.RandStringRunes(10)
+	outputFilename = "testdata/out/" + outputFilename + ".txt"
+
+	defer func() {
+		err := os.Remove(outputFilename)
+		if err != nil {
+			panic("failed to remove file create during test: " + err.Error())
+		}
+	}()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"--out",
+		outputFilename,
+	)
+	assert.NoError(t, err)
+
+	file, err := os.Open(outputFilename)
+	assert.NoError(t, err)
+
+	b, err := ioutil.ReadAll(file)
+	assert.NoError(t, err, "failed to read file content")
+
+	expected := `{"Target":{"Path":"home","Method":"GET","Depth":3},"StatusCode":200,"URL":{"Scheme":"http","Opaque":"","User":null,"Host":"` +
+		testServer.Listener.Addr().String() +
+		`","Path":"/home","RawPath":"","ForceQuery":false,"RawQuery":"","Fragment":""}}
+`
+	assert.Equal(t, expected, string(b))
+
+	assert.NoError(t, file.Close(), "failed to close file")
+}
+
+func TestScanInvalidOutputFileShouldErr(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c, err := createCommand(logger)
+	assert.NoError(t, err)
+	assert.NotNil(t, c)
+
+	testServer, _ := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/home" {
+				w.WriteHeader(http.StatusOK)
+				return
+			}
+
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	_, _, err = executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"--out",
+		"/root/blabla/123/gibberish/123",
+	)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to create output saver")
 }
 
 func TestScanWithInvalidStatusesToIgnoreShouldErr(t *testing.T) {

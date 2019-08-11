@@ -49,7 +49,8 @@ func TestJoin(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		tc := tc
+		tc := tc // Pinning ranged variable, more info: https://github.com/kyoh86/scopelint
+
 		scenario := fmt.Sprintf(
 			"Input: `%s`, Expected output: `%s`",
 			strings.Join(tc.input, ","),

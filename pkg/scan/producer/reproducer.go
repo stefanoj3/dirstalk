@@ -12,23 +12,12 @@ const defaultChannelBuffer = 25
 
 func NewReProducer(
 	producer scan.Producer,
-	httpStatusesToIgnore []int,
 ) *ReProducer {
-	httpStatusesToIgnoreMap := make(map[int]struct{}, len(httpStatusesToIgnore))
-
-	for _, statusToIgnore := range httpStatusesToIgnore {
-		httpStatusesToIgnoreMap[statusToIgnore] = struct{}{}
-	}
-
-	return &ReProducer{
-		producer:                producer,
-		httpStatusesToIgnoreMap: httpStatusesToIgnoreMap,
-	}
+	return &ReProducer{producer: producer}
 }
 
 type ReProducer struct {
-	producer                scan.Producer
-	httpStatusesToIgnoreMap map[int]struct{}
+	producer scan.Producer
 }
 
 // Reproduce will check if it is possible to go deeper on the result provided, if so will
@@ -44,10 +33,6 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 
 		go func() {
 			defer close(resultChannel)
-
-			if _, ok := r.httpStatusesToIgnoreMap[result.StatusCode]; ok {
-				return
-			}
 
 			if result.Target.Depth <= 0 {
 				return
