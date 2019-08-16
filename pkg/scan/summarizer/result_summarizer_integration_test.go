@@ -6,10 +6,10 @@ import (
 	"testing"
 
 	"github.com/sirupsen/logrus"
-
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer"
+	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,7 +17,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 	logger.SetLevel(logrus.FatalLevel)
 
-	sut := summarizer.NewResultSummarizer(logger)
+	sut := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
 
 	sut.Add(
 		scan.NewResult(
@@ -265,7 +265,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 		t.Run(tc.result.Target.Path, func(t *testing.T) {
 			t.Parallel()
 			logger, loggerBuffer := test.NewLogger()
-			sut := summarizer.NewResultSummarizer(logger)
+			sut := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
 
 			sut.Add(tc.result)
 
