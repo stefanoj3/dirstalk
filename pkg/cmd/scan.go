@@ -17,6 +17,7 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan/output"
 	"github.com/stefanoj3/dirstalk/pkg/scan/producer"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer"
+	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
 func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
@@ -206,7 +207,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		"user-agent":        cnf.UserAgent,
 	}).Info("Starting scan")
 
-	resultSummarizer := summarizer.NewResultSummarizer(logger)
+	resultSummarizer := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
 
 	osSigint := make(chan os.Signal, 1)
 	signal.Notify(osSigint, os.Interrupt)

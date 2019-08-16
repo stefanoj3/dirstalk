@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"sort"
-	"strings"
 	"sync"
 
 	"github.com/sirupsen/logrus"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
-
-	gotree "github.com/DiSiqueira/GoTree"
+	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
 const (
@@ -18,18 +16,20 @@ const (
 	foundText    = "Found"
 )
 
-func NewResultSummarizer(logger *logrus.Logger) *ResultSummarizer {
+func NewResultSummarizer(treePrinter ResultTreePrinter, logger *logrus.Logger) *ResultSummarizer {
 	return &ResultSummarizer{
-		logger:    logger,
-		resultMap: make(map[string]struct{}),
+		treePrinter: treePrinter,
+		logger:      logger,
+		resultMap:   make(map[string]struct{}),
 	}
 }
 
 type ResultSummarizer struct {
-	logger    *logrus.Logger
-	results   []scan.Result
-	resultMap map[string]struct{}
-	mux       sync.RWMutex
+	treePrinter ResultTreePrinter
+	logger      *logrus.Logger
+	results     []scan.Result
+	resultMap   map[string]struct{}
+	mux         sync.RWMutex
 }
 
 func (s *ResultSummarizer) Add(result scan.Result) {
@@ -81,41 +81,7 @@ func (s *ResultSummarizer) printSummary() {
 }
 
 func (s *ResultSummarizer) printTree() {
-	root := gotree.New("/")
-
-	// TODO: improve efficiency
-	for _, r := range s.results {
-		currentBranch := root
-
-		parts := strings.Split(r.URL.Path, "/")
-		for _, p := range parts {
-			if len(p) == 0 {
-				continue
-			}
-
-			found := false
-
-			for _, item := range currentBranch.Items() {
-				if item.Text() != p {
-					continue
-				}
-
-				currentBranch = item
-				found = true
-				break
-			}
-
-			if found {
-				continue
-			}
-
-			newTree := gotree.New(p)
-			currentBranch.AddTree(newTree)
-			currentBranch = newTree
-		}
-	}
-
-	_, _ = fmt.Fprintln(s.logger.Out, root.Print())
+	tree.NewResultTreePrinter().Print(s.results, s.logger.Out)
 }
 
 func (s *ResultSummarizer) log(result scan.Result) {
