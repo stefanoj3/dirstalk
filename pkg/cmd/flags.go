@@ -26,4 +26,8 @@ const (
 	flagOutput           = "out"
 	flagOutputShort      = "o"
 	flagAbsolutePathOnly = "absolute-only"
+
+	// Result view flags
+	flagResultFile      = "result-file"
+	flagResultFileShort = "r"
 )
