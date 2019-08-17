@@ -77,7 +77,13 @@ func createCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		return nil, errors.Wrap(err, "failed to create scan command")
 	}
 
+	resultViewCommand, err := cmd.NewResultViewCommand(logger.Out)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create result.view command")
+	}
+
 	dirStalkCmd.AddCommand(scanCmd)
+	dirStalkCmd.AddCommand(resultViewCommand)
 	dirStalkCmd.AddCommand(cmd.NewGenerateDictionaryCommand(logger.Out))
 	dirStalkCmd.AddCommand(cmd.NewVersionCommand(logger.Out))
 

@@ -89,3 +89,10 @@ assert_not_contains "$SCAN_RESULT" "error" "no error is expected when priting sc
 DICTIONARY_GENERATE_RESULT=$(./dist/dirstalk dictionary.generate resources/tests 2>&1 || true);
 assert_contains "$DICTIONARY_GENERATE_RESULT" "dictionary.txt" "dictionary generation should contains a file in the folder"
 assert_not_contains "$DICTIONARY_GENERATE_RESULT" "error" "no error is expected when generating a dictionary successfully"
+
+RESULT_VIEW_RESULT=$(./dist/dirstalk result.view -r resources/tests/out.txt 2>&1 || true);
+assert_contains "$RESULT_VIEW_RESULT" "├── adview" "result output should contain tree output"
+assert_contains "$RESULT_VIEW_RESULT" "├── partners" "result output should contain tree output"
+assert_contains "$RESULT_VIEW_RESULT" "│   └── terms" "result output should contain tree output"
+assert_contains "$RESULT_VIEW_RESULT" "└── s" "result output should contain tree output"
+assert_not_contains "$RESULT_VIEW_RESULT" "error" "no error is expected when displaying a result"
