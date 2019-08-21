@@ -1,8 +1,6 @@
 package tree
 
 import (
-	"fmt"
-	"io"
 	"sort"
 	"strings"
 
@@ -10,13 +8,13 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
-func NewResultTreePrinter() ResultTreePrinter {
-	return ResultTreePrinter{}
+func NewResultTreeProducer() ResultTreeProducer {
+	return ResultTreeProducer{}
 }
 
-type ResultTreePrinter struct{}
+type ResultTreeProducer struct{}
 
-func (s ResultTreePrinter) Print(results []scan.Result, out io.Writer) {
+func (s ResultTreeProducer) String(results []scan.Result) string {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Target.Path < results[j].Target.Path
 	})
@@ -55,5 +53,5 @@ func (s ResultTreePrinter) Print(results []scan.Result, out io.Writer) {
 		}
 	}
 
-	_, _ = fmt.Fprintln(out, root.Print())
+	return root.Print()
 }

@@ -38,3 +38,7 @@
 [[constraint]]
   name = "github.com/DiSiqueira/GoTree"
   version = "2.0.3"
+
+[[constraint]]
+  name = "github.com/sergi/go-diff"
+  version = "1.0.0"

@@ -30,4 +30,10 @@ const (
 	// Result view flags
 	flagResultFile      = "result-file"
 	flagResultFileShort = "r"
+
+	// Result diff flags
+	flagResultDiffFirstFile       = "first"
+	flagResultDiffFirstFileShort  = "f"
+	flagResultDiffSecondFile      = "second"
+	flagResultDiffSecondFileShort = "s"
 )

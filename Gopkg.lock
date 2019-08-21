@@ -58,6 +58,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:3962f553b77bf6c03fc07cd687a22dd3b00fe11aa14d31194f5505f5bb65cdc8"
+  name = "github.com/sergi/go-diff"
+  packages = ["diffmatchpatch"]
+  pruneopts = ""
+  revision = "1744e2970ca51c86172c8190fadad617561ed6e7"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:1a405cddcf3368445051fb70ab465ae99da56ad7be8d8ca7fc52159d1c2d873c"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -116,6 +124,7 @@
     "github.com/DiSiqueira/GoTree",
     "github.com/armon/go-socks5",
     "github.com/pkg/errors",
+    "github.com/sergi/go-diff/diffmatchpatch",
     "github.com/sirupsen/logrus",
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/assert",

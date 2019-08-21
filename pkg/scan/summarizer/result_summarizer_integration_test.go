@@ -17,7 +17,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 	logger.SetLevel(logrus.FatalLevel)
 
-	sut := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
+	sut := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
 
 	sut.Add(
 		scan.NewResult(
@@ -265,7 +265,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 		t.Run(tc.result.Target.Path, func(t *testing.T) {
 			t.Parallel()
 			logger, loggerBuffer := test.NewLogger()
-			sut := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
+			sut := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
 
 			sut.Add(tc.result)
 
