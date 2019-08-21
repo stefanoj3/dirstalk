@@ -1,7 +1,6 @@
 package tree_test
 
 import (
-	"bytes"
 	"net/http"
 	"testing"
 
@@ -51,16 +50,13 @@ func TestNewResultTreePrinter(t *testing.T) {
 		),
 	}
 
-	buf := &bytes.Buffer{}
-
-	tree.NewResultTreePrinter().Print(results, buf)
+	actual := tree.NewResultTreeProducer().String(results)
 
 	expected := `/
 ├── about
 └── home
     └── 123
-
 `
 
-	assert.Equal(t, expected, buf.String())
+	assert.Equal(t, expected, actual)
 }

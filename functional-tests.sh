@@ -32,7 +32,7 @@ function assert_not_contains {
 
     if printf -- '%s' "$actual" | egrep -q -- "$contains"; then
         echo "ERROR: $msg"
-        echo "Failed to assert that $actual does not contain $contains"
+        echo "Failed to assert that $actual does not contain: $contains"
         exit 1;
     fi
     echo "Assertion passing"
@@ -96,3 +96,14 @@ assert_contains "$RESULT_VIEW_RESULT" "├── partners" "result output should
 assert_contains "$RESULT_VIEW_RESULT" "│   └── terms" "result output should contain tree output"
 assert_contains "$RESULT_VIEW_RESULT" "└── s" "result output should contain tree output"
 assert_not_contains "$RESULT_VIEW_RESULT" "error" "no error is expected when displaying a result"
+
+RESULT_DIFF_RESULT=$(./dist/dirstalk result.diff -f resources/tests/out.txt -s resources/tests/out2.txt 2>&1 || true);
+assert_contains "$RESULT_DIFF_RESULT" "├── adview" "result output should contain diff"
+assert_contains "$RESULT_DIFF_RESULT" "├── partners" "result output should contain diff"
+assert_contains "$RESULT_DIFF_RESULT" $(echo "│   └── \x1b[31mterms\x1b[0m\x1b[32m123\x1b[0m") "result output should contain diff"
+assert_contains "$RESULT_DIFF_RESULT" "└── s" "result output should contain diff"
+assert_not_contains "$RESULT_DIFF_RESULT" "error" "no error is expected when displaying a result"
+
+RESULT_DIFF_RESULT=$(./dist/dirstalk result.diff -f resources/tests/out.txt -s resources/tests/out.txt 2>&1 || true);
+assert_contains "$RESULT_DIFF_RESULT" "no diffs found"
+assert_contains "$RESULT_DIFF_RESULT" "error" "error is expected when content is the same"

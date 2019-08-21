@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/pkg/errors"
@@ -44,8 +45,10 @@ func buildResultViewCmd(out io.Writer) func(cmd *cobra.Command, args []string) e
 			return errors.Wrapf(err, "failed to load results from %s", resultFilePath)
 		}
 
-		tree.NewResultTreePrinter().Print(results, out)
+		treeAsString := tree.NewResultTreeProducer().String(results)
 
-		return nil
+		_, err = fmt.Fprintln(out, treeAsString)
+
+		return errors.Wrap(err, "failed to print result tree")
 	}
 }

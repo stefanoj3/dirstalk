@@ -207,7 +207,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		"user-agent":        cnf.UserAgent,
 	}).Info("Starting scan")
 
-	resultSummarizer := summarizer.NewResultSummarizer(tree.NewResultTreePrinter(), logger)
+	resultSummarizer := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
 
 	osSigint := make(chan os.Signal, 1)
 	signal.Notify(osSigint, os.Interrupt)

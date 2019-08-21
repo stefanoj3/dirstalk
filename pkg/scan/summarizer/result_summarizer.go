@@ -8,7 +8,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
-	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
 const (
@@ -16,7 +15,7 @@ const (
 	foundText    = "Found"
 )
 
-func NewResultSummarizer(treePrinter ResultTreePrinter, logger *logrus.Logger) *ResultSummarizer {
+func NewResultSummarizer(treePrinter ResultTree, logger *logrus.Logger) *ResultSummarizer {
 	return &ResultSummarizer{
 		treePrinter: treePrinter,
 		logger:      logger,
@@ -25,7 +24,7 @@ func NewResultSummarizer(treePrinter ResultTreePrinter, logger *logrus.Logger) *
 }
 
 type ResultSummarizer struct {
-	treePrinter ResultTreePrinter
+	treePrinter ResultTree
 	logger      *logrus.Logger
 	results     []scan.Result
 	resultMap   map[string]struct{}
@@ -81,7 +80,7 @@ func (s *ResultSummarizer) printSummary() {
 }
 
 func (s *ResultSummarizer) printTree() {
-	tree.NewResultTreePrinter().Print(s.results, s.logger.Out)
+	_, _ = fmt.Fprintln(s.logger.Out, s.treePrinter.String(s.results))
 }
 
 func (s *ResultSummarizer) log(result scan.Result) {
