@@ -2,34 +2,34 @@ package cmd
 
 const (
 	// Root flags
-	flagVerbose      = "verbose"
-	flagVerboseShort = "v"
+	flagRootVerbose      = "verbose"
+	flagRootVerboseShort = "v"
 
 	// Scan flags
-	flagDictionary           = "dictionary"
-	flagDictionaryShort      = "d"
-	flagHTTPMethods          = "http-methods"
-	flagHTTPStatusesToIgnore = "http-statuses-to-ignore"
-	flagHTTPTimeout          = "http-timeout"
-	flagHTTPCacheRequests    = "http-cache-requests"
-	flagScanDepth            = "scan-depth"
-	flagThreads              = "threads"
-	flagThreadsShort         = "t"
-	flagSocks5Host           = "socks5"
-	flagUserAgent            = "user-agent"
-	flagCookieJar            = "use-cookie-jar"
-	flagCookie               = "cookie"
-	flagHeader               = "header"
-	flagResultOutput         = "out"
+	flagScanDictionary           = "dictionary"
+	flagScanDictionaryShort      = "d"
+	flagScanHTTPMethods          = "http-methods"
+	flagScanHTTPStatusesToIgnore = "http-statuses-to-ignore"
+	flagScanHTTPTimeout          = "http-timeout"
+	flagScanHTTPCacheRequests    = "http-cache-requests"
+	flagScanScanDepth            = "scan-depth"
+	flagScanThreads              = "threads"
+	flagScanThreadsShort         = "t"
+	flagScanSocks5Host           = "socks5"
+	flagScanUserAgent            = "user-agent"
+	flagScanCookieJar            = "use-cookie-jar"
+	flagScanCookie               = "cookie"
+	flagScanHeader               = "header"
+	flagScanResultOutput         = "out"
 
 	// Generate dictionary flags
-	flagOutput           = "out"
-	flagOutputShort      = "o"
-	flagAbsolutePathOnly = "absolute-only"
+	flagDictionaryGenerateOutput           = "out"
+	flagDictionaryGenerateOutputShort      = "o"
+	flagDictionaryGenerateAbsolutePathOnly = "absolute-only"
 
 	// Result view flags
-	flagResultFile      = "result-file"
-	flagResultFileShort = "r"
+	flagResultViewResultFile      = "result-file"
+	flagResultViewResultFileShort = "r"
 
 	// Result diff flags
 	flagResultDiffFirstFile       = "first"

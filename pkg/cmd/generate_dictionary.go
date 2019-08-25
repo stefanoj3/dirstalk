@@ -18,14 +18,14 @@ func NewGenerateDictionaryCommand(out io.Writer) *cobra.Command {
 	}
 
 	cmd.Flags().StringP(
-		flagOutput,
-		flagOutputShort,
+		flagDictionaryGenerateOutput,
+		flagDictionaryGenerateOutputShort,
 		"",
 		fmt.Sprintf("where to write the dictionary"),
 	)
 
 	cmd.Flags().BoolP(
-		flagAbsolutePathOnly,
+		flagDictionaryGenerateAbsolutePathOnly,
 		"",
 		false,
 		"determines if the dictionary should contain only the absolute path of the files",
@@ -46,9 +46,9 @@ func buildGenerateDictionaryFunc(out io.Writer) func(cmd *cobra.Command, args []
 			return err
 		}
 
-		absolutePathOnly, err := cmd.Flags().GetBool(flagAbsolutePathOnly)
+		absolutePathOnly, err := cmd.Flags().GetBool(flagDictionaryGenerateAbsolutePathOnly)
 		if err != nil {
-			return errors.Wrapf(err, "failed to retrieve %s flag", flagAbsolutePathOnly)
+			return errors.Wrapf(err, "failed to retrieve %s flag", flagDictionaryGenerateAbsolutePathOnly)
 		}
 
 		generator := dictionary.NewGenerator(out)
@@ -60,7 +60,7 @@ func buildGenerateDictionaryFunc(out io.Writer) func(cmd *cobra.Command, args []
 }
 
 func getOutputForDictionaryGenerator(cmd *cobra.Command, out io.Writer) (io.Writer, error) {
-	output := cmd.Flag(flagOutput).Value.String()
+	output := cmd.Flag(flagDictionaryGenerateOutput).Value.String()
 	if output == "" {
 		return out, nil
 	}

@@ -21,8 +21,8 @@ func NewRootCommand(logger *logrus.Logger) *cobra.Command {
 
 	cmd.PersistentFlags().BoolVarP(
 		&verbose,
-		flagVerbose,
-		flagVerboseShort,
+		flagRootVerbose,
+		flagRootVerboseShort,
 		false,
 		"verbose mode",
 	)

@@ -20,20 +20,20 @@ func NewResultViewCommand(out io.Writer) *cobra.Command {
 	}
 
 	cmd.Flags().StringP(
-		flagResultFile,
-		flagResultFileShort,
+		flagResultViewResultFile,
+		flagResultViewResultFileShort,
 		"",
 		"result file to read",
 	)
-	common.Must(cmd.MarkFlagFilename(flagResultFile))
-	common.Must(cmd.MarkFlagRequired(flagResultFile))
+	common.Must(cmd.MarkFlagFilename(flagResultViewResultFile))
+	common.Must(cmd.MarkFlagRequired(flagResultViewResultFile))
 
 	return cmd
 }
 
 func buildResultViewCmd(out io.Writer) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		resultFilePath := cmd.Flag(flagResultFile).Value.String()
+		resultFilePath := cmd.Flag(flagResultViewResultFile).Value.String()
 
 		results, err := result.LoadResultsFromFile(resultFilePath)
 		if err != nil {
