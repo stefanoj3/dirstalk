@@ -1,4 +1,4 @@
-package pathutil
+package urlpath
 
 import (
 	"testing"
