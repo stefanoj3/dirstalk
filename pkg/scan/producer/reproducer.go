@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
-	"github.com/stefanoj3/dirstalk/pkg/pathutil"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
@@ -39,7 +38,7 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 			}
 
 			// no point in appending to a filename
-			if pathutil.HasExtension(result.Target.Path) {
+			if urlpath.HasExtension(result.Target.Path) {
 				return
 			}
 
