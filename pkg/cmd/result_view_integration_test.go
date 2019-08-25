@@ -10,11 +10,10 @@ import (
 func TestResultViewShouldErrWhenCalledWithoutResultFlag(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.view")
+	err := executeCommand(c, "result.view")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "result-file")
@@ -24,11 +23,10 @@ func TestResultViewShouldErrWhenCalledWithoutResultFlag(t *testing.T) {
 func TestResultViewShouldErrWhenCalledWithInvalidPath(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.view", "-r", "/root/123/abc")
+	err := executeCommand(c, "result.view", "-r", "/root/123/abc")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "failed to load results from")
@@ -37,11 +35,10 @@ func TestResultViewShouldErrWhenCalledWithInvalidPath(t *testing.T) {
 func TestResultView(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.view", "-r", "testdata/out.txt")
+	err := executeCommand(c, "result.view", "-r", "testdata/out.txt")
 	assert.NoError(t, err)
 
 	expected := `/

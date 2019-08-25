@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/stefanoj3/dirstalk/pkg/common"
+
 	"github.com/pkg/errors"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
@@ -11,7 +13,7 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
-func NewResultDiffCommand(out io.Writer) (*cobra.Command, error) {
+func NewResultDiffCommand(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "result.diff",
 		Short: "Prints differences between 2 result files",
@@ -24,15 +26,8 @@ func NewResultDiffCommand(out io.Writer) (*cobra.Command, error) {
 		"",
 		"first result file to read",
 	)
-	err := cmd.MarkFlagFilename(flagResultDiffFirstFile)
-	if err != nil {
-		return nil, err
-	}
-
-	err = cmd.MarkFlagRequired(flagResultDiffFirstFile)
-	if err != nil {
-		return nil, err
-	}
+	common.Must(cmd.MarkFlagFilename(flagResultDiffFirstFile))
+	common.Must(cmd.MarkFlagRequired(flagResultDiffFirstFile))
 
 	cmd.Flags().StringP(
 		flagResultDiffSecondFile,
@@ -40,17 +35,10 @@ func NewResultDiffCommand(out io.Writer) (*cobra.Command, error) {
 		"",
 		"second result file to read",
 	)
-	err = cmd.MarkFlagFilename(flagResultDiffSecondFile)
-	if err != nil {
-		return nil, err
-	}
+	common.Must(cmd.MarkFlagFilename(flagResultDiffSecondFile))
+	common.Must(cmd.MarkFlagRequired(flagResultDiffSecondFile))
 
-	err = cmd.MarkFlagRequired(flagResultDiffSecondFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return cmd, nil
+	return cmd
 }
 
 func buildResultDiffCmd(out io.Writer) func(cmd *cobra.Command, args []string) error {

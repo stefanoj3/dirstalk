@@ -21,8 +21,7 @@ const socks5TestServerHost = "127.0.0.1:8899"
 func TestScanCommand(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -46,7 +45,7 @@ func TestScanCommand(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -107,8 +106,7 @@ func TestScanCommand(t *testing.T) {
 func TestScanShouldWriteOutput(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, _ := test.NewServerWithAssertion(
@@ -133,7 +131,7 @@ func TestScanShouldWriteOutput(t *testing.T) {
 		}
 	}()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -162,8 +160,7 @@ func TestScanShouldWriteOutput(t *testing.T) {
 func TestScanInvalidOutputFileShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, _ := test.NewServerWithAssertion(
@@ -178,7 +175,7 @@ func TestScanInvalidOutputFileShouldErr(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -194,8 +191,7 @@ func TestScanInvalidOutputFileShouldErr(t *testing.T) {
 func TestScanWithInvalidStatusesToIgnoreShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -203,7 +199,7 @@ func TestScanWithInvalidStatusesToIgnoreShouldErr(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -225,11 +221,10 @@ func TestScanWithInvalidStatusesToIgnoreShouldErr(t *testing.T) {
 func TestScanWithNoTargetShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt")
+	err := executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "no URL provided")
 }
@@ -237,11 +232,10 @@ func TestScanWithNoTargetShouldErr(t *testing.T) {
 func TestScanWithInvalidTargetShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt", "localhost%%2")
+	err := executeCommand(c, "scan", "--dictionary", "testdata/dict2.txt", "localhost%%2")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid URI")
 }
@@ -249,8 +243,7 @@ func TestScanWithInvalidTargetShouldErr(t *testing.T) {
 func TestScanCommandCanBeInterrupted(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -272,7 +265,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 	}()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -291,8 +284,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 func TestScanWithRemoteDictionary(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	dictionaryServer := httptest.NewServer(
@@ -314,7 +306,7 @@ blabla
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -333,8 +325,7 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -344,7 +335,7 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -369,8 +360,7 @@ func TestScanWithUserAgentFlag(t *testing.T) {
 func TestScanWithCookies(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -378,7 +368,7 @@ func TestScanWithCookies(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -413,8 +403,7 @@ func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -424,7 +413,7 @@ func TestWhenProvidingCookiesInWrongFormatShouldErr(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -448,8 +437,7 @@ func TestScanWithCookieJar(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	once := sync.Once{}
@@ -469,7 +457,7 @@ func TestScanWithCookieJar(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -498,8 +486,7 @@ func TestScanWithCookieJar(t *testing.T) {
 func TestScanWithUnknownFlagShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -507,7 +494,7 @@ func TestScanWithUnknownFlagShouldErr(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -524,8 +511,7 @@ func TestScanWithUnknownFlagShouldErr(t *testing.T) {
 func TestScanWithHeaders(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -533,7 +519,7 @@ func TestScanWithHeaders(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -566,8 +552,7 @@ func TestScanWithMalformedHeaderShouldErr(t *testing.T) {
 
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -575,7 +560,7 @@ func TestScanWithMalformedHeaderShouldErr(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -596,8 +581,7 @@ func TestScanWithMalformedHeaderShouldErr(t *testing.T) {
 func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -610,7 +594,7 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 	socks5Server := startSocks5TestServer(t)
 	defer socks5Server.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -630,8 +614,7 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -644,7 +627,7 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	socks5Server := startSocks5TestServer(t)
 	defer socks5Server.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,
@@ -667,8 +650,7 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 func TestShouldFailToStartWithAnInvalidSocks5Address(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testServer, serverAssertion := test.NewServerWithAssertion(
@@ -678,7 +660,7 @@ func TestShouldFailToStartWithAnInvalidSocks5Address(t *testing.T) {
 	)
 	defer testServer.Close()
 
-	_, _, err = executeCommand(
+	err := executeCommand(
 		c,
 		"scan",
 		testServer.URL,

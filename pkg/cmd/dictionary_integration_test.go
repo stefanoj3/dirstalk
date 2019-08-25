@@ -11,13 +11,12 @@ import (
 func TestDictionaryGenerateCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testFilePath := "testdata/" + test.RandStringRunes(10)
 	defer removeTestFile(testFilePath)
-	_, _, err = executeCommand(c, "dictionary.generate", ".", "-o", testFilePath)
+	err := executeCommand(c, "dictionary.generate", ".", "-o", testFilePath)
 	assert.NoError(t, err)
 
 	content, err := ioutil.ReadFile(testFilePath)
@@ -31,11 +30,10 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 func TestDictionaryGenerateCommandShouldErrWhenNoTargetIsProvided(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "dictionary.generate")
+	err := executeCommand(c, "dictionary.generate")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "no path provided")
@@ -44,13 +42,12 @@ func TestDictionaryGenerateCommandShouldErrWhenNoTargetIsProvided(t *testing.T) 
 func TestDictionaryGenerateShouldFailWhenAFilePathIsProvidedInsteadOfADirectory(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
 	testFilePath := "testdata/" + test.RandStringRunes(10)
 	defer removeTestFile(testFilePath)
-	_, _, err = executeCommand(c, "dictionary.generate", "./root_integration_test.go")
+	err := executeCommand(c, "dictionary.generate", "./root_integration_test.go")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "the path should be a directory")
@@ -59,11 +56,10 @@ func TestDictionaryGenerateShouldFailWhenAFilePathIsProvidedInsteadOfADirectory(
 func TestGenerateDictionaryWithoutOutputPath(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "dictionary.generate", ".")
+	err := executeCommand(c, "dictionary.generate", ".")
 	assert.NoError(t, err)
 
 	assert.Contains(t, loggerBuffer.String(), "root_integration_test.go")
@@ -73,11 +69,10 @@ func TestGenerateDictionaryWithInvalidDirectory(t *testing.T) {
 	logger, _ := test.NewLogger()
 
 	fakePath := "./" + test.RandStringRunes(10)
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "dictionary.generate", fakePath)
+	err := executeCommand(c, "dictionary.generate", fakePath)
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "unable to use the provided path")
