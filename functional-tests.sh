@@ -54,8 +54,13 @@ trap finish EXIT
 
 ## Tests
 
+ROOT_RESULT=$(./dist/dirstalk 2>&1);
+assert_contains "$ROOT_RESULT" "dirstalk is a tool that attempts" "description is expected"
+assert_contains "$ROOT_RESULT" "Usage" "description is expected"
+
 VERSION_RESULT=$(./dist/dirstalk version 2>&1);
 assert_contains "$VERSION_RESULT" "Version" "the version is expected to be printed when calling the version command"
+assert_contains "$VERSION_RESULT" "Built" "the build time is expected to be printed when calling the version command"
 assert_contains "$VERSION_RESULT" "Built" "the build time is expected to be printed when calling the version command"
 
 SCAN_RESULT=$(./dist/dirstalk scan 2>&1 || true);

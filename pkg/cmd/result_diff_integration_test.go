@@ -11,11 +11,10 @@ import (
 func TestNewResultDiff(t *testing.T) {
 	logger, loggerBuffer := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.diff", "-f", "testdata/out.txt", "-s", "testdata/out2.txt")
+	err := executeCommand(c, "result.diff", "-f", "testdata/out.txt", "-s", "testdata/out2.txt")
 	assert.NoError(t, err)
 
 	// to keep compatibility with other systems open, the language should take care to use the correct newline symbol
@@ -33,11 +32,10 @@ func TestNewResultDiff(t *testing.T) {
 func TestNewResultDiffShouldErrWithInvalidFirstFile(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.diff", "-f", "/root/123/bla", "-s", "testdata/out2.txt")
+	err := executeCommand(c, "result.diff", "-f", "/root/123/bla", "-s", "testdata/out2.txt")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "/root/123/bla")
@@ -46,11 +44,10 @@ func TestNewResultDiffShouldErrWithInvalidFirstFile(t *testing.T) {
 func TestNewResultDiffShouldErrWithInvalidSecondFile(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.diff", "-f", "testdata/out2.txt", "-s", "/root/123/bla")
+	err := executeCommand(c, "result.diff", "-f", "testdata/out2.txt", "-s", "/root/123/bla")
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "/root/123/bla")
@@ -59,11 +56,10 @@ func TestNewResultDiffShouldErrWithInvalidSecondFile(t *testing.T) {
 func TestDiffForSameFileShouldErr(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "result.diff", "-f", "testdata/out.txt", "-s", "testdata/out.txt")
+	err := executeCommand(c, "result.diff", "-f", "testdata/out.txt", "-s", "testdata/out.txt")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "no diffs found")
 }

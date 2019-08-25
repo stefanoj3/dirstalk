@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/stefanoj3/dirstalk/pkg/common"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/stefanoj3/dirstalk/pkg/result"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
-func NewResultViewCommand(out io.Writer) (*cobra.Command, error) {
+func NewResultViewCommand(out io.Writer) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "result.view",
 		Short: "Read a scan output file and render the folder tree",
@@ -23,17 +25,10 @@ func NewResultViewCommand(out io.Writer) (*cobra.Command, error) {
 		"",
 		"result file to read",
 	)
-	err := cmd.MarkFlagFilename(flagResultFile)
-	if err != nil {
-		return nil, err
-	}
+	common.Must(cmd.MarkFlagFilename(flagResultFile))
+	common.Must(cmd.MarkFlagRequired(flagResultFile))
 
-	err = cmd.MarkFlagRequired(flagResultFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return cmd, nil
+	return cmd
 }
 
 func buildResultViewCmd(out io.Writer) func(cmd *cobra.Command, args []string) error {

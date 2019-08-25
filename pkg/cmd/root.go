@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
+func NewRootCommand(logger *logrus.Logger) *cobra.Command {
 	var verbose bool
 
 	cmd := &cobra.Command{
@@ -27,5 +27,5 @@ func NewRootCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"verbose mode",
 	)
 
-	return cmd, nil
+	return cmd
 }

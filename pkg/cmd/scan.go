@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/common"
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 	"github.com/stefanoj3/dirstalk/pkg/scan/client"
@@ -20,7 +21,7 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )
 
-func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
+func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "scan [url]",
 		Short: "Scan the given URL",
@@ -33,15 +34,8 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"",
 		"dictionary to use for the scan (path to local file or remote url)",
 	)
-	err := cmd.MarkFlagFilename(flagDictionary)
-	if err != nil {
-		return nil, err
-	}
-
-	err = cmd.MarkFlagRequired(flagDictionary)
-	if err != nil {
-		return nil, err
-	}
+	common.Must(cmd.MarkFlagFilename(flagDictionary))
+	common.Must(cmd.MarkFlagRequired(flagDictionary))
 
 	cmd.Flags().StringSlice(
 		flagHTTPMethods,
@@ -124,7 +118,7 @@ func NewScanCommand(logger *logrus.Logger) (*cobra.Command, error) {
 		"path where to store result output",
 	)
 
-	return cmd, nil
+	return cmd
 }
 
 func buildScanFunction(logger *logrus.Logger) func(cmd *cobra.Command, args []string) error {

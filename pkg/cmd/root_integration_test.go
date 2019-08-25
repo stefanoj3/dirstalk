@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/stefanoj3/dirstalk/pkg/cmd"
@@ -17,28 +16,20 @@ import (
 func TestRootCommand(t *testing.T) {
 	logger, _ := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, out, err := executeCommand(c)
+	err := executeCommand(c)
 	assert.NoError(t, err)
-
-	// ensure the summary is printed
-	assert.Contains(t, out, "dirstalk is a tool that attempts")
-	assert.Contains(t, out, "Usage")
-	assert.Contains(t, out, "dictionary.generate")
-	assert.Contains(t, out, "scan")
 }
 
 func TestVersionCommand(t *testing.T) {
 	logger, buf := test.NewLogger()
 
-	c, err := createCommand(logger)
-	assert.NoError(t, err)
+	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	_, _, err = executeCommand(c, "version")
+	err := executeCommand(c, "version")
 	assert.NoError(t, err)
 
 	// Ensure the command ran and produced some of the expected output
@@ -46,16 +37,16 @@ func TestVersionCommand(t *testing.T) {
 	assert.Contains(t, buf.String(), "Version: ")
 }
 
-func executeCommand(root *cobra.Command, args ...string) (c *cobra.Command, output string, err error) {
+func executeCommand(root *cobra.Command, args ...string) (err error) {
 	buf := new(bytes.Buffer)
 	root.SetOut(buf)
 
 	a := []string{""}
 	os.Args = append(a, args...) //nolint
 
-	c, err = root.ExecuteC()
+	_, err = root.ExecuteC()
 
-	return c, buf.String(), err
+	return err
 }
 
 func removeTestFile(path string) {
@@ -66,32 +57,14 @@ func removeTestFile(path string) {
 	_ = os.Remove(path)
 }
 
-func createCommand(logger *logrus.Logger) (*cobra.Command, error) {
-	dirStalkCmd, err := cmd.NewRootCommand(logger)
-	if err != nil {
-		return nil, err
-	}
+func createCommand(logger *logrus.Logger) *cobra.Command {
+	dirStalkCmd := cmd.NewRootCommand(logger)
 
-	scanCmd, err := cmd.NewScanCommand(logger)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create scan command")
-	}
-
-	resultViewCommand, err := cmd.NewResultViewCommand(logger.Out)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create result.view command")
-	}
-
-	resultDiffCommand, err := cmd.NewResultDiffCommand(logger.Out)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to create result.diff command")
-	}
-
-	dirStalkCmd.AddCommand(scanCmd)
-	dirStalkCmd.AddCommand(resultViewCommand)
-	dirStalkCmd.AddCommand(resultDiffCommand)
+	dirStalkCmd.AddCommand(cmd.NewScanCommand(logger))
+	dirStalkCmd.AddCommand(cmd.NewResultViewCommand(logger.Out))
+	dirStalkCmd.AddCommand(cmd.NewResultDiffCommand(logger.Out))
 	dirStalkCmd.AddCommand(cmd.NewGenerateDictionaryCommand(logger.Out))
 	dirStalkCmd.AddCommand(cmd.NewVersionCommand(logger.Out))
 
-	return dirStalkCmd, nil
+	return dirStalkCmd
 }
