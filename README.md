@@ -25,20 +25,26 @@ Here you can see it in action:
 
 ## [↑](#contents) How to use it
 
+The application is self-documenting, launching `dirstalk -h` will return all the available commands with a 
+short description, you can get the help for each command by doing `distalk <command> -h`.
+
+EG `dirstalk result.diff -h`
+
 ### Scan
 
-Perform a scan with the least amount of parameters (target and dictionary are the only mandatory ones):
-```bash
+To perform a scan you need to provide at least a dictionary and a URL:
+```shell script
 dirstalk scan http://someaddress.url/ --dictionary mydictionary.txt
 ```
 
-You can get the application to print all the optional parameters:
-```bash
+As mentioned before, to see all the flags available for the scan command you can 
+just call the command with the `-h` flag:
+```shell script
 dirstalk scan -h
 ```
 
-##### Example of a customized scan:
-```bash
+##### Example of how you can customize a scan:
+```shell script
 dirstalk scan http://someaddress.url/ \
 --dictionary mydictionary.txt \
 --http-methods GET,POST \
@@ -50,21 +56,26 @@ dirstalk scan http://someaddress.url/ \
 --use-cookie-jar \
 --user-agent my_user_agent \
 --header "Authorization: Bearer 123"
-
 ```
 
 
-##### Explained:
-- `--dictionary` to specify the dictionary file - can be a local file or a public remote url
-- `--http-methods` to specify which HTTP methods to use for the scan (default `GET`) 
-- `--http-timeout` request timeout in millisecond
-- `--scan-depth` the maximum recursion depth
-- `--threads` the number of threads performing concurrent requests
-- `--socks5` SOCKS5 server to connect to (all the requests including the one to fetch the remote dictionary will go through it)
-- `--cookie` cookie to add to each request; eg name=value (can be specified multiple times)
-- `--use-cookie-jar` enables the use of a cookie jar: it will retain any cookie sent from the server and send them for the following requests
-- `--user-agent` user agent to use for http requests
-- `--header` header to add to each request; eg name=value (can be specified multiple times)
+##### Currently available flags:
+```shell script
+      --cookie stringArray             cookie to add to each request; eg name=value (can be specified multiple times)
+  -d, --dictionary string              dictionary to use for the scan (path to local file or remote url)
+      --header stringArray             header to add to each request; eg name=value (can be specified multiple times)
+  -h, --help                           help for scan
+      --http-cache-requests            cache requests to avoid performing the same request multiple times within the same scan (EG if the server reply with the same redirect location multiple times, dirstalk will follow it only once) (default true)
+      --http-methods strings           comma separated list of http methods to use; eg: GET,POST,PUT (default [GET])
+      --http-statuses-to-ignore ints   comma separated list of http statuses to ignore when showing and processing results; eg: 404,301 (default [404])
+      --http-timeout int               timeout in milliseconds (default 5000)
+      --out string                     path where to store result output
+      --scan-depth int                 scan depth (default 3)
+      --socks5 string                  socks5 host to use
+  -t, --threads int                    amount of threads for concurrent requests (default 3)
+      --use-cookie-jar                 enables the use of a cookie jar: it will retain any cookie sent from the server and send them for the following requests
+      --user-agent string              user agent to use for http requests
+```
 
 ##### Useful resources
 - [here](https://github.com/dustyfresh/dictionaries/tree/master/DirBuster-Lists) you can find dictionaries that can be used with dirstalk
@@ -77,7 +88,7 @@ Dirstalk can also produce it's own dictionaries, useful for example if you
 want to check if a specific set of files is available on a given web server.
 
 ##### Example:
-```bash
+```shell script
 dirstalk dictionary.generate /path/to/local/files --out mydictionary.txt
 ```
 The result will be printed to the stdout if no out flag is specified.
@@ -89,7 +100,7 @@ or you can use a docker image. (eg `docker run stefanoj3/dirstalk dirstalk <cmd>
 If you are using an arch based linux distribution you can fetch it via AUR: https://aur.archlinux.org/packages/dirstalk/
 
 Example:
-```bash
+```shell script
 yay -S aur/dirstalk
 ```
 
@@ -99,7 +110,7 @@ All you need to do local development is to have [make](https://www.gnu.org/softw
 and [golang](https://golang.org/) available and the GOPATH correctly configured.
 
 Then you can just:
-```bash
+```shell script
 go get github.com/stefanoj3/dirstalk         # (or your fork) to obtain the source code
 cd $GOPATH/src/github.com/stefanoj3/dirstalk # to go inside the project folder
 make dep                                     # to fetch all the required tools and dependencies
@@ -111,14 +122,14 @@ make build                                   # to build an executable for your h
 
 [dep](https://github.com/golang/dep) is the tool of choice for dependency management.
 
-```bash
+```shell script
 make help
 ```
 will print a description of every command available in the Makefile.
 
 Wanna add a functionality? fix a bug? fork and create a PR.
 
-## Plans for the future
+## [↑](#contents) Plans for the future
 - Add support for rotating SOCKS5 proxies
 - Scan a website pages looking for links to bruteforce
 - Expose a webserver that can be used to launch scans and check their status
