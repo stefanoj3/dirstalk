@@ -16,54 +16,54 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	var err error
 
-	c.DictionaryPath = cmd.Flag(flagDictionary).Value.String()
+	c.DictionaryPath = cmd.Flag(flagScanDictionary).Value.String()
 
-	c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagHTTPMethods)
+	c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagScanHTTPMethods)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http methods flag")
 	}
 
-	c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagHTTPStatusesToIgnore)
+	c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagScanHTTPStatusesToIgnore)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http methods flag")
 	}
 
-	c.Threads, err = cmd.Flags().GetInt(flagThreads)
+	c.Threads, err = cmd.Flags().GetInt(flagScanThreads)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read threads flag")
 	}
 
-	c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagHTTPTimeout)
+	c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagScanHTTPTimeout)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http-timeout flag")
 	}
 
-	c.CacheRequests, err = cmd.Flags().GetBool(flagHTTPCacheRequests)
+	c.CacheRequests, err = cmd.Flags().GetBool(flagScanHTTPCacheRequests)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http-cache-requests flag")
 	}
 
-	c.ScanDepth, err = cmd.Flags().GetInt(flagScanDepth)
+	c.ScanDepth, err = cmd.Flags().GetInt(flagScanScanDepth)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read http-timeout flag")
 	}
 
-	socks5Host := cmd.Flag(flagSocks5Host).Value.String()
+	socks5Host := cmd.Flag(flagScanSocks5Host).Value.String()
 	if len(socks5Host) > 0 {
 		c.Socks5Url, err = url.Parse("socks5://" + socks5Host)
 		if err != nil {
-			return nil, errors.Wrap(err, "invalid value for "+flagSocks5Host)
+			return nil, errors.Wrap(err, "invalid value for "+flagScanSocks5Host)
 		}
 	}
 
-	c.UserAgent = cmd.Flag(flagUserAgent).Value.String()
+	c.UserAgent = cmd.Flag(flagScanUserAgent).Value.String()
 
-	c.UseCookieJar, err = cmd.Flags().GetBool(flagCookieJar)
+	c.UseCookieJar, err = cmd.Flags().GetBool(flagScanCookieJar)
 	if err != nil {
 		return nil, errors.Wrap(err, "cookie jar flag is invalid")
 	}
 
-	rawCookies, err := cmd.Flags().GetStringArray(flagCookie)
+	rawCookies, err := cmd.Flags().GetStringArray(flagScanCookie)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read cookies flag")
 	}
@@ -73,7 +73,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to convert rawCookies to objects")
 	}
 
-	rawHeaders, err := cmd.Flags().GetStringArray(flagHeader)
+	rawHeaders, err := cmd.Flags().GetStringArray(flagScanHeader)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read cookies flag")
 	}
@@ -83,7 +83,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrap(err, "failed to convert rawHeaders")
 	}
 
-	c.Out = cmd.Flag(flagOutput).Value.String()
+	c.Out = cmd.Flag(flagDictionaryGenerateOutput).Value.String()
 
 	return c, nil
 }

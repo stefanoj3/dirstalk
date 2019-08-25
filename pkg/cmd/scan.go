@@ -29,42 +29,42 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 	}
 
 	cmd.Flags().StringP(
-		flagDictionary,
-		flagDictionaryShort,
+		flagScanDictionary,
+		flagScanDictionaryShort,
 		"",
 		"dictionary to use for the scan (path to local file or remote url)",
 	)
-	common.Must(cmd.MarkFlagFilename(flagDictionary))
-	common.Must(cmd.MarkFlagRequired(flagDictionary))
+	common.Must(cmd.MarkFlagFilename(flagScanDictionary))
+	common.Must(cmd.MarkFlagRequired(flagScanDictionary))
 
 	cmd.Flags().StringSlice(
-		flagHTTPMethods,
+		flagScanHTTPMethods,
 		[]string{"GET"},
 		"comma separated list of http methods to use; eg: GET,POST,PUT",
 	)
 
 	cmd.Flags().IntSlice(
-		flagHTTPStatusesToIgnore,
+		flagScanHTTPStatusesToIgnore,
 		[]int{http.StatusNotFound},
 		"comma separated list of http statuses to ignore when showing and processing results; eg: 404,301",
 	)
 
 	cmd.Flags().IntP(
-		flagThreads,
-		flagThreadsShort,
+		flagScanThreads,
+		flagScanThreadsShort,
 		3,
 		"amount of threads for concurrent requests",
 	)
 
 	cmd.Flags().IntP(
-		flagHTTPTimeout,
+		flagScanHTTPTimeout,
 		"",
 		5000,
 		"timeout in milliseconds",
 	)
 
 	cmd.Flags().BoolP(
-		flagHTTPCacheRequests,
+		flagScanHTTPCacheRequests,
 		"",
 		true,
 		"cache requests to avoid performing the same request multiple times within the same scan (EG if the "+
@@ -72,28 +72,28 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 	)
 
 	cmd.Flags().IntP(
-		flagScanDepth,
+		flagScanScanDepth,
 		"",
 		3,
 		"scan depth",
 	)
 
 	cmd.Flags().StringP(
-		flagSocks5Host,
+		flagScanSocks5Host,
 		"",
 		"",
 		"socks5 host to use",
 	)
 
 	cmd.Flags().StringP(
-		flagUserAgent,
+		flagScanUserAgent,
 		"",
 		"",
 		"user agent to use for http requests",
 	)
 
 	cmd.Flags().BoolP(
-		flagCookieJar,
+		flagScanCookieJar,
 		"",
 		false,
 		"enables the use of a cookie jar: it will retain any cookie sent "+
@@ -101,19 +101,19 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 	)
 
 	cmd.Flags().StringArray(
-		flagCookie,
+		flagScanCookie,
 		[]string{},
 		"cookie to add to each request; eg name=value (can be specified multiple times)",
 	)
 
 	cmd.Flags().StringArray(
-		flagHeader,
+		flagScanHeader,
 		[]string{},
 		"header to add to each request; eg name=value (can be specified multiple times)",
 	)
 
 	cmd.Flags().String(
-		flagResultOutput,
+		flagScanResultOutput,
 		"",
 		"path where to store result output",
 	)
