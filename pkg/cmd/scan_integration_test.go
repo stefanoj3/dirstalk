@@ -246,7 +246,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 	c := createCommand(logger)
 	assert.NotNil(t, c)
 
-	testServer, serverAssertion := test.NewServerWithAssertion(
+	testServer, _ := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			time.Sleep(time.Millisecond * 650)
 
@@ -277,7 +277,6 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
-	assert.True(t, serverAssertion.Len() > 0)
 	assert.Contains(t, loggerBuffer.String(), "Received sigint")
 }
 
