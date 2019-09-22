@@ -211,22 +211,26 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		return errors.Wrap(err, "failed to create output saver")
 	}
 
-	finishFunc := func() {
+	defer func() {
 		resultSummarizer.Summarize()
 		err := outputSaver.Close()
 		if err != nil {
 			logger.WithError(err).Error("failed to close output file")
 		}
 		logger.Info("Finished scan")
-	}
+	}()
 
-	for result := range s.Scan(u, cnf.Threads) {
+	resultsChannel := s.Scan(u, cnf.Threads)
+	for {
 		select {
 		case <-osSigint:
 			logger.Info("Received sigint, terminating...")
-			finishFunc()
 			return nil
-		default:
+		case result, ok := <-resultsChannel:
+			if !ok {
+				logger.Debug("result channel is being closed, scan should be complete")
+				return nil
+			}
 			resultSummarizer.Add(result)
 			err := outputSaver.Save(result)
 			if err != nil {
@@ -234,10 +238,6 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 			}
 		}
 	}
-
-	finishFunc()
-
-	return nil
 }
 
 func newOutputSaver(path string) (OutputSaver, error) {
