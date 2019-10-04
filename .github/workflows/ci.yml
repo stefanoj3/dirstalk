@@ -1,0 +1,56 @@
+name: CI
+on: [push]
+jobs:
+
+  ci:
+    name: Continuous Integration
+    runs-on: ubuntu-18.04
+    env:
+      GOPATH: /home/runner/work/dirstalk/go
+    steps:
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - name: Checkout code
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+          path: go/src/github.com/stefanoj3/dirstalk
+
+      - name: Debug
+        run: |
+          echo "pwd:"
+          pwd
+          echo "HOME:"
+          echo ${HOME}
+          echo "GITHUB_WORKSPACE:"
+          echo ${GITHUB_WORKSPACE}
+          echo "GOPATH:"
+          echo ${GOPATH}
+          echo "GOROOT:"
+          echo ${GOROOT}
+
+      - name: Get dependencies
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          make dep
+
+      - name: Check codestyle
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          make check
+
+      - name: Tests
+        run: CI=true make tests
+
+      - name: Functional Tests
+        run: make functional-tests
+
+      - name: Codecov coverage upload
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: ./coverage.txt

@@ -11,6 +11,10 @@ ifeq ($(TRAVIS), true)
 TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
 endif
 
+ifeq ($(CI), true)
+TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
+endif
+
 .PHONY: dep
 ## Fetch dependencies
 dep:
