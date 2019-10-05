@@ -40,7 +40,9 @@ jobs:
 
       - name: Check codestyle
         if: matrix.platform == 'ubuntu-18.04'
-        run: make check
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          make check
 
       - name: Tests
         run: CI=true make tests

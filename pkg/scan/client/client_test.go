@@ -14,7 +14,7 @@ import (
 func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 	testServer, _ := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			time.Sleep(time.Millisecond * 50)
+			time.Sleep(time.Millisecond * 100)
 		}),
 	)
 	defer testServer.Close()
