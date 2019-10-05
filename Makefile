@@ -7,10 +7,6 @@ DATE=$(shell date +%s)
 LD_FLAGS=-extldflags '-static' -X github.com/stefanoj3/dirstalk/pkg/cmd.Version=$(VERSION) -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime=$(DATE)
 GOLANCILINT_ENABLED=golint,scopelint,bodyclose,gocritic,deadcode,gosimple,govet,ineffassign,staticcheck,structcheck,typecheck,unused,varcheck,dupl,misspell,nakedret,unconvert,unparam
 
-ifeq ($(TRAVIS), true)
-TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
-endif
-
 ifeq ($(CI), true)
 TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
 endif
