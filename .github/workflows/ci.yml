@@ -3,22 +3,26 @@ on: [push]
 jobs:
 
   ci:
-    name: Continuous Integration
-    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        go-version: [1.13.x]
+        platform: [ubuntu-18.04, macOS-latest]
+    name: Continuous Integration on go ${{ matrix.go-version }}/${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }}
     env:
-      GOPATH: /home/runner/work/dirstalk/go
+      GOPATH: ${{ steps.working-directory }}
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
         with:
-          go-version: 1.13
+          go-version: ${{ matrix.go-version }}
         id: go
 
       - name: Checkout code
         uses: actions/checkout@v1
         with:
           fetch-depth: 1
-          path: go/src/github.com/stefanoj3/dirstalk
+          path: ./src/github.com/${{ github.repository }}
 
       - name: Debug
         run: |
