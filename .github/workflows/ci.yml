@@ -6,11 +6,9 @@ jobs:
     strategy:
       matrix:
         go-version: [1.13.x]
-        platform: [ubuntu-18.04, macOS-latest]
+        platform: [macOS-latest, ubuntu-18.04]
     name: Continuous Integration on go ${{ matrix.go-version }}/${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
-    env:
-      GOPATH: ${{ steps.working-directory }}
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
@@ -38,14 +36,11 @@ jobs:
           echo ${GOROOT}
 
       - name: Get dependencies
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          make dep
+        run: make dep
 
       - name: Check codestyle
-        run: |
-          export PATH=$PATH:$(go env GOPATH)/bin
-          make check
+        if: matrix.platform == 'ubuntu-18.04'
+        run: make check
 
       - name: Tests
         run: CI=true make tests
@@ -54,6 +49,7 @@ jobs:
         run: make functional-tests
 
       - name: Codecov coverage upload
+        if: matrix.platform == 'ubuntu-18.04'
         uses: codecov/codecov-action@v1.0.2
         with:
           token: ${{secrets.CODECOV_TOKEN}}

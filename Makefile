@@ -18,12 +18,10 @@ endif
 .PHONY: dep
 ## Fetch dependencies
 dep:
-	@go get -u github.com/golang/dep/cmd/dep
 	@go get -u golang.org/x/tools/cmd/goimports
 	@go get -u golang.org/x/lint/golint
 	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	@go get -u github.com/securego/gosec/cmd/gosec
-	@dep ensure
 
 .PHONY: tests
 ## Execute tests
