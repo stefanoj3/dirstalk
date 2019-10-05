@@ -1,0 +1,57 @@
+name: CI
+on: [push]
+jobs:
+
+  ci:
+    strategy:
+      matrix:
+        go-version: [1.13.x]
+        platform: [macOS-latest, ubuntu-18.04]
+    name: Continuous Integration on go ${{ matrix.go-version }}/${{ matrix.platform }}
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Set up Go 1.13
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ matrix.go-version }}
+        id: go
+
+      - name: Checkout code
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Debug
+        run: |
+          echo "pwd:"
+          pwd
+          echo "HOME:"
+          echo ${HOME}
+          echo "GITHUB_WORKSPACE:"
+          echo ${GITHUB_WORKSPACE}
+          echo "GOPATH:"
+          echo ${GOPATH}
+          echo "GOROOT:"
+          echo ${GOROOT}
+
+      - name: Get dependencies
+        run: make dep
+
+      - name: Check codestyle
+        if: matrix.platform == 'ubuntu-18.04'
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          make check
+
+      - name: Tests
+        run: CI=true make tests
+
+      - name: Functional Tests
+        run: make functional-tests
+
+      - name: Codecov coverage upload
+        if: matrix.platform == 'ubuntu-18.04'
+        uses: codecov/codecov-action@v1.0.2
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          file: ./coverage.txt
