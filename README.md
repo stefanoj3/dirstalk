@@ -1,5 +1,6 @@
 # Dirstalk
-[![Build Status](https://travis-ci.org/stefanoj3/dirstalk.svg?branch=master)](https://travis-ci.org/stefanoj3/dirstalk)
+![](https://github.com/stefanoj3/dirstalk/workflows/CI/badge.svg)
+![](https://github.com/stefanoj3/dirstalk/workflows/Secrets%20check/badge.svg)
 [![codecov](https://codecov.io/gh/stefanoj3/dirstalk/branch/master/graph/badge.svg)](https://codecov.io/gh/stefanoj3/dirstalk)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/stefanoj3/dirstalk/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/stefanoj3/dirstalk/?branch=master)
 ![Docker Pulls](https://img.shields.io/docker/pulls/stefanoj3/dirstalk.svg)
