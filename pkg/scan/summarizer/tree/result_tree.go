@@ -21,7 +21,6 @@ func (s ResultTreeProducer) String(results []scan.Result) string {
 
 	root := gotree.New("/")
 
-	// TODO: improve efficiency
 	for _, r := range results {
 		currentBranch := root
 
