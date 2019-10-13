@@ -30,3 +30,5 @@ _book
 /dist
 
 coverage.txt
+
+*.out
