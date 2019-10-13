@@ -46,7 +46,7 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 			if inRegistry {
 				return
 			}
-			resultRegistry.Store(result.Target.Path, false)
+			resultRegistry.Store(result.Target.Path, nil)
 
 			for target := range r.producer.Produce() {
 				newTarget := result.Target
