@@ -14,10 +14,7 @@ endif
 .PHONY: dep
 ## Fetch dependencies
 dep:
-	@go get -u golang.org/x/tools/cmd/goimports
-	@go get -u golang.org/x/lint/golint
-	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-	@go get -u github.com/securego/gosec/cmd/gosec
+	@go mod download
 
 .PHONY: tests
 ## Execute tests
@@ -56,8 +53,6 @@ release-snapshot:
 release:
 	@echo "Creating release ..."
 	@goreleaser release --skip-publish --rm-dist
-
-.PHONY: help
 
 .PHONY: build
 ## Builds binary from source
