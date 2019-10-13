@@ -39,7 +39,7 @@ func TestVersionCommand(t *testing.T) {
 
 func executeCommand(root *cobra.Command, args ...string) (err error) {
 	buf := new(bytes.Buffer)
-	root.SetOut(buf)
+	root.SetOutput(buf)
 
 	a := []string{""}
 	os.Args = append(a, args...) //nolint
