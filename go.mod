@@ -1,6 +1,6 @@
 module github.com/stefanoj3/dirstalk
 
-go 1.12
+go 1.13
 
 require (
 	github.com/DiSiqueira/GoTree v0.0.0-20180907134536-53a8e837f295

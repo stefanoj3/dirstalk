@@ -24,7 +24,8 @@ func newDictionaryFromLocalFile(path string) ([]string, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "dictionary: unable to open: %s", path)
 	}
-	defer file.Close()
+
+	defer file.Close() //nolint:errcheck
 
 	return dictionaryFromReader(file), nil
 }
@@ -32,6 +33,7 @@ func newDictionaryFromLocalFile(path string) ([]string, error) {
 func dictionaryFromReader(reader io.Reader) []string {
 	entries := make([]string, 0)
 	scanner := bufio.NewScanner(reader)
+
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) == 0 {
@@ -44,6 +46,7 @@ func dictionaryFromReader(reader io.Reader) []string {
 
 		entries = append(entries, line)
 	}
+
 	return entries
 }
 
@@ -57,7 +60,8 @@ func newDictionaryFromRemoteFile(path string, doer Doer) ([]string, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "dictionary: failed to get `%s`", path)
 	}
-	defer res.Body.Close()
+
+	defer res.Body.Close() //nolint:errcheck
 
 	statusCode := res.StatusCode
 	if statusCode > 299 || statusCode < 200 {

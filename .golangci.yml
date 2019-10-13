@@ -1,0 +1,39 @@
+
+# See https://github.com/golangci/golangci-lint/blob/master/.golangci.example.yml
+run:
+  tests: true
+  deadline: 5m
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+  gocyclo:
+    min-complexity: 20
+  dupl:
+    threshold: 100
+  misspell:
+    locale: US
+  unused:
+    check-exported: false
+  unparam:
+    check-exported: true
+
+linters:
+  enable-all: true
+  disable:
+    - lll
+    - maligned
+    - gochecknoglobals
+    - stylecheck
+    - golint
+    - goconst
+    - funlen
+
+issues:
+  exclude-use-default: false
+
+# output configuration options
+output:
+  # colored-line-number|line-number|json|tab|checkstyle|code-climate, default is "colored-line-number"
+  format: colored-line-number

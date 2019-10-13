@@ -37,6 +37,7 @@ func (f Saver) Save(r scan.Result) error {
 	}
 
 	_, err = fmt.Fprintln(f.writeCloser, string(rawResult))
+
 	return errors.Wrapf(err, "Saver: failed to write result: %s", rawResult)
 }
 

@@ -1,6 +1,6 @@
 SRC_DIRS=cmd pkg
 
-TESTARGS=-v -race -cover -timeout 20s
+TESTARGS=-v -race -cover -timeout 20s -cpu 24
 
 VERSION=$(shell git describe || git rev-parse HEAD)
 DATE=$(shell date +%s)
@@ -8,16 +8,13 @@ LD_FLAGS=-extldflags '-static' -X github.com/stefanoj3/dirstalk/pkg/cmd.Version=
 GOLANCILINT_ENABLED=golint,scopelint,bodyclose,gocritic,deadcode,gosimple,govet,ineffassign,staticcheck,structcheck,typecheck,unused,varcheck,dupl,misspell,nakedret,unconvert,unparam
 
 ifeq ($(CI), true)
-TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s
+TESTARGS=-v -race -coverprofile=coverage.txt -covermode=atomic -timeout 20s -cpu 24
 endif
 
 .PHONY: dep
 ## Fetch dependencies
 dep:
-	@go get -u golang.org/x/tools/cmd/goimports
-	@go get -u golang.org/x/lint/golint
-	@go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
-	@go get -u github.com/securego/gosec/cmd/gosec
+	@go mod download
 
 .PHONY: tests
 ## Execute tests
@@ -33,15 +30,17 @@ functional-tests: build build-testserver
 .PHONY: check
 ## Run checks against the codebase
 check:
-	@golint -set_exit_status .
-	@goimports -l $(SRC_DIRS) | tee /dev/tty | xargs -I {} test -z {}
-	@golangci-lint run --enable $(GOLANCILINT_ENABLED)
-	@gosec ./...
+	docker run -t --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.20.0 golangci-lint run -v
 
 .PHONY: fix
 ## Run goimports against the source code
 fix:
-	@goimports -w $(SRC_DIRS)
+	docker run --rm -v $(pwd):/data cytopia/goimports -w .
+
+.PHONY: fmt
+## Run fmt against the source code
+fmt:
+	gofmt -s -w $(SRC_DIRS)
 
 .PHONY: release-snapshot
 ## Creates a release snapshot - requires goreleaser to be available in the $PATH
@@ -55,8 +54,6 @@ release:
 	@echo "Creating release ..."
 	@goreleaser release --skip-publish --rm-dist
 
-.PHONY: help
-
 .PHONY: build
 ## Builds binary from source
 build:
@@ -66,6 +63,18 @@ build:
 ## Builds binary for testserver used for the functional tests
 build-testserver:
 	go build -o dist/testserver cmd/testserver/main.go
+
+.PHONY: out-find
+## Search for .out file (profiling) in the repo
+out-find:
+	@echo "Searching for *.out files"
+	find . -name '*.out'
+
+.PHONY: out-delete
+## Delete *.out files from the repo
+out-delete:
+	@echo "Delete *.out files"
+	find . -name '*.out' -delete
 
 .PHONY: help
 HELP_WIDTH="                       "

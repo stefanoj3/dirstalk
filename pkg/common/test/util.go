@@ -2,10 +2,13 @@ package test
 
 import (
 	"net/url"
-	"testing"
 )
 
-func MustParseURL(t *testing.T, rawurl string) *url.URL {
+type TestingT interface {
+	Fatalf(format string, args ...interface{})
+}
+
+func MustParseURL(t TestingT, rawurl string) *url.URL {
 	u, err := url.Parse(rawurl)
 	if err != nil {
 		t.Fatalf("failed to parse url: %s", rawurl)

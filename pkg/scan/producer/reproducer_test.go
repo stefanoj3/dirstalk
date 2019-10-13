@@ -12,6 +12,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var benchData interface{}
+
 func TestNewReProducer(t *testing.T) {
 	t.Parallel()
 
@@ -81,6 +83,7 @@ func TestNewReProducer(t *testing.T) {
 	for tar := range reproducerChannel {
 		targets = append(targets, tar)
 	}
+
 	assert.Len(t, targets, 0)
 }
 
@@ -117,4 +120,42 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 	}
 
 	assert.Len(t, targets, 0)
+}
+
+func BenchmarkReProducer(b *testing.B) {
+	methods := []string{http.MethodGet, http.MethodPost}
+	dictionary := []string{"/home", "/about"}
+
+	dictionaryProducer := producer.NewDictionaryProducer(methods, dictionary, 1)
+
+	sut := producer.NewReProducer(dictionaryProducer)
+
+	result := scan.NewResult(
+		scan.Target{
+			Path:   "/home",
+			Method: http.MethodGet,
+			Depth:  1,
+		},
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(b, "http://mysite/contacts"),
+			},
+		},
+	)
+
+	b.ResetTimer()
+
+	targets := make([]scan.Target, 0, 10)
+
+	for i := 0; i < b.N; i++ {
+		reproducerFunc := sut.Reproduce()
+		reproducerChannel := reproducerFunc(result)
+
+		for tar := range reproducerChannel {
+			targets = append(targets, tar)
+		}
+	}
+
+	benchData = targets
 }

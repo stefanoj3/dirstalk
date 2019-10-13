@@ -39,7 +39,7 @@ func TestVersionCommand(t *testing.T) {
 
 func executeCommand(root *cobra.Command, args ...string) (err error) {
 	buf := new(bytes.Buffer)
-	root.SetOut(buf)
+	root.SetOutput(buf)
 
 	a := []string{""}
 	os.Args = append(a, args...) //nolint
@@ -54,7 +54,7 @@ func removeTestFile(path string) {
 		return
 	}
 
-	_ = os.Remove(path)
+	_ = os.Remove(path) //nolint:errcheck
 }
 
 func createCommand(logger *logrus.Logger) *cobra.Command {

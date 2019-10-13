@@ -55,3 +55,17 @@ myfile2.php
 
 	assert.Equal(t, expectedOutput, b.String())
 }
+
+func BenchmarkGenerateDictionaryFrom(b *testing.B) {
+	buf := &bytes.Buffer{}
+
+	dictionaryGenerator := dictionary.NewGenerator(buf)
+
+	for i := 0; i < b.N; i++ {
+		//nolint:errcheck
+		_ = dictionaryGenerator.GenerateDictionaryFrom(
+			"testdata/directory_to_generate_dictionary",
+			false,
+		)
+	}
+}

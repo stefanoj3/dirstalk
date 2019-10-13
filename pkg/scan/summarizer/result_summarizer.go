@@ -36,8 +36,8 @@ func (s *ResultSummarizer) Add(result scan.Result) {
 	defer s.mux.Unlock()
 
 	key := keyForResult(result)
-	_, found := s.resultMap[key]
-	if found {
+
+	if _, found := s.resultMap[key]; found {
 		return
 	}
 

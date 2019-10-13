@@ -14,7 +14,7 @@ func TestLoadResultsFromFile(t *testing.T) {
 	assert.NoError(t, err)
 
 	expectedResults := []scan.Result{
-		scan.Result{
+		{
 			Target:     scan.Target{Path: "partners", Method: "GET", Depth: 3},
 			StatusCode: 200,
 			URL: url.URL{
@@ -24,7 +24,7 @@ func TestLoadResultsFromFile(t *testing.T) {
 				Path:   "/partners",
 			},
 		},
-		scan.Result{
+		{
 			Target:     scan.Target{Path: "s", Method: "GET", Depth: 3},
 			StatusCode: 400,
 			URL: url.URL{
@@ -34,7 +34,7 @@ func TestLoadResultsFromFile(t *testing.T) {
 				Path:   "/s",
 			},
 		},
-		scan.Result{
+		{
 			Target:     scan.Target{Path: "adview", Method: "GET", Depth: 3},
 			StatusCode: 204,
 			URL: url.URL{
@@ -44,7 +44,7 @@ func TestLoadResultsFromFile(t *testing.T) {
 				Path:   "/adview",
 			},
 		},
-		scan.Result{
+		{
 			Target:     scan.Target{Path: "partners/terms", Method: "GET", Depth: 2},
 			StatusCode: 200,
 			URL: url.URL{

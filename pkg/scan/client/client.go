@@ -43,6 +43,7 @@ func NewClientFromConfig(
 		if err != nil {
 			return nil, errors.Wrap(err, "NewClientFromConfig: failed to create cookie jar")
 		}
+
 		c.Jar = jar
 	}
 

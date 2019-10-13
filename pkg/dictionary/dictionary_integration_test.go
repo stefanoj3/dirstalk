@@ -77,7 +77,7 @@ something
 potato
 `
 			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(dict))
+			_, _ = w.Write([]byte(dict)) //nolint:errcheck
 		}),
 	)
 	defer srv.Close()
@@ -101,7 +101,7 @@ func TestNewDictionaryFromRemoteFileWillReturnErrorWhenRequestTimeout(t *testing
 			time.Sleep(time.Millisecond) // out of paranoia - we dont want unstable tests
 
 			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte("/home"))
+			_, _ = w.Write([]byte("/home")) //nolint:errcheck
 		}),
 	)
 	defer srv.Close()

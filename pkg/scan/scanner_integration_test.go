@@ -59,6 +59,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
+
 	sut := scan.NewScanner(
 		c,
 		prod,

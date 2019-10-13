@@ -141,8 +141,12 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 
 	// Adding multiple times the same result should not change the outcome
 	wg := &sync.WaitGroup{}
-	for i := 0; i < 10; i++ {
-		wg.Add(1)
+
+	const workers = 10
+
+	wg.Add(workers)
+
+	for i := 0; i < workers; i++ {
 		go func() {
 			defer wg.Done()
 
@@ -275,5 +279,4 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 			}
 		})
 	}
-
 }

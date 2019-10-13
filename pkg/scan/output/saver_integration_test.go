@@ -46,6 +46,7 @@ func TestFileSaverShouldWriteResults(t *testing.T) {
 	err = saver.Close()
 	assert.NoError(t, err)
 
+	//nolint:gosec
 	file, err := os.Open(filename)
 	assert.NoError(t, err)
 
@@ -79,8 +80,11 @@ func TestFileSaverShouldWorkConcurrently(t *testing.T) {
 
 	wg := sync.WaitGroup{}
 
-	for i := 0; i < 1000; i++ {
-		wg.Add(1)
+	const workers = 1000
+
+	wg.Add(workers)
+
+	for i := 0; i < workers; i++ {
 		go func() {
 			err := saver.Save(scan.Result{})
 			if err != nil {
@@ -93,6 +97,7 @@ func TestFileSaverShouldWorkConcurrently(t *testing.T) {
 	wg.Wait()
 
 	// checking that the file is there
+	//nolint:gosec
 	file, err := os.Open(filename)
 	assert.NoError(t, err)
 	assert.NoError(t, file.Close())

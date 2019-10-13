@@ -15,7 +15,7 @@ func LoadResultsFromFile(resultFilePath string) ([]scan.Result, error) {
 		return nil, errors.Wrapf(err, "failed to open %s", resultFilePath)
 	}
 
-	defer file.Close()
+	defer file.Close() //nolint:errcheck
 
 	fileInfo, err := file.Stat()
 	if err != nil {
@@ -30,12 +30,13 @@ func LoadResultsFromFile(resultFilePath string) ([]scan.Result, error) {
 
 	lineCounter := 0
 	results := make([]scan.Result, 0, 10)
+
 	for fileScanner.Scan() {
 		lineCounter++
 
 		r := scan.Result{}
-		err := json.Unmarshal(fileScanner.Bytes(), &r)
-		if err != nil {
+
+		if err := json.Unmarshal(fileScanner.Bytes(), &r); err != nil {
 			return nil, errors.Wrapf(err, "unable to read line %d", lineCounter)
 		}
 

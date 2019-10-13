@@ -142,6 +142,7 @@ func TestScanShouldWriteOutput(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	//nolint:gosec
 	file, err := os.Open(outputFilename)
 	assert.NoError(t, err)
 
@@ -262,7 +263,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Millisecond * 200)
-		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT) //nolint:errcheck
 	}()
 
 	err := executeCommand(
@@ -293,7 +294,7 @@ home/index.php
 blabla
 `
 			w.WriteHeader(http.StatusOK)
-			_, _ = w.Write([]byte(dict))
+			_, _ = w.Write([]byte(dict)) //nolint:errcheck
 		}),
 	)
 	defer dictionaryServer.Close()
@@ -454,7 +455,8 @@ func TestScanWithCookieJar(t *testing.T) {
 			})
 		}),
 	)
-	defer testServer.Close()
+
+	defer testServer.Close() //nolint:errcheck
 
 	err := executeCommand(
 		c,
@@ -591,7 +593,7 @@ func TestStartScanWithSocks5ShouldFindResultsWhenAServerIsAvailable(t *testing.T
 	defer testServer.Close()
 
 	socks5Server := startSocks5TestServer(t)
-	defer socks5Server.Close()
+	defer socks5Server.Close() //nolint:errcheck
 
 	err := executeCommand(
 		c,
@@ -624,7 +626,7 @@ func TestShouldFailToScanWithAnUnreachableSocks5Server(t *testing.T) {
 	defer testServer.Close()
 
 	socks5Server := startSocks5TestServer(t)
-	defer socks5Server.Close()
+	defer socks5Server.Close() //nolint:errcheck
 
 	err := executeCommand(
 		c,
@@ -679,6 +681,7 @@ func TestShouldFailToStartWithAnInvalidSocks5Address(t *testing.T) {
 
 func startSocks5TestServer(t *testing.T) net.Listener {
 	conf := &socks5.Config{}
+
 	server, err := socks5.New(conf)
 	if err != nil {
 		t.Fatalf("failed to create socks5: %s", err.Error())
