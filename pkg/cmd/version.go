@@ -12,6 +12,7 @@ var (
 	BuildTime string
 )
 
+//nolint:gochecknoinits
 func init() {
 	if Version == "" {
 		Version = "dev"

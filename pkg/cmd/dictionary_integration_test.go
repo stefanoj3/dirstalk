@@ -19,6 +19,7 @@ func TestDictionaryGenerateCommand(t *testing.T) {
 	err := executeCommand(c, "dictionary.generate", ".", "-o", testFilePath)
 	assert.NoError(t, err)
 
+	//nolint:gosec
 	content, err := ioutil.ReadFile(testFilePath)
 	assert.NoError(t, err)
 
@@ -47,6 +48,7 @@ func TestDictionaryGenerateShouldFailWhenAFilePathIsProvidedInsteadOfADirectory(
 
 	testFilePath := "testdata/" + test.RandStringRunes(10)
 	defer removeTestFile(testFilePath)
+
 	err := executeCommand(c, "dictionary.generate", "./root_integration_test.go")
 	assert.Error(t, err)
 

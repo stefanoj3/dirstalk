@@ -54,7 +54,7 @@ func removeTestFile(path string) {
 		return
 	}
 
-	_ = os.Remove(path)
+	_ = os.Remove(path) //nolint:errcheck
 }
 
 func createCommand(logger *logrus.Logger) *cobra.Command {

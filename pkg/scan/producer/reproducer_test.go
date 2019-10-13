@@ -83,6 +83,7 @@ func TestNewReProducer(t *testing.T) {
 	for tar := range reproducerChannel {
 		targets = append(targets, tar)
 	}
+
 	assert.Len(t, targets, 0)
 }
 
@@ -144,6 +145,7 @@ func BenchmarkReProducer(b *testing.B) {
 	)
 
 	b.ResetTimer()
+
 	targets := make([]scan.Target, 0, 10)
 
 	for i := 0; i < b.N; i++ {

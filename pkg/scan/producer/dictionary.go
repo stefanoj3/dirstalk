@@ -14,7 +14,6 @@ func NewDictionaryProducer(
 		dictionary: dictionary,
 		depth:      depth,
 	}
-
 }
 
 type DictionaryProducer struct {

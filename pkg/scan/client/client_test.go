@@ -84,7 +84,7 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	assert.Equal(t, 1, serverAssertion.Len())
 
@@ -100,7 +100,7 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	assert.Equal(t, 2, serverAssertion.Len())
 
@@ -148,7 +148,7 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	assert.Equal(t, 1, serverAssertion.Len())
 
@@ -166,10 +166,11 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 		headerName  = "my_header_name"
 		headerValue = "my_header_value_123"
 	)
+
 	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
-	defer testServer.Close()
+	defer testServer.Close() //nolint:errcheck
 
 	u, err := url.Parse(testServer.URL)
 	assert.NoError(t, err)
@@ -190,13 +191,12 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, res)
 
-	defer res.Body.Close()
+	defer res.Body.Close() //nolint:errcheck
 
 	assert.Equal(t, 1, serverAssertion.Len())
 
 	serverAssertion.At(0, func(r http.Request) {
 		assert.Equal(t, headerValue, r.Header.Get(headerName))
-
 	})
 }
 
@@ -246,7 +246,7 @@ func TestShouldNotRepeatTheSameRequestTwice(t *testing.T) {
 	res, err := c.Do(req)
 	assert.NoError(t, err)
 
-	res.Body.Close()
+	res.Body.Close() //nolint:errcheck,gosec
 
 	assert.Equal(t, http.StatusOK, res.StatusCode)
 

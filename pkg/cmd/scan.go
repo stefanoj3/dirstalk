@@ -221,6 +221,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	}()
 
 	resultsChannel := s.Scan(u, cnf.Threads)
+
 	for {
 		select {
 		case <-osSigint:
@@ -231,9 +232,10 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 				logger.Debug("result channel is being closed, scan should be complete")
 				return nil
 			}
+
 			resultSummarizer.Add(result)
-			err := outputSaver.Save(result)
-			if err != nil {
+
+			if err := outputSaver.Save(result); err != nil {
 				return errors.Wrap(err, "failed to add output to file")
 			}
 		}

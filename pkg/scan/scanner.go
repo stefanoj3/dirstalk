@@ -68,8 +68,9 @@ func (s *Scanner) Scan(baseURL *url.URL, workers int) <-chan Result {
 	producerChannel := s.producer.Produce()
 	reproducer := s.reproducer.Reproduce()
 
+	wg.Add(workers)
+
 	for i := 0; i < workers; i++ {
-		wg.Add(1)
 		go func() {
 			defer wg.Done()
 
@@ -77,7 +78,6 @@ func (s *Scanner) Scan(baseURL *url.URL, workers int) <-chan Result {
 				s.processTarget(u, target, reproducer, resultChannel)
 			}
 		}()
-
 	}
 
 	go func() {
@@ -103,6 +103,7 @@ func (s *Scanner) processTarget(
 	l.Debug("Working")
 
 	u := buildURL(baseURL, target)
+
 	req, err := http.NewRequest(target.Method, u.String(), nil)
 	if err != nil {
 		l.WithError(err).Error("failed to build request")
@@ -125,10 +126,12 @@ func (s *Scanner) processRequest(
 		l.WithError(err).Debug("skipping, request was already made")
 		return
 	}
+
 	if err != nil {
 		l.WithError(err).Error("failed to perform request")
 		return
 	}
+
 	if err := res.Body.Close(); err != nil {
 		l.WithError(err).Warn("failed to close response body")
 	}
@@ -192,6 +195,7 @@ func (s *Scanner) shouldRedirect(l *logrus.Entry, req *http.Request, res *http.R
 		l.WithError(err).
 			WithField("location", location).
 			Warn("failed to parse location for redirect")
+
 		return Target{}, false
 	}
 

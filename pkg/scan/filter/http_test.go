@@ -53,10 +53,11 @@ func TestHTTPStatusResultFilter(t *testing.T) {
 	}
 }
 
-func TestHTTPStatusResultFilterShouldWorkConcurrently(t *testing.T) {
+func TestHTTPStatusResultFilterShouldWorkConcurrently(_ *testing.T) {
 	sut := filter.NewHTTPStatusResultFilter(nil)
 
 	wg := sync.WaitGroup{}
+
 	for i := 0; i < 1000; i++ {
 		wg.Add(1)
 

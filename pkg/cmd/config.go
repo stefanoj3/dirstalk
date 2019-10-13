@@ -18,69 +18,59 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	c.DictionaryPath = cmd.Flag(flagScanDictionary).Value.String()
 
-	c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagScanHTTPMethods)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read http methods flag")
+	if c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagScanHTTPMethods); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPMethods)
 	}
 
-	c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagScanHTTPStatusesToIgnore)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read http methods flag")
+	if c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagScanHTTPStatusesToIgnore); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPStatusesToIgnore)
 	}
 
-	c.Threads, err = cmd.Flags().GetInt(flagScanThreads)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read threads flag")
+	if c.Threads, err = cmd.Flags().GetInt(flagScanThreads); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanThreads)
 	}
 
-	c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagScanHTTPTimeout)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read http-timeout flag")
+	if c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagScanHTTPTimeout); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPTimeout)
 	}
 
-	c.CacheRequests, err = cmd.Flags().GetBool(flagScanHTTPCacheRequests)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read http-cache-requests flag")
+	if c.CacheRequests, err = cmd.Flags().GetBool(flagScanHTTPCacheRequests); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPCacheRequests)
 	}
 
-	c.ScanDepth, err = cmd.Flags().GetInt(flagScanScanDepth)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to read http-timeout flag")
+	if c.ScanDepth, err = cmd.Flags().GetInt(flagScanScanDepth); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanScanDepth)
 	}
 
 	socks5Host := cmd.Flag(flagScanSocks5Host).Value.String()
 	if len(socks5Host) > 0 {
-		c.Socks5Url, err = url.Parse("socks5://" + socks5Host)
-		if err != nil {
-			return nil, errors.Wrap(err, "invalid value for "+flagScanSocks5Host)
+		if c.Socks5Url, err = url.Parse("socks5://" + socks5Host); err != nil {
+			return nil, errors.Wrapf(err, "invalid value for %s", flagScanSocks5Host)
 		}
 	}
 
 	c.UserAgent = cmd.Flag(flagScanUserAgent).Value.String()
 
-	c.UseCookieJar, err = cmd.Flags().GetBool(flagScanCookieJar)
-	if err != nil {
-		return nil, errors.Wrap(err, "cookie jar flag is invalid")
+	if c.UseCookieJar, err = cmd.Flags().GetBool(flagScanCookieJar); err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanCookieJar)
 	}
 
 	rawCookies, err := cmd.Flags().GetStringArray(flagScanCookie)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read cookies flag")
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanCookie)
 	}
 
-	c.Cookies, err = rawCookiesToCookies(rawCookies)
-	if err != nil {
+	if c.Cookies, err = rawCookiesToCookies(rawCookies); err != nil {
 		return nil, errors.Wrap(err, "failed to convert rawCookies to objects")
 	}
 
 	rawHeaders, err := cmd.Flags().GetStringArray(flagScanHeader)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to read cookies flag")
+		return nil, errors.Wrapf(err, "failed to read %s", flagScanHeader)
 	}
 
-	c.Headers, err = rawHeadersToHeaders(rawHeaders)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert rawHeaders")
+	if c.Headers, err = rawHeadersToHeaders(rawHeaders); err != nil {
+		return nil, errors.Wrapf(err, "failed to convert rawHeaders (%v)", rawHeaders)
 	}
 
 	c.Out = cmd.Flag(flagDictionaryGenerateOutput).Value.String()

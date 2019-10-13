@@ -40,6 +40,7 @@ func (s ResultTreeProducer) String(results []scan.Result) string {
 
 				currentBranch = item
 				found = true
+
 				break
 			}
 

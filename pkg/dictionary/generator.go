@@ -18,8 +18,10 @@ type Generator struct {
 }
 
 func (g *Generator) GenerateDictionaryFrom(path string, absoluteOnly bool) error {
-	var dictionary []string
-	var err error
+	var (
+		dictionary []string
+		err        error
+	)
 
 	if absoluteOnly {
 		dictionary, err = findAbsolutePaths(path)
@@ -60,7 +62,8 @@ func findAbsolutePaths(root string) ([]string, error) {
 
 func findFileNames(root string) ([]string, error) {
 	var files []string
-	filesByKey := map[string]bool{}
+
+	filesByKey := make(map[string]bool)
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

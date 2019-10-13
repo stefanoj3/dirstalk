@@ -13,9 +13,9 @@ type StatelessJar struct {
 	cookies []*http.Cookie
 }
 
-func (s StatelessJar) SetCookies(u *url.URL, cookies []*http.Cookie) {
+func (s StatelessJar) SetCookies(_ *url.URL, _ []*http.Cookie) {
 }
 
-func (s StatelessJar) Cookies(u *url.URL) []*http.Cookie {
+func (s StatelessJar) Cookies(_ *url.URL) []*http.Cookie {
 	return s.cookies
 }

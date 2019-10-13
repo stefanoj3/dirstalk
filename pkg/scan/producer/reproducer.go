@@ -56,7 +56,6 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 
 				resultChannel <- newTarget
 			}
-
 		}()
 
 		return resultChannel
