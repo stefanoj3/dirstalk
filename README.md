@@ -110,18 +110,14 @@ yay -S aur/dirstalk
 All you need to do local development is to have [make](https://www.gnu.org/software/make/)
 and [golang](https://golang.org/) available and the GOPATH correctly configured.
 
-Then you can just:
+Then you can just clone the project, enter the folder and:
 ```shell script
-go get github.com/stefanoj3/dirstalk         # (or your fork) to obtain the source code
-cd $GOPATH/src/github.com/stefanoj3/dirstalk # to go inside the project folder
-make dep                                     # to fetch all the required tools and dependencies
+make dep                                     # to fetch dependencies
 make tests                                   # to run the test suite
 make check                                   # to check for any code style issue
 make fix                                     # to automatically fix the code style using goimports
 make build                                   # to build an executable for your host OS (not tested under windows) 
 ```
-
-[dep](https://github.com/golang/dep) is the tool of choice for dependency management.
 
 ```shell script
 make help
