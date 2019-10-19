@@ -1,9 +1,11 @@
 package scan
 
+import "context"
+
 type Producer interface {
-	Produce() <-chan Target
+	Produce(ctx context.Context) <-chan Target
 }
 
 type ReProducer interface {
-	Reproduce() func(r Result) <-chan Target
+	Reproduce(ctx context.Context) func(r Result) <-chan Target
 }

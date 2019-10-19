@@ -1,6 +1,7 @@
 package producer
 
 import (
+	"context"
 	"sync"
 
 	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
@@ -20,11 +21,11 @@ type ReProducer struct {
 }
 
 // Reproduce will check if it is possible to go deeper on the result provided, if so will
-func (r *ReProducer) Reproduce() func(r scan.Result) <-chan scan.Target {
-	return r.buildReproducer()
+func (r *ReProducer) Reproduce(ctx context.Context) func(r scan.Result) <-chan scan.Target {
+	return r.buildReproducer(ctx)
 }
 
-func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Target {
+func (r *ReProducer) buildReproducer(ctx context.Context) func(result scan.Result) <-chan scan.Target {
 	resultRegistry := sync.Map{}
 
 	return func(result scan.Result) <-chan scan.Target {
@@ -48,7 +49,7 @@ func (r *ReProducer) buildReproducer() func(result scan.Result) <-chan scan.Targ
 			}
 			resultRegistry.Store(result.Target.Path, nil)
 
-			for target := range r.producer.Produce() {
+			for target := range r.producer.Produce(ctx) {
 				newTarget := result.Target
 				newTarget.Depth--
 				newTarget.Path = urlpath.Join(newTarget.Path, target.Path)

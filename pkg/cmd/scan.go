@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -220,7 +221,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		logger.Info("Finished scan")
 	}()
 
-	resultsChannel := s.Scan(u, cnf.Threads)
+	resultsChannel := s.Scan(context.Background(), u, cnf.Threads) // TODO use the context
 
 	for {
 		select {
