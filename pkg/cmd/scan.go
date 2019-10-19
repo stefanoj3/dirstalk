@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/cmd/termination"
 	"github.com/stefanoj3/dirstalk/pkg/common"
 	"github.com/stefanoj3/dirstalk/pkg/dictionary"
 	"github.com/stefanoj3/dirstalk/pkg/scan"
@@ -221,13 +222,27 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		logger.Info("Finished scan")
 	}()
 
-	resultsChannel := s.Scan(context.Background(), u, cnf.Threads) // TODO use the context
+	ctx, cancellationFunc := context.WithCancel(context.Background())
+	defer cancellationFunc()
+
+	resultsChannel := s.Scan(ctx, u, cnf.Threads)
+
+	terminationHandler := termination.NewTerminationHandler(2)
 
 	for {
 		select {
 		case <-osSigint:
-			logger.Info("Received sigint, terminating...")
-			return nil
+			terminationHandler.SignalTermination()
+			cancellationFunc()
+
+			if terminationHandler.ShouldTerminate() {
+				logger.Info("Received sigint, terminating...")
+				return nil
+			}
+
+			logger.Info(
+				"Received sigint, trying to shutdown gracefully, another SIGNINT will terminate the application",
+			)
 		case result, ok := <-resultsChannel:
 			if !ok {
 				logger.Debug("result channel is being closed, scan should be complete")
