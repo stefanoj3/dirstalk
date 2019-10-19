@@ -1,12 +1,12 @@
 package producer_test
 
 import (
+	"context"
 	"net/http"
 	"sort"
 	"testing"
 
 	"github.com/stefanoj3/dirstalk/pkg/common/test"
-
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 	"github.com/stefanoj3/dirstalk/pkg/scan/producer"
 	"github.com/stretchr/testify/assert"
@@ -38,7 +38,7 @@ func TestNewReProducer(t *testing.T) {
 		},
 	)
 
-	reproducerFunc := sut.Reproduce()
+	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
 
 	targets := make([]scan.Target, 0, 10)
@@ -111,7 +111,7 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 		},
 	)
 
-	reproducerFunc := sut.Reproduce()
+	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
 
 	targets := make([]scan.Target, 0)
@@ -149,7 +149,7 @@ func BenchmarkReProducer(b *testing.B) {
 	targets := make([]scan.Target, 0, 10)
 
 	for i := 0; i < b.N; i++ {
-		reproducerFunc := sut.Reproduce()
+		reproducerFunc := sut.Reproduce(context.Background())
 		reproducerChannel := reproducerFunc(result)
 
 		for tar := range reproducerChannel {

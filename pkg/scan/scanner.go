@@ -1,6 +1,7 @@
 package scan
 
 import (
+	"context"
 	"net/http"
 	"net/url"
 	"strings"
@@ -58,15 +59,15 @@ type Scanner struct {
 	logger       *logrus.Logger
 }
 
-func (s *Scanner) Scan(baseURL *url.URL, workers int) <-chan Result {
+func (s *Scanner) Scan(ctx context.Context, baseURL *url.URL, workers int) <-chan Result {
 	resultChannel := make(chan Result, workers)
 
 	u := normalizeBaseURL(*baseURL)
 
 	wg := sync.WaitGroup{}
 
-	producerChannel := s.producer.Produce()
-	reproducer := s.reproducer.Reproduce()
+	producerChannel := s.producer.Produce(ctx)
+	reproducer := s.reproducer.Reproduce(ctx)
 
 	wg.Add(workers)
 
@@ -74,8 +75,18 @@ func (s *Scanner) Scan(baseURL *url.URL, workers int) <-chan Result {
 		go func() {
 			defer wg.Done()
 
-			for target := range producerChannel {
-				s.processTarget(u, target, reproducer, resultChannel)
+			for {
+				select {
+				case <-ctx.Done():
+					s.logger.Debug("terminating worker: context cancellation")
+				case target, ok := <-producerChannel:
+					if !ok {
+						s.logger.Debug("terminating worker: producer channel closed")
+						return
+					}
+
+					s.processTarget(u, target, reproducer, resultChannel)
+				}
 			}
 		}()
 	}

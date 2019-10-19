@@ -1,6 +1,8 @@
 package producer
 
 import (
+	"context"
+
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
@@ -22,7 +24,7 @@ type DictionaryProducer struct {
 	depth      int
 }
 
-func (p *DictionaryProducer) Produce() <-chan scan.Target {
+func (p *DictionaryProducer) Produce(ctx context.Context) <-chan scan.Target {
 	targets := make(chan scan.Target, 10)
 
 	go func() {
@@ -30,10 +32,15 @@ func (p *DictionaryProducer) Produce() <-chan scan.Target {
 
 		for _, entry := range p.dictionary {
 			for _, method := range p.methods {
-				targets <- scan.Target{
-					Path:   entry,
-					Method: method,
-					Depth:  p.depth,
+				select {
+				case <-ctx.Done():
+					return
+				default:
+					targets <- scan.Target{
+						Path:   entry,
+						Method: method,
+						Depth:  p.depth,
+					}
 				}
 			}
 		}
