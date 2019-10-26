@@ -6,7 +6,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.13.x]
-        platform: [macOS-latest, ubuntu-18.04]
+        platform: [macOS-latest, ubuntu-18.04, windows-latest]
     name: Continuous Integration on go ${{ matrix.go-version }}/${{ matrix.platform }}
     runs-on: ${{ matrix.platform }}
     steps:
@@ -44,7 +44,9 @@ jobs:
           make check
 
       - name: Tests
-        run: CI=true make tests
+        run: |
+          export CI=true
+          make tests
 
       - name: Functional Tests
         run: make functional-tests
