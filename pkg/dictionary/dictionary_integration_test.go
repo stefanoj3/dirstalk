@@ -65,6 +65,8 @@ func TestDictionaryFromFileWithInvalidPath(t *testing.T) {
 	d, err := dictionary.NewDictionaryFrom("testdata/gibberish_nonexisting_file", &http.Client{})
 	assert.Error(t, err)
 	assert.Nil(t, d)
+
+	assert.Contains(t, err.Error(), "unable to open")
 }
 
 func TestNewDictionaryFromRemoteFile(t *testing.T) {

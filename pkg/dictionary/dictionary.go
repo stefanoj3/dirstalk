@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -12,11 +13,11 @@ import (
 const commentPrefix = "#"
 
 func NewDictionaryFrom(path string, doer Doer) ([]string, error) {
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		return newDictionaryFromLocalFile(path)
+	if strings.HasPrefix(path, "http") {
+		return newDictionaryFromRemoteFile(path, doer)
 	}
 
-	return newDictionaryFromRemoteFile(path, doer)
+	return newDictionaryFromLocalFile(path)
 }
 
 func newDictionaryFromLocalFile(path string) ([]string, error) {
