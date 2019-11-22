@@ -73,7 +73,12 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrapf(err, "failed to convert rawHeaders (%v)", rawHeaders)
 	}
 
-	c.Out = cmd.Flag(flagDictionaryGenerateOutput).Value.String()
+	c.Out = cmd.Flag(flagScanResultOutput).Value.String()
+
+	c.ShouldSkipSSLCertificatesValidation, err = cmd.Flags().GetBool(flagShouldSkipSSLCertificatesValidation)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to read %s", flagShouldSkipSSLCertificatesValidation)
+	}
 
 	return c, nil
 }

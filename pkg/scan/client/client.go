@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"crypto/tls"
 	"net"
 	"net/http"
 	"net/http/cookiejar"
@@ -21,18 +22,14 @@ func NewClientFromConfig(
 	cookies []*http.Cookie,
 	headers map[string]string,
 	shouldCacheRequests bool,
+	shouldSkipSSLCertificatesValidation bool,
 	u *url.URL,
 ) (*http.Client, error) {
-	transport := http.Transport{
-		MaxIdleConns:          100,
-		IdleConnTimeout:       90 * time.Second,
-		TLSHandshakeTimeout:   10 * time.Second,
-		ExpectContinueTimeout: 1 * time.Second,
-	}
+	transport := buildTransport(shouldSkipSSLCertificatesValidation)
 
 	c := &http.Client{
 		Timeout:   time.Millisecond * time.Duration(timeoutInMilliseconds),
-		Transport: &transport,
+		Transport: transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
 			return http.ErrUseLastResponse
 		},
@@ -88,4 +85,20 @@ func NewClientFromConfig(
 	}
 
 	return c, nil
+}
+
+func buildTransport(shouldSkipSSLCertificatesValidation bool) *http.Transport {
+	transport := http.Transport{
+		MaxIdleConns:          100,
+		IdleConnTimeout:       90 * time.Second,
+		TLSHandshakeTimeout:   10 * time.Second,
+		ExpectContinueTimeout: 1 * time.Second,
+	}
+
+	if shouldSkipSSLCertificatesValidation {
+		//nolint:gosec
+		transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+
+	return &transport
 }

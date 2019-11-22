@@ -120,6 +120,12 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 		"path where to store result output",
 	)
 
+	cmd.Flags().Bool(
+		flagShouldSkipSSLCertificatesValidation,
+		false,
+		"to skip checking the validity of SSL certificates",
+	)
+
 	return cmd
 }
 
@@ -166,6 +172,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		cnf.Cookies,
 		cnf.Headers,
 		cnf.CacheRequests,
+		cnf.ShouldSkipSSLCertificatesValidation,
 		u,
 	)
 	if err != nil {
