@@ -27,6 +27,7 @@ func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		nil,
 	)
 	assert.NoError(t, err)
@@ -75,6 +76,7 @@ func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
 		true,
 		cookies,
 		map[string]string{},
+		false,
 		false,
 		u,
 	)
@@ -140,6 +142,7 @@ func TestShouldForwardCookiesWhenJarIsDisabled(t *testing.T) {
 		cookies,
 		map[string]string{},
 		true,
+		false,
 		u,
 	)
 	assert.NoError(t, err)
@@ -183,6 +186,7 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 		nil,
 		map[string]string{headerName: headerValue},
 		true,
+		false,
 		u,
 	)
 	assert.NoError(t, err)
@@ -211,6 +215,7 @@ func TestShouldFailToCreateAClientWithInvalidSocks5Url(t *testing.T) {
 		nil,
 		map[string]string{},
 		true,
+		false,
 		nil,
 	)
 	assert.Nil(t, c)
@@ -236,6 +241,7 @@ func TestShouldNotRepeatTheSameRequestTwice(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		u,
 	)
 	assert.NoError(t, err)
@@ -254,5 +260,78 @@ func TestShouldNotRepeatTheSameRequestTwice(t *testing.T) {
 	assert.Contains(t, err.Error(), client.ErrRequestRedundant.Error())
 	assert.Nil(t, res)
 
+	assert.Equal(t, 1, serverAssertion.Len())
+}
+
+func TestShouldFailToCommunicateWithServerHavingInvalidSSLCertificates(t *testing.T) {
+	testServer, serverAssertion := test.NewTSLServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
+	)
+	defer testServer.Close()
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	c, err := client.NewClientFromConfig(
+		1500,
+		nil,
+		"",
+		false,
+		nil,
+		nil,
+		true,
+		false,
+		u,
+	)
+	assert.NoError(t, err)
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	assert.NoError(t, err)
+
+	res, err := c.Do(req) //nolint:bodyclose
+	assert.Error(t, err)
+	assert.Nil(t, res)
+
+	assert.Contains(t, err.Error(), "certificate signed by unknown authority")
+
+	// the request should NOT hit the handler
+	assert.Equal(t, 0, serverAssertion.Len())
+}
+
+func TestShouldBeAbleToSkipSSLCertificatesCheck(t *testing.T) {
+	testServer, serverAssertion := test.NewTSLServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		}),
+	)
+	defer testServer.Close()
+
+	u, err := url.Parse(testServer.URL)
+	assert.NoError(t, err)
+
+	c, err := client.NewClientFromConfig(
+		1500,
+		nil,
+		"",
+		false,
+		nil,
+		nil,
+		true,
+		true,
+		u,
+	)
+	assert.NoError(t, err)
+
+	req, err := http.NewRequest(http.MethodGet, u.String(), nil)
+	assert.NoError(t, err)
+
+	res, err := c.Do(req)
+	assert.NoError(t, err)
+
+	res.Body.Close() //nolint:errcheck,gosec
+
+	assert.Equal(t, http.StatusNoContent, res.StatusCode)
+
+	// the request should hit the handler
 	assert.Equal(t, 1, serverAssertion.Len())
 }

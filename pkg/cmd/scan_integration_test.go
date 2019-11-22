@@ -679,6 +679,65 @@ func TestShouldFailToStartWithAnInvalidSocks5Address(t *testing.T) {
 	assert.Equal(t, 0, serverAssertion.Len())
 }
 
+func TestScanShouldFailToCommunicateWithServerHavingInvalidSSLCertificates(t *testing.T) {
+	logger, loggerBuffer := test.NewLogger()
+
+	c := createCommand(logger)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewTSLServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}),
+	)
+	defer testServer.Close()
+
+	err := executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"--scan-depth",
+		"1",
+	)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 0, serverAssertion.Len())
+
+	assert.Contains(t, loggerBuffer.String(), "certificate signed by unknown authority")
+}
+
+func TestScanShouldBeAbleToSkipSSLCertificatesCheck(t *testing.T) {
+	logger, loggerBuffer := test.NewLogger()
+
+	c := createCommand(logger)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewTSLServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+		}),
+	)
+	defer testServer.Close()
+
+	err := executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		"testdata/dict2.txt",
+		"--scan-depth",
+		"1",
+		"--no-check-certificate",
+	)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 16, serverAssertion.Len())
+
+	assert.NotContains(t, loggerBuffer.String(), "certificate signed by unknown authority")
+}
+
 func startSocks5TestServer(t *testing.T) net.Listener {
 	conf := &socks5.Config{}
 

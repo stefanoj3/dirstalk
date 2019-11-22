@@ -56,6 +56,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -109,6 +110,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -177,6 +179,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -244,6 +247,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -309,6 +313,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -368,6 +373,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)
@@ -422,6 +428,7 @@ func TestCanCancelScanUsingContext(t *testing.T) {
 		nil,
 		nil,
 		true,
+		false,
 		test.MustParseURL(t, testServer.URL),
 	)
 	assert.NoError(t, err)

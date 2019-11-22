@@ -15,6 +15,15 @@ func NewServerWithAssertion(handler http.HandlerFunc) (*httptest.Server, *Server
 	return server, serverAssertion
 }
 
+func NewTSLServerWithAssertion(handler http.HandlerFunc) (*httptest.Server, *ServerAssertion) {
+	serverAssertion := &ServerAssertion{}
+
+	server := httptest.NewUnstartedServer(serverAssertion.wrap(handler))
+	server.StartTLS()
+
+	return server, serverAssertion
+}
+
 type ServerAssertion struct {
 	requests   []http.Request
 	requestsMx sync.RWMutex
