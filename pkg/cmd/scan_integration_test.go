@@ -760,3 +760,79 @@ func startSocks5TestServer(t *testing.T) net.Listener {
 
 	return listener
 }
+
+func TestScanShouldFailIfDictionaryFetchExceedTimeout(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c := createCommand(logger)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		}),
+	)
+	defer testServer.Close()
+
+	dictionaryTestServer, _ := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			time.Sleep(time.Second)
+			w.Write([]byte("/dictionary/entry")) //nolint
+		}),
+	)
+	defer dictionaryTestServer.Close()
+
+	err := executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		dictionaryTestServer.URL,
+		"--dictionary-get-timeout",
+		"5",
+	)
+	assert.Error(t, err)
+
+	assert.Contains(t, err.Error(), "dictionary: failed to get")
+	assert.Contains(t, err.Error(), "Client.Timeout exceeded while awaiting headers")
+
+	assert.Equal(t, 0, serverAssertion.Len())
+}
+
+func TestScanShouldBeAbleToFetchRemoteDictionary(t *testing.T) {
+	logger, _ := test.NewLogger()
+
+	c := createCommand(logger)
+	assert.NotNil(t, c)
+
+	testServer, serverAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusNotFound)
+		}),
+	)
+	defer testServer.Close()
+
+	dictionaryTestServer, dictionaryTestServerAssertion := test.NewServerWithAssertion(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("/dictionary/entry")) //nolint
+		}),
+	)
+	defer dictionaryTestServer.Close()
+
+	err := executeCommand(
+		c,
+		"scan",
+		testServer.URL,
+		"--dictionary",
+		dictionaryTestServer.URL,
+		"--dictionary-get-timeout",
+		"500",
+	)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1, dictionaryTestServerAssertion.Len())
+	assert.Equal(t, 1, serverAssertion.Len())
+
+	serverAssertion.At(0, func(r http.Request) {
+		assert.Equal(t, "/dictionary/entry", r.URL.Path)
+	})
+}

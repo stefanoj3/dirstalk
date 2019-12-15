@@ -8,6 +8,7 @@ const (
 	// Scan flags
 	flagScanDictionary                      = "dictionary"
 	flagScanDictionaryShort                 = "d"
+	flagScanDictionaryGetTimeout            = "dictionary-get-timeout"
 	flagScanHTTPMethods                     = "http-methods"
 	flagScanHTTPStatusesToIgnore            = "http-statuses-to-ignore"
 	flagScanHTTPTimeout                     = "http-timeout"

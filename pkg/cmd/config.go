@@ -11,6 +11,8 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan"
 )
 
+const failedToReadPropertyError = "failed to read %s"
+
 func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 	c := &scan.Config{}
 
@@ -18,28 +20,32 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	c.DictionaryPath = cmd.Flag(flagScanDictionary).Value.String()
 
+	if c.DictionaryTimeoutInMilliseconds, err = cmd.Flags().GetInt(flagScanDictionaryGetTimeout); err != nil {
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanDictionaryGetTimeout)
+	}
+
 	if c.HTTPMethods, err = cmd.Flags().GetStringSlice(flagScanHTTPMethods); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPMethods)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHTTPMethods)
 	}
 
 	if c.HTTPStatusesToIgnore, err = cmd.Flags().GetIntSlice(flagScanHTTPStatusesToIgnore); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPStatusesToIgnore)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHTTPStatusesToIgnore)
 	}
 
 	if c.Threads, err = cmd.Flags().GetInt(flagScanThreads); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanThreads)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanThreads)
 	}
 
 	if c.TimeoutInMilliseconds, err = cmd.Flags().GetInt(flagScanHTTPTimeout); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPTimeout)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHTTPTimeout)
 	}
 
 	if c.CacheRequests, err = cmd.Flags().GetBool(flagScanHTTPCacheRequests); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanHTTPCacheRequests)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHTTPCacheRequests)
 	}
 
 	if c.ScanDepth, err = cmd.Flags().GetInt(flagScanScanDepth); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanScanDepth)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanScanDepth)
 	}
 
 	socks5Host := cmd.Flag(flagScanSocks5Host).Value.String()
@@ -52,12 +58,12 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 	c.UserAgent = cmd.Flag(flagScanUserAgent).Value.String()
 
 	if c.UseCookieJar, err = cmd.Flags().GetBool(flagScanCookieJar); err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanCookieJar)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanCookieJar)
 	}
 
 	rawCookies, err := cmd.Flags().GetStringArray(flagScanCookie)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanCookie)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanCookie)
 	}
 
 	if c.Cookies, err = rawCookiesToCookies(rawCookies); err != nil {
@@ -66,7 +72,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	rawHeaders, err := cmd.Flags().GetStringArray(flagScanHeader)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagScanHeader)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHeader)
 	}
 
 	if c.Headers, err = rawHeadersToHeaders(rawHeaders); err != nil {
@@ -77,7 +83,7 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 
 	c.ShouldSkipSSLCertificatesValidation, err = cmd.Flags().GetBool(flagShouldSkipSSLCertificatesValidation)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to read %s", flagShouldSkipSSLCertificatesValidation)
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagShouldSkipSSLCertificatesValidation)
 	}
 
 	return c, nil
