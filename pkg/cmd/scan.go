@@ -39,6 +39,13 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 	common.Must(cmd.MarkFlagFilename(flagScanDictionary))
 	common.Must(cmd.MarkFlagRequired(flagScanDictionary))
 
+	cmd.Flags().IntP(
+		flagScanDictionaryGetTimeout,
+		"",
+		50000,
+		"timeout in milliseconds (used when fetching remote dictionary)",
+	)
+
 	cmd.Flags().StringSlice(
 		flagScanHTTPMethods,
 		[]string{"GET"},
@@ -164,38 +171,15 @@ func getURL(args []string) (*url.URL, error) {
 
 // startScan is a convenience method that wires together all the dependencies needed to start a scan
 func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
-	c, err := client.NewClientFromConfig(
-		cnf.TimeoutInMilliseconds,
-		cnf.Socks5Url,
-		cnf.UserAgent,
-		cnf.UseCookieJar,
-		cnf.Cookies,
-		cnf.Headers,
-		cnf.CacheRequests,
-		cnf.ShouldSkipSSLCertificatesValidation,
-		u,
-	)
+	dict, err := buildDictionary(cnf, u)
 	if err != nil {
-		return errors.Wrap(err, "failed to build client")
+		return err
 	}
 
-	dict, err := dictionary.NewDictionaryFrom(cnf.DictionaryPath, c)
+	s, err := buildScanner(cnf, dict, u, logger)
 	if err != nil {
-		return errors.Wrap(err, "failed to build dictionary")
+		return err
 	}
-
-	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
-	reproducer := producer.NewReProducer(targetProducer)
-
-	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore)
-
-	s := scan.NewScanner(
-		c,
-		targetProducer,
-		reproducer,
-		resultFilter,
-		logger,
-	)
 
 	logger.WithFields(logrus.Fields{
 		"url":               u.String(),
@@ -263,6 +247,80 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 			}
 		}
 	}
+}
+
+func buildScanner(cnf *scan.Config, dict []string, u *url.URL, logger *logrus.Logger) (*scan.Scanner, error) {
+	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
+	reproducer := producer.NewReProducer(targetProducer)
+
+	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore)
+
+	scannerClient, err := buildScannerClient(cnf, u)
+	if err != nil {
+		return nil, err
+	}
+
+	s := scan.NewScanner(
+		scannerClient,
+		targetProducer,
+		reproducer,
+		resultFilter,
+		logger,
+	)
+
+	return s, nil
+}
+
+func buildDictionary(cnf *scan.Config, u *url.URL) ([]string, error) {
+	c, err := buildDictionaryClient(cnf, u)
+	if err != nil {
+		return nil, err
+	}
+
+	dict, err := dictionary.NewDictionaryFrom(cnf.DictionaryPath, c)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build dictionary")
+	}
+
+	return dict, nil
+}
+
+func buildScannerClient(cnf *scan.Config, u *url.URL) (*http.Client, error) {
+	c, err := client.NewClientFromConfig(
+		cnf.TimeoutInMilliseconds,
+		cnf.Socks5Url,
+		cnf.UserAgent,
+		cnf.UseCookieJar,
+		cnf.Cookies,
+		cnf.Headers,
+		cnf.CacheRequests,
+		cnf.ShouldSkipSSLCertificatesValidation,
+		u,
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build scanner client")
+	}
+
+	return c, nil
+}
+
+func buildDictionaryClient(cnf *scan.Config, u *url.URL) (*http.Client, error) {
+	c, err := client.NewClientFromConfig(
+		cnf.DictionaryTimeoutInMilliseconds,
+		cnf.Socks5Url,
+		cnf.UserAgent,
+		cnf.UseCookieJar,
+		cnf.Cookies,
+		cnf.Headers,
+		cnf.CacheRequests,
+		cnf.ShouldSkipSSLCertificatesValidation,
+		u,
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build dictionary client")
+	}
+
+	return c, nil
 }
 
 func newOutputSaver(path string) (OutputSaver, error) {
