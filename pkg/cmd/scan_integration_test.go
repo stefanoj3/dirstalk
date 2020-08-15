@@ -28,15 +28,18 @@ func TestScanCommand(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/test/" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 			if r.URL.Path == "/potato" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 
 			if r.URL.Path == "/test/test/" {
 				http.Redirect(w, r, "/potato", http.StatusMovedPermanently)
+
 				return
 			}
 
@@ -113,6 +116,7 @@ func TestScanShouldWriteOutput(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/home" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 
@@ -164,6 +168,7 @@ func TestScanInvalidOutputFileShouldErr(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/home" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 
@@ -249,6 +254,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 
 			if r.URL.Path == "/test/" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 
@@ -259,6 +265,7 @@ func TestScanCommandCanBeInterrupted(t *testing.T) {
 
 	go func() {
 		time.Sleep(time.Millisecond * 200)
+
 		_ = syscall.Kill(syscall.Getpid(), syscall.SIGINT) //nolint:errcheck
 	}()
 
@@ -452,7 +459,7 @@ func TestScanWithCookieJar(t *testing.T) {
 		}),
 	)
 
-	defer testServer.Close() //nolint:errcheck
+	defer testServer.Close()
 
 	err := executeCommand(
 		c,
@@ -471,6 +478,7 @@ func TestScanWithCookieJar(t *testing.T) {
 	serverAssertion.Range(func(index int, r http.Request) {
 		if index == 0 { // first request should have no cookies
 			assert.Equal(t, 0, len(r.Cookies()))
+
 			return
 		}
 

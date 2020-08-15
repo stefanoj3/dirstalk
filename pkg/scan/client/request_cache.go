@@ -9,7 +9,7 @@ import (
 
 var (
 	// ErrRequestRedundant this error is returned when trying to perform the
-	// same request (method, host, path) more than one time
+	// same request (method, host, path) more than one time.
 	ErrRequestRedundant = errors.New("this request has been made already")
 )
 

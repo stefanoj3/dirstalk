@@ -1,8 +1,9 @@
-package urlpath
+package urlpath_test
 
 import (
 	"testing"
 
+	"github.com/stefanoj3/dirstalk/pkg/common/urlpath"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -50,7 +51,7 @@ func TestHasExtension(t *testing.T) {
 		t.Run(tc.path, func(t *testing.T) {
 			t.Parallel()
 
-			assert.Equal(t, tc.expectedResult, HasExtension(tc.path))
+			assert.Equal(t, tc.expectedResult, urlpath.HasExtension(tc.path))
 		})
 	}
 }

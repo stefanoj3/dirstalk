@@ -1,10 +1,9 @@
 package test
 
 import (
-	"sync"
-
 	"net/http"
 	"net/http/httptest"
+	"sync"
 )
 
 func NewServerWithAssertion(handler http.HandlerFunc) (*httptest.Server, *ServerAssertion) {

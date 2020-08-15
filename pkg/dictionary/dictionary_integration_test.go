@@ -140,6 +140,7 @@ func TestNewDictionaryFromRemoteShouldFailWhenRemoteReturnNon200Status(t *testin
 func removeTestDirectory(t *testing.T, path string) {
 	if !strings.Contains(path, "testdata") {
 		t.Fatalf("cannot delete `%s`, it is not in a `testdata` folder", path)
+
 		return
 	}
 

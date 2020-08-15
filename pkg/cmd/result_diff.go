@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/stefanoj3/dirstalk/pkg/common"
-
 	"github.com/pkg/errors"
 	"github.com/sergi/go-diff/diffmatchpatch"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/common"
 	"github.com/stefanoj3/dirstalk/pkg/result"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )

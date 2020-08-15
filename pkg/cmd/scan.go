@@ -169,7 +169,7 @@ func getURL(args []string) (*url.URL, error) {
 	return u, nil
 }
 
-// startScan is a convenience method that wires together all the dependencies needed to start a scan
+// startScan is a convenience method that wires together all the dependencies needed to start a scan.
 func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	dict, err := buildDictionary(cnf, u)
 	if err != nil {
@@ -206,10 +206,12 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 
 	defer func() {
 		resultSummarizer.Summarize()
+
 		err := outputSaver.Close()
 		if err != nil {
 			logger.WithError(err).Error("failed to close output file")
 		}
+
 		logger.Info("Finished scan")
 	}()
 
@@ -228,6 +230,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 
 			if terminationHandler.ShouldTerminate() {
 				logger.Info("Received sigint, terminating...")
+
 				return nil
 			}
 
@@ -237,6 +240,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		case result, ok := <-resultsChannel:
 			if !ok {
 				logger.Debug("result channel is being closed, scan should be complete")
+
 				return nil
 			}
 

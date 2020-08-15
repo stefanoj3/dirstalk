@@ -12,21 +12,21 @@ import (
 	"github.com/stefanoj3/dirstalk/pkg/scan/client"
 )
 
-// Target represents the target to scan
+// Target represents the target to scan.
 type Target struct {
 	Path   string
 	Method string
 	Depth  int
 }
 
-// Result represents the result of the scan of a single URL
+// Result represents the result of the scan of a single URL.
 type Result struct {
 	Target     Target
 	StatusCode int
 	URL        url.URL
 }
 
-// NewResult creates a new instance of the Result entity based on the Target and Response
+// NewResult creates a new instance of the Result entity based on the Target and Response.
 func NewResult(target Target, response *http.Response) Result {
 	return Result{
 		Target:     target,
@@ -82,10 +82,11 @@ func (s *Scanner) Scan(ctx context.Context, baseURL *url.URL, workers int) <-cha
 				case target, ok := <-producerChannel:
 					if !ok {
 						s.logger.Debug("terminating worker: producer channel closed")
+
 						return
 					}
 
-					s.processTarget(u, target, reproducer, resultChannel)
+					s.processTarget(ctx, u, target, reproducer, resultChannel)
 				}
 			}
 		}()
@@ -100,6 +101,7 @@ func (s *Scanner) Scan(ctx context.Context, baseURL *url.URL, workers int) <-cha
 }
 
 func (s *Scanner) processTarget(
+	ctx context.Context,
 	baseURL url.URL,
 	target Target,
 	reproducer func(r Result) <-chan Target,
@@ -115,16 +117,18 @@ func (s *Scanner) processTarget(
 
 	u := buildURL(baseURL, target)
 
-	req, err := http.NewRequest(target.Method, u.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, target.Method, u.String(), nil)
 	if err != nil {
 		l.WithError(err).Error("failed to build request")
+
 		return
 	}
 
-	s.processRequest(l, req, target, results, reproducer, baseURL)
+	s.processRequest(ctx, l, req, target, results, reproducer, baseURL)
 }
 
 func (s *Scanner) processRequest(
+	ctx context.Context,
 	l *logrus.Entry,
 	req *http.Request,
 	target Target,
@@ -135,11 +139,13 @@ func (s *Scanner) processRequest(
 	res, err := s.httpClient.Do(req)
 	if err != nil && strings.Contains(err.Error(), client.ErrRequestRedundant.Error()) {
 		l.WithError(err).Debug("skipping, request was already made")
+
 		return
 	}
 
 	if err != nil {
 		l.WithError(err).Error("failed to perform request")
+
 		return
 	}
 
@@ -157,17 +163,18 @@ func (s *Scanner) processRequest(
 
 	redirectTarget, shouldRedirect := s.shouldRedirect(l, req, res, target.Depth)
 	if shouldRedirect {
-		s.processTarget(baseURL, redirectTarget, reproducer, results)
+		s.processTarget(ctx, baseURL, redirectTarget, reproducer, results)
 	}
 
 	for newTarget := range reproducer(result) {
-		s.processTarget(baseURL, newTarget, reproducer, results)
+		s.processTarget(ctx, baseURL, newTarget, reproducer, results)
 	}
 }
 
 func (s *Scanner) shouldRedirect(l *logrus.Entry, req *http.Request, res *http.Response, targetDepth int) (Target, bool) {
 	if targetDepth == 0 {
 		l.Debug("depth is 0, not following any redirect")
+
 		return Target{}, false
 	}
 
@@ -212,6 +219,7 @@ func (s *Scanner) shouldRedirect(l *logrus.Entry, req *http.Request, res *http.R
 
 	if u.Host != "" && u.Host != req.Host {
 		l.Debug("skipping redirect, pointing to a different host")
+
 		return Target{}, false
 	}
 

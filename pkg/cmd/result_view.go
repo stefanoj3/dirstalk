@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/stefanoj3/dirstalk/pkg/common"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/stefanoj3/dirstalk/pkg/common"
 	"github.com/stefanoj3/dirstalk/pkg/result"
 	"github.com/stefanoj3/dirstalk/pkg/scan/summarizer/tree"
 )

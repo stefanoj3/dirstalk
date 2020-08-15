@@ -173,7 +173,7 @@ func TestShouldForwardProvidedHeader(t *testing.T) {
 	testServer, serverAssertion := test.NewServerWithAssertion(
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}),
 	)
-	defer testServer.Close() //nolint:errcheck
+	defer testServer.Close()
 
 	u, err := url.Parse(testServer.URL)
 	assert.NoError(t, err)

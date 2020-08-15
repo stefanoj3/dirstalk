@@ -94,6 +94,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 			w.Header().Add("location", "/potato")
 			if r.URL.Path == "/home" {
 				w.WriteHeader(http.StatusOK)
+
 				return
 			}
 
@@ -158,11 +159,13 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/home" {
 				http.Redirect(w, r, "/potato", http.StatusMovedPermanently)
+
 				return
 			}
 
 			if r.URL.Path == "/potato" {
 				w.WriteHeader(http.StatusCreated)
+
 				return
 			}
 
@@ -231,6 +234,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/home" {
 				http.Redirect(w, r, "/potato", http.StatusMovedPermanently)
+
 				return
 			}
 
@@ -297,6 +301,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/home" {
 				http.Redirect(w, r, "http://gibberish/potato", http.StatusMovedPermanently)
+
 				return
 			}
 
