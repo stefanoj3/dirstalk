@@ -54,6 +54,7 @@ func findAbsolutePaths(root string) ([]string, error) {
 		if !info.IsDir() {
 			files = append(files, p)
 		}
+
 		return nil
 	})
 
@@ -73,6 +74,7 @@ func findFileNames(root string) ([]string, error) {
 		if _, ok := filesByKey[info.Name()]; !ok {
 			filesByKey[info.Name()] = true
 			files = append(files, info.Name())
+
 			return nil
 		}
 

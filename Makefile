@@ -29,7 +29,7 @@ functional-tests: build build-testserver
 .PHONY: check
 ## Run checks against the codebase
 check:
-	docker run -t --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.20.0 golangci-lint run -v
+	docker run -t --rm -v $(PWD):/app -w /app golangci/golangci-lint:v1.30-alpine golangci-lint run -v
 
 .PHONY: fix
 ## Run goimports against the source code

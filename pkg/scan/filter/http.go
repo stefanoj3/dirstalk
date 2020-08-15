@@ -19,5 +19,6 @@ type HTTPStatusResultFilter struct {
 
 func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
 	_, found := f.httpStatusesToIgnoreMap[result.StatusCode]
+
 	return found
 }

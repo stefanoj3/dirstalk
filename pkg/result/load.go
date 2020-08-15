@@ -15,7 +15,7 @@ func LoadResultsFromFile(resultFilePath string) ([]scan.Result, error) {
 		return nil, errors.Wrapf(err, "failed to open %s", resultFilePath)
 	}
 
-	defer file.Close() //nolint:errcheck
+	defer file.Close() //nolint
 
 	fileInfo, err := file.Stat()
 	if err != nil {

@@ -20,7 +20,7 @@ type ReProducer struct {
 	producer scan.Producer
 }
 
-// Reproduce will check if it is possible to go deeper on the result provided, if so will
+// Reproduce will check if it is possible to go deeper on the result provided, if so will.
 func (r *ReProducer) Reproduce(ctx context.Context) func(r scan.Result) <-chan scan.Target {
 	return r.buildReproducer(ctx)
 }
@@ -47,6 +47,7 @@ func (r *ReProducer) buildReproducer(ctx context.Context) func(result scan.Resul
 			if inRegistry {
 				return
 			}
+
 			resultRegistry.Store(result.Target.Path, nil)
 
 			for target := range r.producer.Produce(ctx) {

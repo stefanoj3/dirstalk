@@ -26,7 +26,7 @@ func newDictionaryFromLocalFile(path string) ([]string, error) {
 		return nil, errors.Wrapf(err, "dictionary: unable to open: %s", path)
 	}
 
-	defer file.Close() //nolint:errcheck
+	defer file.Close() //nolint
 
 	return dictionaryFromReader(file), nil
 }
@@ -52,7 +52,7 @@ func dictionaryFromReader(reader io.Reader) []string {
 }
 
 func newDictionaryFromRemoteFile(path string, doer Doer) ([]string, error) {
-	req, err := http.NewRequest(http.MethodGet, path, nil)
+	req, err := http.NewRequest(http.MethodGet, path, nil) //nolint
 	if err != nil {
 		return nil, errors.Wrapf(err, "dictionary: failed to build request for `%s`", path)
 	}

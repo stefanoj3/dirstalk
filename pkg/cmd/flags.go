@@ -1,11 +1,11 @@
 package cmd
 
 const (
-	// Root flags
+	// Root flags.
 	flagRootVerbose      = "verbose"
 	flagRootVerboseShort = "v"
 
-	// Scan flags
+	// Scan flags.
 	flagScanDictionary                      = "dictionary"
 	flagScanDictionaryShort                 = "d"
 	flagScanDictionaryGetTimeout            = "dictionary-get-timeout"
@@ -24,16 +24,16 @@ const (
 	flagScanResultOutput                    = "out"
 	flagShouldSkipSSLCertificatesValidation = "no-check-certificate"
 
-	// Generate dictionary flags
+	// Generate dictionary flags.
 	flagDictionaryGenerateOutput           = "out"
 	flagDictionaryGenerateOutputShort      = "o"
 	flagDictionaryGenerateAbsolutePathOnly = "absolute-only"
 
-	// Result view flags
+	// Result view flags.
 	flagResultViewResultFile      = "result-file"
 	flagResultViewResultFileShort = "r"
 
-	// Result diff flags
+	// Result diff flags.
 	flagResultDiffFirstFile       = "first"
 	flagResultDiffFirstFileShort  = "f"
 	flagResultDiffSecondFile      = "second"
