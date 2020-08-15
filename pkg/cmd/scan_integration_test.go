@@ -797,7 +797,6 @@ func TestScanShouldFailIfDictionaryFetchExceedTimeout(t *testing.T) {
 	assert.Error(t, err)
 
 	assert.Contains(t, err.Error(), "dictionary: failed to get")
-	assert.Contains(t, err.Error(), "Client.Timeout exceeded while awaiting headers")
 
 	assert.Equal(t, 0, serverAssertion.Len())
 }
