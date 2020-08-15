@@ -397,7 +397,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 
 	loggerBufferAsString := loggerBuffer.String()
 	assert.Contains(t, loggerBufferAsString, "/home")
-	assert.Contains(t, loggerBufferAsString, "/home: this request has been made already")
+	assert.Contains(t, loggerBufferAsString, "this request has been made already")
 	assert.Equal(t, 1, serverAssertion.Len())
 }
 
