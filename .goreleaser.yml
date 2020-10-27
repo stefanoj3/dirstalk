@@ -12,10 +12,13 @@ builds:
       - openbsd
 
     goarch:
-      - 386
       - amd64
       - arm
       - arm64
+    goarm:
+      - 5
+      - 6
+      - 7
 
     ldflags:
       - -X github.com/stefanoj3/dirstalk/pkg/cmd.Version={{.Version}} -X github.com/stefanoj3/dirstalk/pkg/cmd.BuildTime={{.Timestamp}}
