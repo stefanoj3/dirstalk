@@ -47,14 +47,14 @@ func TestHTTPStatusResultFilter(t *testing.T) {
 		t.Run(scenario, func(t *testing.T) {
 			t.Parallel()
 
-			actual := filter.NewHTTPStatusResultFilter(tc.statusCodesToIgnore).ShouldIgnore(tc.result)
+			actual := filter.NewHTTPStatusResultFilter(tc.statusCodesToIgnore, false).ShouldIgnore(tc.result)
 			assert.Equal(t, tc.expectedResult, actual)
 		})
 	}
 }
 
 func TestHTTPStatusResultFilterShouldWorkConcurrently(_ *testing.T) {
-	sut := filter.NewHTTPStatusResultFilter(nil)
+	sut := filter.NewHTTPStatusResultFilter(nil, false)
 
 	wg := sync.WaitGroup{}
 

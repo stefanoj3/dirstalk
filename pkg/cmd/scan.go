@@ -133,6 +133,12 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 		"to skip checking the validity of SSL certificates",
 	)
 
+	cmd.Flags().Bool(
+		flagIgnore20xWithEmptyBody,
+		false,
+		"ignore HTTP 20x responses with empty body",
+	)
+
 	return cmd
 }
 
@@ -257,7 +263,7 @@ func buildScanner(cnf *scan.Config, dict []string, u *url.URL, logger *logrus.Lo
 	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
 	reproducer := producer.NewReProducer(targetProducer)
 
-	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore)
+	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore, cnf.IgnoreEmpty20xResponses)
 
 	scannerClient, err := buildScannerClient(cnf, u)
 	if err != nil {

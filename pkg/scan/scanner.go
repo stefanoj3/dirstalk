@@ -24,6 +24,7 @@ type Result struct {
 	Target     Target
 	StatusCode int
 	URL        url.URL
+	ContentLength int64
 }
 
 // NewResult creates a new instance of the Result entity based on the Target and Response.
@@ -32,6 +33,7 @@ func NewResult(target Target, response *http.Response) Result {
 		Target:     target,
 		StatusCode: response.StatusCode,
 		URL:        *response.Request.URL,
+		ContentLength: response.ContentLength,
 	}
 }
 
