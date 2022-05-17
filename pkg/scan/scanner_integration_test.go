@@ -23,7 +23,7 @@ func TestScanningWithEmptyProducerWillProduceNoResults(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -65,7 +65,7 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -120,7 +120,7 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -191,7 +191,7 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -260,7 +260,7 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -327,7 +327,7 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -387,7 +387,7 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 
@@ -442,7 +442,7 @@ func TestCanCancelScanUsingContext(t *testing.T) {
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}),
+		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false),
 		logger,
 	)
 

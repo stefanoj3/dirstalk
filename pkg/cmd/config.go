@@ -86,6 +86,11 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrapf(err, failedToReadPropertyError, flagShouldSkipSSLCertificatesValidation)
 	}
 
+	c.IgnoreEmpty20xResponses, err = cmd.Flags().GetBool(flagIgnore20xWithEmptyBody)
+	if err != nil {
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagIgnore20xWithEmptyBody)
+	}
+
 	return c, nil
 }
 
