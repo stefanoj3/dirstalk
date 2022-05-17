@@ -36,7 +36,7 @@ func TestWhenRemoteIsTooSlowClientShouldTimeout(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, res)
 
-	assert.Contains(t, err.Error(), "Client.Timeout")
+	assert.Contains(t, err.Error(), "exceeded")
 }
 
 func TestShouldForwardProvidedCookiesWhenUsingJar(t *testing.T) {
@@ -292,7 +292,7 @@ func TestShouldFailToCommunicateWithServerHavingInvalidSSLCertificates(t *testin
 	assert.Error(t, err)
 	assert.Nil(t, res)
 
-	assert.Contains(t, err.Error(), "certificate signed by unknown authority")
+	assert.Contains(t, err.Error(), "certificate")
 
 	// the request should NOT hit the handler
 	assert.Equal(t, 0, serverAssertion.Len())
