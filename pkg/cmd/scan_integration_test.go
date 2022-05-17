@@ -709,7 +709,7 @@ func TestScanShouldFailToCommunicateWithServerHavingInvalidSSLCertificates(t *te
 
 	assert.Equal(t, 0, serverAssertion.Len())
 
-	assert.Contains(t, loggerBuffer.String(), "certificate signed by unknown authority")
+	assert.Contains(t, loggerBuffer.String(), "certificate")
 }
 
 func TestScanShouldBeAbleToSkipSSLCertificatesCheck(t *testing.T) {
