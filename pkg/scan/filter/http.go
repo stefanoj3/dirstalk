@@ -15,11 +15,11 @@ func NewHTTPStatusResultFilter(httpStatusesToIgnore []int, ignoreEmptyBody bool)
 
 type HTTPStatusResultFilter struct {
 	httpStatusesToIgnoreMap map[int]struct{}
-	ignoreEmptyBody bool
+	ignoreEmptyBody         bool
 }
 
 func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
-	if f.ignoreEmptyBody && result.StatusCode / 100 == 2 && result.ContentLength == 0 {
+	if f.ignoreEmptyBody && result.StatusCode/100 == 2 && result.ContentLength == 0 {
 		return true
 	}
 

@@ -24,7 +24,7 @@ const (
 	flagScanResultOutput                    = "out"
 	flagShouldSkipSSLCertificatesValidation = "no-check-certificate"
 
-	flagIgnore20xWithEmptyBody              = "ignore-empty-body"
+	flagIgnore20xWithEmptyBody = "ignore-empty-body"
 
 	// Generate dictionary flags.
 	flagDictionaryGenerateOutput           = "out"
