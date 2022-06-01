@@ -22,4 +22,5 @@ type Config struct {
 	Headers                             map[string]string
 	Out                                 string
 	ShouldSkipSSLCertificatesValidation bool
+	IgnoreEmpty20xResponses             bool
 }
