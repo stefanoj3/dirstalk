@@ -40,7 +40,7 @@ function assert_not_contains {
 
 ## Starting test server running on the 8080 port
 echo "Starting test server"
-./dist/testserver&
+./dist/testserver &
 SERVER_PID=$!
 sleep 1
 echo "Done"
@@ -66,7 +66,7 @@ assert_contains "$VERSION_RESULT" "Built" "the build time is expected to be prin
 SCAN_RESULT=$(./dist/dirstalk scan 2>&1 || true);
 assert_contains "$SCAN_RESULT" "error" "an error is expected when no argument is passed"
 
-SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:8080 2>&1);
+SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:7999 --assume-404-regex "404: page .* was not " 2>&1);
 assert_contains "$SCAN_RESULT" "/index" "result expected when performing scan"
 assert_contains "$SCAN_RESULT" "/index/home" "result expected when performing scan"
 assert_contains "$SCAN_RESULT" "3 results found" "a recap was expected when performing a scan"

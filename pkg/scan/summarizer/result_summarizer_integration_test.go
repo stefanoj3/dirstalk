@@ -20,123 +20,99 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 	sut := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodPost,
-				Path:   "/home",
+		scan.NewResult(scan.Target{
+			Method: http.MethodPost,
+			Path:   "/home",
+		}, &http.Response{
+			StatusCode: http.StatusCreated,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/home"),
 			},
-			&http.Response{
-				StatusCode: http.StatusCreated,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/home"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodPost,
-				Path:   "/home/hidden",
+		scan.NewResult(scan.Target{
+			Method: http.MethodPost,
+			Path:   "/home/hidden",
+		}, &http.Response{
+			StatusCode: http.StatusCreated,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/home/hidden"),
 			},
-			&http.Response{
-				StatusCode: http.StatusCreated,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/home/hidden"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/home/about",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/home/about",
+		}, &http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/home/about"),
 			},
-			&http.Response{
-				StatusCode: http.StatusOK,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/home/about"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/home/about/me",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/home/about/me",
+		}, &http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/home/about/me"),
 			},
-			&http.Response{
-				StatusCode: http.StatusOK,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/home/about/me"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/home/home",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/home/home",
+		}, &http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/home/home"),
 			},
-			&http.Response{
-				StatusCode: http.StatusOK,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/home/home"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/contacts",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/contacts",
+		}, &http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/contacts"),
 			},
-			&http.Response{
-				StatusCode: http.StatusOK,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/contacts"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/gibberish",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/gibberish",
+		}, &http.Response{
+			StatusCode: http.StatusNotFound,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/gibberish"),
 			},
-			&http.Response{
-				StatusCode: http.StatusNotFound,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/gibberish"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	sut.Add(
-		scan.NewResult(
-			scan.Target{
-				Method: http.MethodGet,
-				Path:   "/path/to/my/files",
+		scan.NewResult(scan.Target{
+			Method: http.MethodGet,
+			Path:   "/path/to/my/files",
+		}, &http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 			},
-			&http.Response{
-				StatusCode: http.StatusOK,
-				Request: &http.Request{
-					URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
-				},
-			},
-		),
+		}, nil),
 	)
 
 	// Adding multiple times the same result should not change the outcome
@@ -151,18 +127,15 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 			defer wg.Done()
 
 			sut.Add(
-				scan.NewResult(
-					scan.Target{
-						Method: http.MethodGet,
-						Path:   "/path/to/my/files",
+				scan.NewResult(scan.Target{
+					Method: http.MethodGet,
+					Path:   "/path/to/my/files",
+				}, &http.Response{
+					StatusCode: http.StatusOK,
+					Request: &http.Request{
+						URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 					},
-					&http.Response{
-						StatusCode: http.StatusOK,
-						Request: &http.Request{
-							URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
-						},
-					},
-				),
+				}, nil),
 			)
 		}()
 	}
@@ -203,18 +176,15 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 		expectedToContain []string
 	}{
 		{
-			result: scan.NewResult(
-				scan.Target{
-					Method: http.MethodPost,
-					Path:   "/home",
+			result: scan.NewResult(scan.Target{
+				Method: http.MethodPost,
+				Path:   "/home",
+			}, &http.Response{
+				StatusCode: http.StatusOK,
+				Request: &http.Request{
+					URL: test.MustParseURL(t, "http://mysite/home"),
 				},
-				&http.Response{
-					StatusCode: http.StatusOK,
-					Request: &http.Request{
-						URL: test.MustParseURL(t, "http://mysite/home"),
-					},
-				},
-			),
+			}, nil),
 			expectedToContain: []string{
 				"Found",
 				"method=POST",
@@ -223,18 +193,15 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 			},
 		},
 		{
-			result: scan.NewResult(
-				scan.Target{
-					Method: http.MethodGet,
-					Path:   "/index",
+			result: scan.NewResult(scan.Target{
+				Method: http.MethodGet,
+				Path:   "/index",
+			}, &http.Response{
+				StatusCode: http.StatusBadGateway,
+				Request: &http.Request{
+					URL: test.MustParseURL(t, "http://mysite/index"),
 				},
-				&http.Response{
-					StatusCode: http.StatusBadGateway,
-					Request: &http.Request{
-						URL: test.MustParseURL(t, "http://mysite/index"),
-					},
-				},
-			),
+			}, nil),
 			expectedToContain: []string{
 				"Found something breaking",
 				"method=GET",
@@ -243,18 +210,15 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 			},
 		},
 		{
-			result: scan.NewResult(
-				scan.Target{
-					Method: http.MethodGet,
-					Path:   "/gibberish",
+			result: scan.NewResult(scan.Target{
+				Method: http.MethodGet,
+				Path:   "/gibberish",
+			}, &http.Response{
+				StatusCode: http.StatusNotFound,
+				Request: &http.Request{
+					URL: test.MustParseURL(t, "http://mysite/gibberish"),
 				},
-				&http.Response{
-					StatusCode: http.StatusNotFound,
-					Request: &http.Request{
-						URL: test.MustParseURL(t, "http://mysite/gibberish"),
-					},
-				},
-			),
+			}, nil),
 			expectedToContain: []string{
 				"Found",
 				"method=GET",

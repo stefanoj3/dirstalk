@@ -139,6 +139,12 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 		"ignore HTTP 20x responses with empty body",
 	)
 
+	cmd.Flags().String(
+		flagAssume404regex,
+		"",
+		"Assume 404 response code if body matches the regex. Useful when server replies with 200 on Not found page",
+	)
+
 	return cmd
 }
 
@@ -188,16 +194,17 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 	}
 
 	logger.WithFields(logrus.Fields{
-		"url":               u.String(),
-		"threads":           cnf.Threads,
-		"dictionary-length": len(dict),
-		"scan-depth":        cnf.ScanDepth,
-		"timeout":           cnf.TimeoutInMilliseconds,
-		"socks5":            cnf.Socks5Url,
-		"cookies":           stringifyCookies(cnf.Cookies),
-		"cookie-jar":        cnf.UseCookieJar,
-		"headers":           stringifyHeaders(cnf.Headers),
-		"user-agent":        cnf.UserAgent,
+		"url":                u.String(),
+		"threads":            cnf.Threads,
+		"dictionary-length":  len(dict),
+		"scan-depth":         cnf.ScanDepth,
+		"timeout":            cnf.TimeoutInMilliseconds,
+		"socks5":             cnf.Socks5Url,
+		"cookies":            stringifyCookies(cnf.Cookies),
+		"cookie-jar":         cnf.UseCookieJar,
+		"headers":            stringifyHeaders(cnf.Headers),
+		"user-agent":         cnf.UserAgent,
+		"assume404substring": cnf.Assume404regex,
 	}).Info("Starting scan")
 
 	resultSummarizer := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
@@ -263,7 +270,10 @@ func buildScanner(cnf *scan.Config, dict []string, u *url.URL, logger *logrus.Lo
 	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
 	reproducer := producer.NewReProducer(targetProducer)
 
-	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore, cnf.IgnoreEmpty20xResponses)
+	resultFilter, err := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore, cnf.IgnoreEmpty20xResponses, cnf.Assume404regex)
+	if err != nil {
+		return nil, err
+	}
 
 	scannerClient, err := buildScannerClient(cnf, u)
 	if err != nil {

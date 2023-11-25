@@ -75,6 +75,11 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrapf(err, failedToReadPropertyError, flagScanHeader)
 	}
 
+	c.Assume404regex, err = cmd.Flags().GetString(flagAssume404regex)
+	if err != nil {
+		return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssume404regex)
+	}
+
 	if c.Headers, err = rawHeadersToHeaders(rawHeaders); err != nil {
 		return nil, errors.Wrapf(err, "failed to convert rawHeaders (%v)", rawHeaders)
 	}
