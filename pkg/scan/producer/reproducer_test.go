@@ -24,16 +24,18 @@ func TestNewReProducer(t *testing.T) {
 
 	sut := producer.NewReProducer(dictionaryProducer)
 
-	result := scan.NewResult(scan.Target{
-		Path:   "/home",
-		Method: http.MethodGet,
-		Depth:  1,
-	}, &http.Response{
-		StatusCode: http.StatusOK,
-		Request: &http.Request{
-			URL: test.MustParseURL(t, "http://mysite/contacts"),
+	result := scan.NewResult(
+		scan.Target{
+			Path:   "/home",
+			Method: http.MethodGet,
+			Depth:  1,
 		},
-	}, nil)
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/contacts"),
+			},
+		}, nil)
 
 	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
@@ -94,16 +96,18 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 
 	sut := producer.NewReProducer(dictionaryProducer)
 
-	result := scan.NewResult(scan.Target{
-		Path:   "/home",
-		Method: http.MethodGet,
-		Depth:  0,
-	}, &http.Response{
-		StatusCode: http.StatusOK,
-		Request: &http.Request{
-			URL: test.MustParseURL(t, "http://mysite/contacts"),
+	result := scan.NewResult(
+		scan.Target{
+			Path:   "/home",
+			Method: http.MethodGet,
+			Depth:  0,
 		},
-	}, nil)
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(t, "http://mysite/contacts"),
+			},
+		}, nil)
 
 	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
@@ -124,16 +128,18 @@ func BenchmarkReProducer(b *testing.B) {
 
 	sut := producer.NewReProducer(dictionaryProducer)
 
-	result := scan.NewResult(scan.Target{
-		Path:   "/home",
-		Method: http.MethodGet,
-		Depth:  1,
-	}, &http.Response{
-		StatusCode: http.StatusOK,
-		Request: &http.Request{
-			URL: test.MustParseURL(b, "http://mysite/contacts"),
+	result := scan.NewResult(
+		scan.Target{
+			Path:   "/home",
+			Method: http.MethodGet,
+			Depth:  1,
 		},
-	}, nil)
+		&http.Response{
+			StatusCode: http.StatusOK,
+			Request: &http.Request{
+				URL: test.MustParseURL(b, "http://mysite/contacts"),
+			},
+		}, nil)
 
 	b.ResetTimer()
 
