@@ -83,6 +83,15 @@ assert_contains "$SCAN_RESULT" "├── home" "a recap was expected when perfo
 assert_contains "$SCAN_RESULT" "└── index" "a recap was expected when performing a scan"
 assert_contains "$SCAN_RESULT" "    └── home" "a recap was expected when performing a scan"
 
+SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:7999 2>&1);
+assert_contains "$SCAN_RESULT" "/index" "result expected when performing scan"
+assert_contains "$SCAN_RESULT" "/index/home" "result expected when performing scan"
+assert_contains "$SCAN_RESULT" "5 results found" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── forbiddenHome" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── home" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── index" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "│   └── home" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "└── noHome" "a recap was expected when performing a scan"
 
 assert_not_contains "$SCAN_RESULT" "error" "no error is expected for a successful scan"
 
