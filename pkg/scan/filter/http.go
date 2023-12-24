@@ -5,27 +5,30 @@ import (
 	"regexp"
 )
 
-func NewHTTPStatusResultFilter(httpStatusesToIgnore []int, ignoreEmptyBody bool, assume404Substring string) (*HTTPStatusResultFilter, error) {
+func NewHTTPStatusResultFilter(httpStatusesToIgnore []int, ignoreEmptyBody bool, assumeStatusStrings map[int]string) (*HTTPStatusResultFilter, error) {
 	httpStatusesToIgnoreMap := make(map[int]struct{}, len(httpStatusesToIgnore))
 	for _, statusToIgnore := range httpStatusesToIgnore {
 		httpStatusesToIgnoreMap[statusToIgnore] = struct{}{}
 	}
-	var assume404Regex *regexp.Regexp
-	var err error
-	if assume404Substring != "" {
-		assume404Regex, err = regexp.Compile(assume404Substring)
-		if err != nil {
-			return nil, err
+	var assumeStatusRegexes map[int]regexp.Regexp
+	if assumeStatusStrings != nil {
+		assumeStatusRegexes = make(map[int]regexp.Regexp)
+		for code, regexString := range assumeStatusStrings {
+			newRegex, err := regexp.Compile(regexString)
+			if err != nil {
+				return nil, err
+			}
+			assumeStatusRegexes[code] = *newRegex
 		}
 	}
 
-	return &HTTPStatusResultFilter{httpStatusesToIgnoreMap: httpStatusesToIgnoreMap, ignoreEmptyBody: ignoreEmptyBody, assume404Regex: assume404Regex}, nil
+	return &HTTPStatusResultFilter{httpStatusesToIgnoreMap: httpStatusesToIgnoreMap, ignoreEmptyBody: ignoreEmptyBody, assumeStatusRegex: assumeStatusRegexes}, nil
 }
 
 type HTTPStatusResultFilter struct {
 	httpStatusesToIgnoreMap map[int]struct{}
 	ignoreEmptyBody         bool
-	assume404Regex          *regexp.Regexp
+	assumeStatusRegex       map[int]regexp.Regexp
 }
 
 func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
@@ -33,10 +36,12 @@ func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
 		return true
 	}
 
-	if f.assume404Regex != nil {
-		if f.assume404Regex.Match(result.Body) {
-			_, found := f.httpStatusesToIgnoreMap[404]
-			return found
+	if f.assumeStatusRegex != nil {
+		for code, regex := range f.assumeStatusRegex {
+			if regex.Match(result.Body) {
+				_, found := f.httpStatusesToIgnoreMap[code]
+				return found
+			}
 		}
 	}
 	_, found := f.httpStatusesToIgnoreMap[result.StatusCode]
@@ -45,5 +50,5 @@ func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
 }
 
 func (f HTTPStatusResultFilter) ShouldReadBody() bool {
-	return f.assume404Regex != nil
+	return f.assumeStatusRegex != nil && len(f.assumeStatusRegex) > 0
 }

@@ -23,5 +23,5 @@ type Config struct {
 	Out                                 string
 	ShouldSkipSSLCertificatesValidation bool
 	IgnoreEmpty20xResponses             bool
-	Assume404regex                      string
+	AssumeStatusCodeRegex               map[int]string
 }
