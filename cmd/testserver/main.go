@@ -18,8 +18,17 @@ func main() {
 			log.Printf("Error writing response: %v", err)
 		}
 	}
+	handlerWith403BodyFunc := func(writer http.ResponseWriter, request *http.Request) {
+		// respond with 200 intentionally
+		writer.WriteHeader(http.StatusOK)
+		_, err := writer.Write([]byte("403: forbidden"))
+		if err != nil {
+			log.Printf("Error writing response: %v", err)
+		}
+	}
 
 	http.HandleFunc("/noHome", handlerWith404BodyFunc)
+	http.HandleFunc("/forbiddenHome", handlerWith403BodyFunc)
 	http.HandleFunc("/home", handlerFunc)
 	http.HandleFunc("/index", handlerFunc)
 	http.HandleFunc("/index/home", handlerFunc)

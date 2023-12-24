@@ -66,13 +66,23 @@ assert_contains "$VERSION_RESULT" "Built" "the build time is expected to be prin
 SCAN_RESULT=$(./dist/dirstalk scan 2>&1 || true);
 assert_contains "$SCAN_RESULT" "error" "an error is expected when no argument is passed"
 
-SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:7999 --assume-404-regex "404: page .* was not " 2>&1);
+SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:7999 --assume-status-regex=404="404: page .* was not " --assume-status-regex=403="403: forbidden" 2>&1);
+assert_contains "$SCAN_RESULT" "/index" "result expected when performing scan"
+assert_contains "$SCAN_RESULT" "/index/home" "result expected when performing scan"
+assert_contains "$SCAN_RESULT" "4 results found" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── forbiddenHome" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "├── home" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "└── index" "a recap was expected when performing a scan"
+assert_contains "$SCAN_RESULT" "    └── home" "a recap was expected when performing a scan"
+
+SCAN_RESULT=$(./dist/dirstalk scan -d resources/tests/dictionary.txt http://localhost:7999 --http-statuses-to-ignore=403,404 --assume-status-regex=404="404: page .* was not " --assume-status-regex=403="403: forbidden" 2>&1);
 assert_contains "$SCAN_RESULT" "/index" "result expected when performing scan"
 assert_contains "$SCAN_RESULT" "/index/home" "result expected when performing scan"
 assert_contains "$SCAN_RESULT" "3 results found" "a recap was expected when performing a scan"
 assert_contains "$SCAN_RESULT" "├── home" "a recap was expected when performing a scan"
 assert_contains "$SCAN_RESULT" "└── index" "a recap was expected when performing a scan"
 assert_contains "$SCAN_RESULT" "    └── home" "a recap was expected when performing a scan"
+
 
 assert_not_contains "$SCAN_RESULT" "error" "no error is expected for a successful scan"
 

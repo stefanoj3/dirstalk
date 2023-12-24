@@ -82,24 +82,27 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
 	}
-	for _, statusString := range statusStrings {
-		index := strings.Index(statusString, "=")
-		if index == -1 {
-			return nil, errors.New(
-				fmt.Sprintf("Failed to parse option '%s': '=' was not found in string.\n"+
-					"Usage: --%s=HTTP_CODE=REGEX", statusString, flagAssumeStatusRegex))
+	if len(statusStrings) > 0 {
+		c.AssumeStatusCodeRegex = make(map[int]regexp.Regexp)
+		for _, statusString := range statusStrings {
+			index := strings.Index(statusString, "=")
+			if index == -1 {
+				return nil, errors.New(
+					fmt.Sprintf("Failed to parse option '%s': '=' was not found in string.\n"+
+						"Usage: --%s=HTTP_CODE=REGEX", statusString, flagAssumeStatusRegex))
+			}
+			httpCodeString := statusString[:index]
+			httpCode, err := strconv.Atoi(httpCodeString)
+			if err != nil {
+				return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
+			}
+			regexString := statusString[index+1:]
+			regex, err := regexp.Compile(regexString)
+			if err != nil {
+				return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
+			}
+			c.AssumeStatusCodeRegex[httpCode] = *regex
 		}
-		httpCodeString := statusString[:index]
-		httpCode, err := strconv.Atoi(httpCodeString)
-		if err != nil {
-			return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
-		}
-		regexString := statusString[index+1:]
-		regex, err := regexp.Compile(regexString)
-		if err != nil {
-			return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
-		}
-		c.AssumeStatusCodeRegex[httpCode] = *regex
 	}
 
 	if c.Headers, err = rawHeadersToHeaders(rawHeaders); err != nil {
