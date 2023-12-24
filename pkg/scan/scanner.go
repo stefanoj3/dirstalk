@@ -2,6 +2,8 @@ package scan
 
 import (
 	"context"
+	"github.com/pkg/errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -25,15 +27,17 @@ type Result struct {
 	StatusCode    int
 	URL           url.URL
 	ContentLength int64
+	Body          []byte
 }
 
 // NewResult creates a new instance of the Result entity based on the Target and Response.
-func NewResult(target Target, response *http.Response) Result {
+func NewResult(target Target, response *http.Response, body []byte) Result {
 	return Result{
 		Target:        target,
 		StatusCode:    response.StatusCode,
 		URL:           *response.Request.URL,
 		ContentLength: response.ContentLength,
+		Body:          body,
 	}
 }
 
@@ -151,11 +155,25 @@ func (s *Scanner) processRequest(
 		return
 	}
 
-	if err := res.Body.Close(); err != nil {
+	body := res.Body
+	bodyBytes := make([]byte, 0, 0)
+	if s.resultFilter.ShouldReadBody() && res.ContentLength > 0 {
+		bodyBytes, err = io.ReadAll(body)
+		if err != nil && err != io.EOF {
+			l.WithError(err).Warn("failed to read response body")
+			return
+		}
+
+		if int64(len(bodyBytes)) != res.ContentLength {
+			l.WithError(errors.New("actual body length does not match Content-Length header")).Warn("possible body read mismatch")
+		}
+	}
+
+	if err := body.Close(); err != nil {
 		l.WithError(err).Warn("failed to close response body")
 	}
 
-	result := NewResult(target, res)
+	result := NewResult(target, res, bodyBytes)
 
 	if s.resultFilter.ShouldIgnore(result) {
 		return

@@ -23,6 +23,7 @@ const (
 	flagScanHeader                          = "header"
 	flagScanResultOutput                    = "out"
 	flagShouldSkipSSLCertificatesValidation = "no-check-certificate"
+	flagAssumeStatusRegex                   = "assume-status-regex"
 
 	flagIgnore20xWithEmptyBody = "ignore-empty-body"
 

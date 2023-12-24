@@ -30,8 +30,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -45,8 +44,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home/hidden"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -60,8 +58,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home/about"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -75,8 +72,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home/about/me"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -90,8 +86,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home/home"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -105,8 +100,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/contacts"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -120,8 +114,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/gibberish"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	sut.Add(
@@ -135,8 +128,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 				},
-			},
-		),
+			}, nil),
 	)
 
 	// Adding multiple times the same result should not change the outcome
@@ -161,8 +153,7 @@ func TestResultSummarizerShouldSummarizeResults(t *testing.T) {
 						Request: &http.Request{
 							URL: test.MustParseURL(t, "http://mysite/path/to/my/files"),
 						},
-					},
-				),
+					}, nil),
 			)
 		}()
 	}
@@ -213,8 +204,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 					Request: &http.Request{
 						URL: test.MustParseURL(t, "http://mysite/home"),
 					},
-				},
-			),
+				}, nil),
 			expectedToContain: []string{
 				"Found",
 				"method=POST",
@@ -233,8 +223,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 					Request: &http.Request{
 						URL: test.MustParseURL(t, "http://mysite/index"),
 					},
-				},
-			),
+				}, nil),
 			expectedToContain: []string{
 				"Found something breaking",
 				"method=GET",
@@ -253,8 +242,7 @@ func TestResultSummarizerShouldLogResults(t *testing.T) {
 					Request: &http.Request{
 						URL: test.MustParseURL(t, "http://mysite/gibberish"),
 					},
-				},
-			),
+				}, nil),
 			expectedToContain: []string{
 				"Found",
 				"method=GET",

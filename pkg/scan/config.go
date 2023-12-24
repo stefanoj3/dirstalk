@@ -3,6 +3,7 @@ package scan
 import (
 	"net/http"
 	"net/url"
+	"regexp"
 )
 
 // Config represents the configuration needed to perform a scan.
@@ -23,4 +24,5 @@ type Config struct {
 	Out                                 string
 	ShouldSkipSSLCertificatesValidation bool
 	IgnoreEmpty20xResponses             bool
+	AssumeStatusCodeRegex               map[int]regexp.Regexp
 }

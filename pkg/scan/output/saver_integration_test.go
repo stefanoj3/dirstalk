@@ -55,7 +55,7 @@ func TestFileSaverShouldWriteResults(t *testing.T) {
 
 	assert.NoError(t, file.Close())
 
-	expected := `{"Target":{"Path":"","Method":"","Depth":0},"StatusCode":0,"URL":{"Scheme":"","Opaque":"","User":null,"Host":"","Path":"","RawPath":"","ForceQuery":false,"RawQuery":"","Fragment":"","RawFragment":""},"ContentLength":0}
+	expected := `{"Target":{"Path":"","Method":"","Depth":0},"StatusCode":0,"URL":{"Scheme":"","Opaque":"","User":null,"Host":"","Path":"","RawPath":"","OmitHost":false,"ForceQuery":false,"RawQuery":"","Fragment":"","RawFragment":""},"ContentLength":0,"Body":null}
 `
 	assert.Equal(
 		t,

@@ -24,8 +24,7 @@ func TestNewResultTreePrinter(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -36,8 +35,7 @@ func TestNewResultTreePrinter(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -48,8 +46,7 @@ func TestNewResultTreePrinter(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/home/123"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -60,8 +57,7 @@ func TestNewResultTreePrinter(t *testing.T) {
 				Request: &http.Request{
 					URL: test.MustParseURL(t, "http://mysite/about"),
 				},
-			},
-		),
+			}, nil),
 	}
 
 	actual := tree.NewResultTreeProducer().String(results)
@@ -87,8 +83,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -99,8 +94,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "http://mysite/home"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -111,8 +105,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "http://mysite/home/123"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -123,8 +116,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "http://mysite/about"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -135,8 +127,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "http://mysite/about"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -147,8 +138,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "http://mysite/about"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -159,8 +149,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -171,8 +160,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/12"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -183,8 +171,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/123"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -195,8 +182,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/3"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -207,8 +193,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -219,8 +204,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/b"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -231,8 +215,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/b/c/d/e"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -243,8 +226,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/b/c/f/e"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -255,8 +237,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -267,8 +248,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/i/l/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -279,8 +259,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/1/l/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -291,8 +270,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/2/l/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -303,8 +281,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/3/l/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -315,8 +292,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/l/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -327,8 +303,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/1/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -339,8 +314,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/2/m/n/o/p/q"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -351,8 +325,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/2/m/n/o/p/u"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -363,8 +336,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/2/m/n/o/p/z"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -375,8 +347,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/about/1/2/a/c/f/e/g/h/4/2/m/n/o/p/z/1"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -387,8 +358,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/somepage"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -399,8 +369,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/anotherpage"),
 				},
-			},
-		),
+			}, nil),
 		scan.NewResult(
 			scan.Target{
 				Method: http.MethodPost,
@@ -411,8 +380,7 @@ func BenchmarkResultTree(b *testing.B) {
 				Request: &http.Request{
 					URL: test.MustParseURL(b, "/anotherpage2"),
 				},
-			},
-		),
+			}, nil),
 	}
 
 	b.ResetTimer()

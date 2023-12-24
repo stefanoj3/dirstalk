@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"regexp"
 
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
@@ -139,6 +140,14 @@ func NewScanCommand(logger *logrus.Logger) *cobra.Command {
 		"ignore HTTP 20x responses with empty body",
 	)
 
+	cmd.Flags().StringArray(
+		flagAssumeStatusRegex,
+		[]string{},
+		fmt.Sprintf("Assume 404 response code if body matches the regex. "+
+			"Useful when server replies with 200 on Not found page.\n"+
+			"Usage: --%s=HTTP_CODE=REGEX", flagAssumeStatusRegex),
+	)
+
 	return cmd
 }
 
@@ -198,6 +207,7 @@ func startScan(logger *logrus.Logger, cnf *scan.Config, u *url.URL) error {
 		"cookie-jar":        cnf.UseCookieJar,
 		"headers":           stringifyHeaders(cnf.Headers),
 		"user-agent":        cnf.UserAgent,
+		"assumeStatusCodes": stringifyAssumptions(cnf.AssumeStatusCodeRegex),
 	}).Info("Starting scan")
 
 	resultSummarizer := summarizer.NewResultSummarizer(tree.NewResultTreeProducer(), logger)
@@ -263,7 +273,10 @@ func buildScanner(cnf *scan.Config, dict []string, u *url.URL, logger *logrus.Lo
 	targetProducer := producer.NewDictionaryProducer(cnf.HTTPMethods, dict, cnf.ScanDepth)
 	reproducer := producer.NewReProducer(targetProducer)
 
-	resultFilter := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore, cnf.IgnoreEmpty20xResponses)
+	resultFilter, err := filter.NewHTTPStatusResultFilter(cnf.HTTPStatusesToIgnore, cnf.IgnoreEmpty20xResponses, cnf.AssumeStatusCodeRegex)
+	if err != nil {
+		return nil, err
+	}
 
 	scannerClient, err := buildScannerClient(cnf, u)
 	if err != nil {
@@ -356,6 +369,16 @@ func stringifyHeaders(headers map[string]string) string {
 
 	for name, value := range headers {
 		result += fmt.Sprintf("{%s:%s}", name, value)
+	}
+
+	return result
+}
+
+func stringifyAssumptions(assumption map[int]regexp.Regexp) string {
+	result := ""
+
+	for code, value := range assumption {
+		result += fmt.Sprintf("{%d:%s}", code, value.String())
 	}
 
 	return result

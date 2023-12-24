@@ -35,8 +35,7 @@ func TestNewReProducer(t *testing.T) {
 			Request: &http.Request{
 				URL: test.MustParseURL(t, "http://mysite/contacts"),
 			},
-		},
-	)
+		}, nil)
 
 	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
@@ -108,8 +107,7 @@ func TestReProducerShouldProduceNothingForDepthZero(t *testing.T) {
 			Request: &http.Request{
 				URL: test.MustParseURL(t, "http://mysite/contacts"),
 			},
-		},
-	)
+		}, nil)
 
 	reproducerFunc := sut.Reproduce(context.Background())
 	reproducerChannel := reproducerFunc(result)
@@ -141,8 +139,7 @@ func BenchmarkReProducer(b *testing.B) {
 			Request: &http.Request{
 				URL: test.MustParseURL(b, "http://mysite/contacts"),
 			},
-		},
-	)
+		}, nil)
 
 	b.ResetTimer()
 

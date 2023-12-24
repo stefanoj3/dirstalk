@@ -1,2 +1,4 @@
 home
 index
+noHome
+forbiddenHome
