@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -82,7 +83,6 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
 	}
 	for _, statusString := range statusStrings {
-		c.AssumeStatusCodeRegex = make(map[int]string)
 		index := strings.Index(statusString, "=")
 		if index == -1 {
 			return nil, errors.New(
@@ -94,8 +94,12 @@ func scanConfigFromCmd(cmd *cobra.Command) (*scan.Config, error) {
 		if err != nil {
 			return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
 		}
-		regex := statusString[index+1:]
-		c.AssumeStatusCodeRegex[httpCode] = regex
+		regexString := statusString[index+1:]
+		regex, err := regexp.Compile(regexString)
+		if err != nil {
+			return nil, errors.Wrapf(err, failedToReadPropertyError, flagAssumeStatusRegex)
+		}
+		c.AssumeStatusCodeRegex[httpCode] = *regex
 	}
 
 	if c.Headers, err = rawHeadersToHeaders(rawHeaders); err != nil {

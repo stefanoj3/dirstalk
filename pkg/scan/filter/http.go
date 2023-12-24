@@ -5,24 +5,13 @@ import (
 	"regexp"
 )
 
-func NewHTTPStatusResultFilter(httpStatusesToIgnore []int, ignoreEmptyBody bool, assumeStatusStrings map[int]string) (*HTTPStatusResultFilter, error) {
+func NewHTTPStatusResultFilter(httpStatusesToIgnore []int, ignoreEmptyBody bool, assumeStatusRegex map[int]regexp.Regexp) (*HTTPStatusResultFilter, error) {
 	httpStatusesToIgnoreMap := make(map[int]struct{}, len(httpStatusesToIgnore))
 	for _, statusToIgnore := range httpStatusesToIgnore {
 		httpStatusesToIgnoreMap[statusToIgnore] = struct{}{}
 	}
-	var assumeStatusRegexes map[int]regexp.Regexp
-	if assumeStatusStrings != nil {
-		assumeStatusRegexes = make(map[int]regexp.Regexp)
-		for code, regexString := range assumeStatusStrings {
-			newRegex, err := regexp.Compile(regexString)
-			if err != nil {
-				return nil, err
-			}
-			assumeStatusRegexes[code] = *newRegex
-		}
-	}
 
-	return &HTTPStatusResultFilter{httpStatusesToIgnoreMap: httpStatusesToIgnoreMap, ignoreEmptyBody: ignoreEmptyBody, assumeStatusRegex: assumeStatusRegexes}, nil
+	return &HTTPStatusResultFilter{httpStatusesToIgnoreMap: httpStatusesToIgnoreMap, ignoreEmptyBody: ignoreEmptyBody, assumeStatusRegex: assumeStatusRegex}, nil
 }
 
 type HTTPStatusResultFilter struct {
@@ -50,5 +39,5 @@ func (f HTTPStatusResultFilter) ShouldIgnore(result scan.Result) bool {
 }
 
 func (f HTTPStatusResultFilter) ShouldReadBody() bool {
-	return f.assumeStatusRegex != nil && len(f.assumeStatusRegex) > 0
+	return len(f.assumeStatusRegex) > 0
 }

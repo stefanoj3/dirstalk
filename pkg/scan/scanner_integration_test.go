@@ -19,11 +19,15 @@ func TestScanningWithEmptyProducerWillProduceNoResults(t *testing.T) {
 
 	prod := producer.NewDictionaryProducer([]string{}, []string{}, 1)
 	c := &http.Client{Timeout: time.Microsecond}
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -61,11 +65,15 @@ func TestScannerWillLogAnErrorWithInvalidDictionary(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -116,11 +124,15 @@ func TestScannerWillNotRedirectIfStatusCodeIsInvalid(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -188,11 +200,15 @@ func TestScannerWillChangeMethodForRedirect(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -259,11 +275,15 @@ func TestScannerWhenOutOfDepthWillNotFollowRedirect(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -327,11 +347,15 @@ func TestScannerWillSkipRedirectWhenLocationHostIsDifferent(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -388,11 +412,15 @@ func TestScannerWillIgnoreRequestRedundantError(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
@@ -443,11 +471,15 @@ func TestCanCancelScanUsingContext(t *testing.T) {
 	)
 	assert.NoError(t, err)
 
+	resultFilter, err := filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, nil)
+	if err != nil {
+		panic(err)
+	}
 	sut := scan.NewScanner(
 		c,
 		prod,
 		producer.NewReProducer(prod),
-		filter.NewHTTPStatusResultFilter([]int{http.StatusNotFound}, false, ""),
+		resultFilter,
 		logger,
 	)
 
